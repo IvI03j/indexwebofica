@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: mi-tindex
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app
+    envVars:
+      - key: API_ID
+        value: "1324902"
+      - key: API_HASH
+        value: "c3c9cc28b06aa4a3032423042"
+      - key: SESSION_STRING
+        value: "1BJWap1wBu5XBqYYx7FM7T2md-pVDUQmR3V8C-FQ9ICXBTl9NN3wRuv7nYGrap0WFZZNf5_PAzL13QyNxOWVYQ8Edx0lJTWUlBUbRl_mDRMho0nxozaKR6i8BR877LbO-jaRZb3LyfyhK0-4kZjy5aDzwsZYuufsKiV9sDYtkNZ1e78NE4VeZ_e2VhkebVv4t4CizQwBcd-gE-Fth0g4uacSTrnjW3I1KlGnKSc4AXOVSQI0Dn6oAXsDPWEHTab_1Y5VVc4XkQx3adhvCulHbCouXBDiRTDJtdVVzEaRpvKxbszp2VaOtWbgQfQEswXMeVqLo6TBqf_U2MZfMSuOzvbqgy61FUgY="
+      - key: INDEXING_CHAT
+        value: "-1001282848973"
+      - key: PORT
+        value: "10000"
+```
+
+---
+
+## Paso 3 — Sube el proyecto a GitHub
+
+Render necesita que el código esté en GitHub. En la Shell de Replit ejecuta:
+```
+git add -A && git commit -m "prepare for render" && git push

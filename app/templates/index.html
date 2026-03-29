@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<style>
+  :root {
+    --red: #e50914;
+    --dark: #0d0d0d;
+    --card-bg: #181818;
+    --surface: #1f1f1f;
+    --text: #e5e5e5;
+    --muted: #777;
+    --radius: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+  a { text-decoration:none; color:inherit; }
+
+  /* ── HEADER ── */
+  .header {
+    position:sticky; top:0; z-index:200;
+    background:rgba(13,13,13,0.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid #1f1f1f;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding:14px 32px;
+  }
+  .logo {
+    display:flex; align-items:center; gap:10px;
+    font-size:1.5rem; font-weight:900; color:var(--red); letter-spacing:-1px;
+    white-space:nowrap;
+  }
+  .logo img { width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .logo span { line-height:1; }
+  .header-name { color:#999; font-size:0.9rem; font-weight:400; padding-left:4px; border-left:1px solid #333; }
+  .spacer { flex:1; }
+  .search-wrap { position:relative; }
+  .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#777; }
+  .search-input {
+    background:#1a1a1a; border:1px solid #2e2e2e; border-radius:30px;
+    padding:9px 14px 9px 36px; color:#fff; font-size:0.875rem; width:220px; outline:none;
+    transition:border-color .2s, width .3s;
+  }
+  .search-input:focus { border-color:var(--red); width:260px; }
+  .search-input::placeholder { color:#555; }
+
+  /* ── FILTER BAR ── */
+  .filter-row {
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    padding:14px 32px 6px;
+    position:relative; z-index:100;
+  }
+  .chip {
+    background:#1f1f1f; border:1px solid #2e2e2e; color:#aaa;
+    padding:6px 16px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    transition:all .2s; white-space:nowrap; user-select:none;
+    font-family:inherit; outline:none;
+  }
+  .chip:hover { border-color:#555; color:#fff; }
+  .chip.active { background:var(--red); border-color:var(--red); color:#fff; font-weight:600; }
+  .sort-wrap { margin-left:auto; }
+  .sort-select {
+    background:#1f1f1f; border:1px solid #2e2e2e; color:#aaa;
+    padding:6px 12px; border-radius:20px; font-size:0.8rem; cursor:pointer; outline:none;
+    transition:border-color .2s;
+  }
+  .sort-select:focus, .sort-select:hover { border-color:#555; color:#fff; }
+
+  /* ── HERO (first item with backdrop) ── */
+  .hero {
+    position:relative; width:100%; height:420px; overflow:hidden;
+    margin-bottom:0;
+  }
+  .hero-bg {
+    position:absolute; inset:0;
+    background-size:cover; background-position:center top;
+    filter:brightness(0.45);
+    transition:opacity .5s;
+  }
+  .hero-vignette {
+    position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(13,13,13,.9) 0%, rgba(13,13,13,.4) 50%, transparent 100%),
+               linear-gradient(0deg, rgba(13,13,13,1) 0%, transparent 40%);
+  }
+  .hero-content {
+    position:absolute; bottom:48px; left:48px; max-width:520px;
+  }
+  .hero-badge {
+    display:inline-block; background:var(--red); color:#fff;
+    font-size:0.7rem; font-weight:800; padding:3px 10px; border-radius:4px;
+    letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;
+  }
+  .hero-title {
+    font-size:2.6rem; font-weight:900; line-height:1.05;
+    text-shadow:0 2px 20px rgba(0,0,0,.8); margin-bottom:10px;
+  }
+  .hero-meta { font-size:0.9rem; color:#bbb; margin-bottom:10px; display:flex; gap:12px; align-items:center; }
+  .hero-meta .rating { color:#f5c518; font-weight:700; }
+  .hero-overview {
+    font-size:0.92rem; color:#ccc; line-height:1.6;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    margin-bottom:18px; text-shadow:0 1px 4px rgba(0,0,0,.6);
+  }
+  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+  .hero-genre-tag {
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+    color:#ddd; font-size:0.75rem; padding:3px 10px; border-radius:4px;
+  }
+  .hero-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--red); color:#fff; padding:12px 28px;
+    border-radius:6px; font-size:0.95rem; font-weight:700;
+    transition:background .2s, transform .1s;
+  }
+  .hero-btn:hover { background:#b2070f; transform:scale(1.02); }
+
+  /* ── SECTION ── */
+  .section { padding:28px 32px 8px; }
+  .section-header {
+    display:flex; align-items:center; gap:12px; margin-bottom:18px;
+  }
+  .section-title {
+    font-size:1.25rem; font-weight:800; color:#fff;
+  }
+  .section-count {
+    background:#1f1f1f; border:1px solid #2e2e2e;
+    color:#777; font-size:0.75rem; padding:2px 8px; border-radius:10px;
+  }
+  .section-line { flex:1; height:1px; background:#1f1f1f; }
+
+  /* ── GRID ── */
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(168px, 1fr));
+    gap:18px;
+    align-items:start;
+  }
+
+  /* ── CARD ── */
+  .card {
+    position:relative; border-radius:var(--radius); overflow:hidden;
+    background:var(--card-bg); cursor:pointer;
+    transition:transform .28s cubic-bezier(.4,0,.2,1), box-shadow .28s;
+    aspect-ratio:2/3;
+    display:block;
+    contain:layout style;
+    isolation:isolate;
+  }
+  .card:hover {
+    transform:scale(1.07) translateY(-4px);
+    box-shadow:0 20px 60px rgba(0,0,0,.8);
+    z-index:20;
+  }
+  .card-poster {
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:filter .28s;
+  }
+  .card:hover .card-poster { filter:brightness(0.6); }
+
+  /* no poster */
+  .card-no-poster {
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:20px; text-align:center;
+    background:linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  .card-no-poster .np-icon { font-size:3rem; margin-bottom:12px; }
+  .card-no-poster .np-title { font-size:0.82rem; font-weight:700; color:#ddd; line-height:1.3; }
+
+  /* top badges */
+  .card-type {
+    position:absolute; top:9px; left:9px;
+    background:var(--red); color:#fff;
+    font-size:0.6rem; font-weight:900; padding:2px 8px; border-radius:4px;
+    letter-spacing:.8px; text-transform:uppercase;
+  }
+  .card-star {
+    position:absolute; top:9px; right:9px;
+    background:rgba(0,0,0,0.65); color:#f5c518;
+    font-size:0.68rem; font-weight:800; padding:3px 7px; border-radius:4px;
+    display:flex; align-items:center; gap:3px;
+  }
+
+  /* hover overlay */
+  .card-info {
+    position:absolute; inset:0;
+    background:linear-gradient(0deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.7) 50%, transparent 100%);
+    padding:16px 12px 12px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    opacity:0; transition:opacity .25s;
+  }
+  .card:hover .card-info { opacity:1; }
+  .ci-title { font-size:0.85rem; font-weight:800; color:#fff; margin-bottom:5px; line-height:1.2; }
+  .ci-sub { font-size:0.7rem; color:#aaa; margin-bottom:7px; }
+  .ci-overview {
+    font-size:0.67rem; color:#bbb; line-height:1.45;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    margin-bottom:8px;
+  }
+  .ci-genres { display:flex; gap:4px; flex-wrap:wrap; }
+  .ci-genre {
+    background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4);
+    color:#ff7b7b; font-size:0.58rem; padding:1px 6px; border-radius:3px; font-weight:600;
+  }
+  .ci-actions { display:flex; gap:6px; margin-top:9px; }
+  .ci-play {
+    flex:1; background:var(--red); color:#fff; border:none;
+    padding:7px 0; border-radius:5px; font-size:0.75rem; font-weight:700;
+    cursor:pointer; text-align:center; transition:background .2s;
+  }
+  .ci-play:hover { background:#b2070f; }
+  .ci-dl {
+    background:#1f1f1f; border:1px solid #333; color:#ccc;
+    padding:7px 9px; border-radius:5px; font-size:0.8rem; cursor:pointer;
+    transition:background .2s;
+  }
+  .ci-dl:hover { background:#333; color:#fff; }
+
+  /* episode list */
+  .ci-ep-list { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+  .ci-ep {
+    display:flex; justify-content:space-between; align-items:center;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1);
+    color:#ddd; font-size:0.68rem; padding:4px 8px; border-radius:4px;
+    transition:background .15s; text-decoration:none;
+  }
+  .ci-ep:hover { background:var(--red); color:#fff; border-color:var(--red); }
+  .ci-ep-size { color:#888; font-size:0.6rem; margin-left:6px; white-space:nowrap; }
+  .ci-ep:hover .ci-ep-size { color:#ffaaaa; }
+  .ci-ep-more { font-size:0.65rem; color:#666; text-align:center; padding-top:2px; }
+
+  /* episode count badge on card */
+  .card-ep-count {
+    position:absolute; bottom:9px; right:9px;
+    background:rgba(0,0,0,0.75); color:#fff;
+    font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:4px;
+  }
+
+  /* ── EMPTY ── */
+  .empty { text-align:center; padding:80px 20px; color:#444; }
+  .empty .e-icon { font-size:4rem; margin-bottom:16px; }
+  .empty p { font-size:1rem; }
+
+  /* ── PAGINATION ── */
+  .pagination {
+    display:flex; justify-content:center; align-items:center;
+    gap:10px; padding:32px 0 24px; flex-wrap:wrap;
+  }
+  .pg-btn {
+    background:#1f1f1f; border:1px solid #2e2e2e; color:#aaa;
+    padding:9px 22px; border-radius:8px; font-size:0.85rem; transition:all .2s;
+  }
+  .pg-btn:hover { background:var(--red); border-color:var(--red); color:#fff; }
+  .pg-cur {
+    background:var(--red); border:1px solid var(--red); color:#fff;
+    padding:9px 22px; border-radius:8px; font-size:0.85rem; font-weight:700;
+  }
+
+  /* ── FOOTER ── */
+  footer { text-align:center; padding:20px; color:#333; font-size:0.78rem; border-top:1px solid #1a1a1a; }
+  footer a { color:#444; } footer a:hover { color:var(--red); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:680px){
+    .header { padding:10px 16px; }
+    .filter-row { padding:10px 16px 4px; }
+    .section { padding:20px 16px 4px; }
+    .grid { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; }
+    .hero { height:280px; }
+    .hero-content { left:20px; bottom:24px; }
+    .hero-title { font-size:1.6rem; }
+    .hero-overview { -webkit-line-clamp:2; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───── HEADER ───── -->
+<header class="header">
+  <a class="logo" href="/">
+    <img src="{{ logo }}" onerror="this.style.display='none'">
+    <span>TgIndex</span>
+  </a>
+  <span class="header-name">{{ name }}</span>
+  <div class="spacer"></div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <form method="GET">
+      <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
+    </form>
+  </div>
+</header>
+
+<!-- ───── FILTERS ───── -->
+<div class="filter-row" id="filterRow">
+  <button type="button" class="chip active" data-filter="all">🎞 Todo</button>
+  <button type="button" class="chip" data-filter="movie">🎬 Películas</button>
+  <button type="button" class="chip" data-filter="series">📺 Series</button>
+  {% for genre in all_genres %}
+  <button type="button" class="chip" data-filter="genre-{{ genre }}">{{ genre }}</button>
+  {% endfor %}
+  <div class="sort-wrap">
+    <select class="sort-select" id="sortSel">
+      <option value="date">📅 Reciente</option>
+      <option value="title">🔤 Título A-Z</option>
+      <option value="rating">⭐ Valoración</option>
+    </select>
+  </div>
+</div>
+
+{% set media_items = item_list | selectattr('media') | list %}
+
+{% if media_items %}
+
+  <!-- ───── HERO (primer item con backdrop) ───── -->
+  {% set hero = namespace(item=None) %}
+  {% for item in media_items %}
+    {% if hero.item is none and item.get('tmdb') and item.tmdb.backdrop %}
+      {% set hero.item = item %}
+    {% endif %}
+  {% endfor %}
+
+  {% if hero.item %}
+  {% set hi = hero.item %}
+  {% set ht = hi.tmdb %}
+  <div class="hero" id="heroSection">
+    <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-content">
+      <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
+      <h1 class="hero-title">{{ ht.title }}</h1>
+      <div class="hero-meta">
+        {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
+        {% if ht.rating > 0 %}<span class="rating">⭐ {{ ht.rating }}</span>{% endif %}
+        {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
+      </div>
+      {% if ht.overview %}
+      <p class="hero-overview">{{ ht.overview }}</p>
+      {% endif %}
+      {% if ht.genres %}
+      <div class="hero-genres">
+        {% for g in ht.genres %}<span class="hero-genre-tag">{{ g }}</span>{% endfor %}
+      </div>
+      {% endif %}
+      <a class="hero-btn" href="{{ hi.url }}">▶ Ver ahora</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ───── GRID (all hidden, JS will arrange) ───── -->
+  <section class="section" id="mainSection">
+    <div class="section-header">
+      <h2 class="section-title" id="sectionLabel">Todo el contenido</h2>
+      <span class="section-count" id="sectionCount">{{ media_items | length }}</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="grid" id="mediaGrid">
+      {% for item in media_items %}
+      {% set tmdb = item.tmdb if item.get('tmdb') else None %}
+      {% set parsed = item.parsed if item.get('parsed') else None %}
+
+      <a href="{{ item.url }}"
+         class="card"
+         data-type="{{ 'series' if (tmdb and tmdb.is_series) else 'movie' }}"
+         data-genres="{{ (tmdb.genres | join('|||')) if tmdb else '' }}"
+         data-title="{{ (tmdb.title if tmdb else item.insight) | lower }}"
+         data-rating="{{ tmdb.rating if tmdb else 0 }}"
+         data-date="{{ item.date }}"
+         data-dl="{{ item.download }}">
+
+        {% if tmdb and tmdb.poster %}
+          <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
+        {% else %}
+          <div class="card-no-poster">
+            <div class="np-icon">{{ '📺' if (parsed and parsed.is_series) else '🎬' }}</div>
+            <div class="np-title">{{ item.insight }}</div>
+          </div>
+        {% endif %}
+
+        <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else ('Serie' if (parsed and parsed.is_series) else 'Película') }}</span>
+        {% if tmdb and tmdb.rating > 0 %}
+          <span class="card-star">★ {{ tmdb.rating }}</span>
+        {% endif %}
+        {% if item.episodes and item.episodes|length > 1 %}
+          <span class="card-ep-count">{{ item.episodes|length }} ep.</span>
+        {% endif %}
+
+        <div class="card-info">
+          <div class="ci-title">{{ tmdb.title if tmdb else item.insight }}</div>
+          <div class="ci-sub">
+            {{ tmdb.year if tmdb else '' }}
+            {% if item.episodes and item.episodes|length > 1 %}
+              · <strong>{{ item.episodes|length }} episodios</strong>
+            {% elif parsed and parsed.season %}
+              · T{{ '%02d'|format(parsed.season) }}{% if parsed.episode %}E{{ '%02d'|format(parsed.episode) }}{% endif %}
+            {% endif %}
+          </div>
+          {% if tmdb and tmdb.overview %}
+            <div class="ci-overview">{{ tmdb.overview }}</div>
+          {% endif %}
+          {% if tmdb and tmdb.genres %}
+            <div class="ci-genres">
+              {% for g in tmdb.genres[:3] %}<span class="ci-genre">{{ g }}</span>{% endfor %}
+            </div>
+          {% endif %}
+          {% if item.episodes and item.episodes|length > 1 %}
+            <div class="ci-ep-list">
+              {% for ep in item.episodes[:5] %}
+              <a class="ci-ep" href="{{ ep.url }}" onclick="event.stopPropagation()">
+                {% if ep.season %}T{{ '%02d'|format(ep.season) }}{% if ep.episode %}E{{ '%02d'|format(ep.episode) }}{% endif %}{% else %}{{ ep.insight[:28] }}{% endif %}
+                <span class="ci-ep-size">{{ ep.human_size }}</span>
+              </a>
+              {% endfor %}
+              {% if item.episodes|length > 5 %}
+                <span class="ci-ep-more">+{{ item.episodes|length - 5 }} más</span>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="ci-actions">
+              <span class="ci-play">▶ Ver</span>
+              <a class="ci-dl" href="{{ item.download }}" onclick="event.stopPropagation()" title="Descargar">⬇</a>
+            </div>
+          {% endif %}
+        </div>
+
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- pagination -->
+  <div class="pagination">
+    {% if prev_page %}
+      <a class="pg-btn" href="{{ prev_page.url }}">← Pág. {{ prev_page.no }}</a>
+    {% endif %}
+    <span class="pg-cur">Página {{ cur_page }}</span>
+    {% if next_page %}
+      <a class="pg-btn" href="{{ next_page.url }}">Pág. {{ next_page.no }} →</a>
+    {% endif %}
+  </div>
+
+{% else %}
+  <div class="empty">
+    <div class="e-icon">🎬</div>
+    <p>No hay vídeos que mostrar</p>
+  </div>
+{% endif %}
+
+<footer>
+  <a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a>
+</footer>
+
+<script>
+(function(){
+  const grid = document.getElementById('mediaGrid');
+  const chips = document.querySelectorAll('.chip');
+  const sortSel = document.getElementById('sortSel');
+  const sectionLabel = document.getElementById('sectionLabel');
+  const sectionCount = document.getElementById('sectionCount');
+  const heroSection = document.getElementById('heroSection');
+
+  let activeFilter = 'all';
+
+  const labels = {
+    all: 'Todo el contenido',
+    movie: 'Películas',
+    series: 'Series',
+  };
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      if(heroSection){
+        heroSection.style.display = (activeFilter === 'all') ? '' : 'none';
+      }
+      applyAll();
+    });
+  });
+
+  sortSel.addEventListener('change', applyAll);
+
+  function applyAll(){
+    if(!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.card'));
+    const search = (document.querySelector('.search-input')?.value || '').toLowerCase().trim();
+
+    cards.forEach(card => {
+      const type = card.dataset.type;
+      const genresRaw = card.dataset.genres || '';
+      const title = card.dataset.title || '';
+      let show = true;
+
+      if(activeFilter === 'movie') show = type === 'movie';
+      else if(activeFilter === 'series') show = type === 'series';
+      else if(activeFilter.startsWith('genre-')){
+        const g = activeFilter.slice(6).toLowerCase();
+        show = genresRaw.toLowerCase().split('|||').some(x => x.trim() === g);
+      }
+
+      if(search && !title.includes(search)) show = false;
+      card.style.display = show ? '' : 'none';
+    });
+
+    const sortVal = sortSel.value;
+    const visible = cards.filter(c => c.style.display !== 'none');
+
+    visible.sort((a,b) => {
+      if(sortVal === 'title') return (a.dataset.title||'').localeCompare(b.dataset.title||'');
+      if(sortVal === 'rating') return parseFloat(b.dataset.rating||0) - parseFloat(a.dataset.rating||0);
+      return new Date(b.dataset.date) - new Date(a.dataset.date);
+    });
+    visible.forEach(c => grid.appendChild(c));
+
+    if(sectionLabel){
+      if(labels[activeFilter]) sectionLabel.textContent = labels[activeFilter];
+      else sectionLabel.textContent = activeFilter.replace('genre-','');
+    }
+    if(sectionCount) sectionCount.textContent = visible.length;
+  }
+})();
+</script>
+</body>
+</html>

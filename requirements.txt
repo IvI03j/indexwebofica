@@ -1,0 +1,12 @@
+aiohttp
+aiohttp-jinja2
+telethon>=1.16.4
+cryptg
+pillow
+doodstream
+aiohttp
+aiohttp-jinja2
+cryptg
+doodstream
+pillow
+telethon
