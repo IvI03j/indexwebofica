@@ -1,129 +1,340 @@
-{% include 'header.html' %}
-            
-            <div class="p-4 space-y-8">
-                {% if found %}
-                    {% if media %}
-                        <h1 class="text-blue-500 text-center text-lg lg:text-xl xl:text-3xl w-full break-all">
-                            Download {{name}}
-                        </h1>
-                        
-                        <div class="mx-auto w-full md:w-3/4 lg:w-2/5 p-2">
-                            {% if media.image %}
-                                <img class="mx-auto rounded" src="../{{file_id}}/thumbnail" alt="{{name}}">
-                            {% elif media.video %}
-                                <div id="video-warning" class="mx-auto p-4 bg-gray-600 text-gray-300 rounded border text-center hidden break-words">
-                                    <p> Video {{name}} could not be played!</p>
-                                </div>
-                                
-                                <div id="my-video-wrapper"> 
-                                    <video id="my-video-player" class="mx-auto rounded" controls poster="../{{file_id}}/thumbnail">
-                                        <source src="../{{file_id}}/download" type="video/mp4" />
-                                    </video>
-                                </div>
-                                
-                                <script>
-                                    var video = document.querySelector("video");
-                                    var src = video.firstElementChild
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<style>
+  :root {
+    --red: #e50914;
+    --dark: #0d0d0d;
+    --card-bg: #181818;
+    --text: #e5e5e5;
+    --radius: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+  a { text-decoration:none; color:inherit; }
 
-                                    src.addEventListener('error', function(evt) {
-                                        console.log(evt);
-                                        document.getElementById('my-video-wrapper').style.display = 'none';
-                                        document.getElementById('video-warning').style.display = 'block';
-                                    }); 
-                                    var myFP = fluidPlayer(
-                                        'my-video-player',{
-                                            "layoutControls": {
-                                                "autoPlay": false,
-                                                "mute": true,
-                                                "allowTheatre": true,
-                                                "playPauseAnimation": true,
-                                                "playbackRateEnabled": true,
-                                                "allowDownload": false,
-                                                "playButtonShowing": true,
-                                                "fillToContainer": true,
-                                                "posterImage": ""
-                                            }
-                                        }
-                                    );
-                                </script>
-                            {% elif media.audio %}
-                                 <div id="audio-warning" class="mx-auto p-4 bg-gray-600 text-gray-300 rounded border text-center hidden break-words">
-                                    <p> Audio {{name}} could not be played!</p>
-                                </div>
-                                
-                                <div id="my-audio-wrapper">
-                                    <img class="mx-auto rounded w-full" src="../{{file_id}}/thumbnail" alt="{{name}}">
-                                    <audio class="mx-auto" controls muted>
-                                        <source src="../{{file_id}}/download" type="audio/mpeg" />
-                                    </audio>
-                                </div>
-                                <script>
-                                    var audio = document.querySelector("audio");
-                                    var src = audio.firstElementChild
+  /* ── HEADER ── */
+  .header {
+    position:sticky; top:0; z-index:200;
+    background:rgba(13,13,13,0.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid #1f1f1f;
+    display:flex; align-items:center; gap:14px;
+    padding:14px 32px;
+  }
+  .logo {
+    font-size:1.5rem; font-weight:900; color:var(--red); letter-spacing:-1px;
+  }
+  .back-btn {
+    margin-left:auto; background:#1f1f1f; border:1px solid #333; color:#aaa;
+    padding:8px 18px; border-radius:6px; font-size:0.85rem; cursor:pointer;
+    transition:all .2s;
+  }
+  .back-btn:hover { background:#333; color:#fff; }
 
-                                    src.addEventListener('error', function(evt) {
-                                        console.log(evt);
-                                        document.getElementById('my-audio-wrapper').style.display = 'none';
-                                        document.getElementById('audio-warning').style.display = 'block';
-                                    });
-                                </script>
-                            {% endif %}
-                            
-                            {% if caption_html %}
-                            
-                                <div class="mx-auto mt-1">
-                                    <div class="flex justify-center text-gray-300 font-mono">
-                                        <p class="text-left w-full rounded p-4 bg-gray-900 shadow-lg"> {{ caption_html|safe }} </p>
-                                    </div>
-                                    {% if reply_btns %}
-                                        <div class="w-full block">
-                                            {% for row in reply_btns %}
-                                                <div class="flex justify-center">
-                                                    {% for btn in row %}
-                                                        <a class="p-2 m-1 flex-1 border rounded bg-white border-blue-500 text-center text-blue-500 hover:bg-blue-500 hover:text-white transition ease-in duration-150" href="{{ btn.url }}" target="_blank"> {{btn.text}} </a>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            
-                            {% endif %}
-                            
-                        </div>
-                        
-                        <div class="text-center text-white">
-                    
-                            <a class="rounded p-3 bg-indigo-500 hover:bg-indigo-700 shadow-lg" href="../{{file_id}}/download">Download Now! ({{ human_size }})</a>
-                        
-                        </div>
-                    {% else %}
-                        <div class="mx-auto flex flex-wrap justify-center w-full md:w-3/4 mt-1">
-                            <div class="flex justify-center text-gray-300 font-mono">
-                                <p class="text-left rounded p-4 bg-gray-900 w-full shadow-lg"> {{ text_html|safe }} </p>
-                            </div>
-                            {% if reply_btns %}
-                                <div class="w-full block">
-                                    {% for row in reply_btns %}
-                                        <div class="flex justify-center">
-                                            {% for btn in row %}
-                                                <a class="p-2  m-1 flex-1 border rounded bg-white border-blue-500 text-center text-blue-500 hover:bg-blue-500 hover:text-white transition ease-in duration-150" href="{{ btn.url }}" target="_blank"> {{btn.text}} </a>
-                                            {% endfor %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    
-                {% else %}
-                    <h1 class="text-blue-500 text-center text-2xl md:text-3xl lg:text-4xl xl:text-5xl">Ooops...</h1>
-                
-                    <p class="text-center text-sm md:text-base lg:text-xl xl:text-2xl font-semibold">
-                        {{ reason }}
-                    </p>
-                {% endif %}
-                
-            </div>
-            
-{% include 'footer.html' %}
+  /* ── HERO BACKDROP ── */
+  .hero-wrap {
+    position:relative; width:100%; height:520px; overflow:hidden;
+  }
+  .hero-backdrop {
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    filter:brightness(0.35);
+  }
+  .hero-vignette {
+    position:absolute; inset:0;
+    background:linear-gradient(0deg, rgba(13,13,13,1) 0%, rgba(13,13,13,0.5) 40%, transparent 100%),
+               linear-gradient(90deg, rgba(13,13,13,0.8) 0%, transparent 60%);
+  }
+  .hero-content {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:40px 48px;
+    display:flex; gap:32px; align-items:flex-end;
+  }
+  .hero-poster {
+    width:160px; min-width:160px; border-radius:8px;
+    box-shadow:0 8px 40px rgba(0,0,0,.8);
+    display:block;
+  }
+  .hero-info { flex:1; }
+  .hero-badge {
+    display:inline-block; background:var(--red); color:#fff;
+    font-size:0.7rem; font-weight:800; padding:3px 10px; border-radius:4px;
+    letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;
+  }
+  .hero-title {
+    font-size:2.4rem; font-weight:900; line-height:1.1;
+    text-shadow:0 2px 20px rgba(0,0,0,.8); margin-bottom:10px;
+  }
+  .hero-meta {
+    display:flex; gap:14px; align-items:center;
+    font-size:0.9rem; color:#bbb; margin-bottom:12px; flex-wrap:wrap;
+  }
+  .hero-meta .rating { color:#f5c518; font-weight:700; }
+  .hero-meta .size { background:#1f1f1f; border:1px solid #333; padding:2px 10px; border-radius:4px; font-size:0.8rem; }
+  .hero-overview {
+    font-size:0.95rem; color:#ccc; line-height:1.6; max-width:600px;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    margin-bottom:20px;
+  }
+  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+  .hero-genre {
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+    color:#ddd; font-size:0.75rem; padding:3px 10px; border-radius:4px;
+  }
+  .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+  .btn-play {
+    display:inline-flex; align-items:center; gap:8px;
+    background:#fff; color:#000; padding:12px 32px;
+    border-radius:6px; font-size:1rem; font-weight:800;
+    transition:background .2s; cursor:pointer; border:none;
+  }
+  .btn-play:hover { background:#ddd; }
+  .btn-download {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(109,109,110,0.7); color:#fff; padding:12px 28px;
+    border-radius:6px; font-size:1rem; font-weight:700;
+    transition:background .2s; border:none; cursor:pointer;
+  }
+  .btn-download:hover { background:rgba(109,109,110,1); }
+
+  /* ── PLAYER SECTION ── */
+  .player-section {
+    max-width:960px; margin:0 auto; padding:0 32px 48px;
+  }
+
+  /* cinematic player */
+  .player-container {
+    position:relative; width:100%; background:#000;
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,.9);
+    margin-bottom:32px;
+  }
+  .player-container video {
+    width:100%; display:block;
+    aspect-ratio:16/9;
+    background:#000;
+  }
+
+  /* error fallback */
+  .video-error {
+    display:none; padding:60px 20px; text-align:center;
+    background:#111; color:#666;
+  }
+  .video-error .e-icon { font-size:3rem; margin-bottom:12px; }
+
+  /* ── CAPTION ── */
+  .caption-box {
+    background:#111; border:1px solid #222; border-radius:8px;
+    padding:20px 24px; margin-bottom:24px;
+    font-size:0.9rem; color:#ccc; line-height:1.7; white-space:pre-wrap;
+  }
+
+  /* ── REPLY BUTTONS ── */
+  .reply-btns { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+  .reply-row { display:flex; gap:8px; }
+  .reply-btn {
+    flex:1; padding:10px 16px; border-radius:6px; text-align:center;
+    background:#1f1f1f; border:1px solid #333; color:#aaa; font-size:0.85rem;
+    transition:all .2s;
+  }
+  .reply-btn:hover { background:var(--red); border-color:var(--red); color:#fff; }
+
+  /* ── INFO TABLE ── */
+  .info-table {
+    background:#111; border:1px solid #222; border-radius:8px;
+    overflow:hidden; margin-bottom:24px;
+  }
+  .info-row {
+    display:flex; border-bottom:1px solid #1a1a1a; padding:12px 20px; gap:16px;
+  }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { color:#777; font-size:0.82rem; min-width:100px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+  .info-value { color:#ddd; font-size:0.88rem; }
+
+  /* ── NOT FOUND ── */
+  .not-found { text-align:center; padding:100px 20px; }
+  .not-found .nf-icon { font-size:5rem; margin-bottom:20px; }
+  .not-found h2 { font-size:1.8rem; font-weight:800; margin-bottom:10px; }
+  .not-found p { color:#777; font-size:1rem; }
+
+  /* ── FOOTER ── */
+  footer { text-align:center; padding:20px; color:#333; font-size:0.78rem; border-top:1px solid #1a1a1a; }
+  footer a { color:#444; } footer a:hover { color:var(--red); }
+
+  @media(max-width:680px){
+    .header { padding:10px 16px; }
+    .hero-content { padding:24px 16px; flex-direction:column; align-items:flex-start; }
+    .hero-poster { width:100px; min-width:100px; }
+    .hero-title { font-size:1.6rem; }
+    .player-section { padding:0 16px 32px; }
+    .btn-play, .btn-download { padding:10px 20px; font-size:0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <a class="logo" href="/">TgIndex</a>
+  <a class="back-btn" href="javascript:history.back()">← Volver</a>
+</header>
+
+{% if found %}
+
+  {% if media %}
+
+    <!-- ── HERO ── -->
+    <div class="hero-wrap">
+      <div class="hero-backdrop" id="heroBg"></div>
+      <div class="hero-vignette"></div>
+      <div class="hero-content">
+        <img class="hero-poster" src="{{ thumbnail }}" alt="{{ name }}" id="heroPoster" onerror="this.style.display='none'">
+        <div class="hero-info">
+          {% if media.video %}
+            <span class="hero-badge">🎬 Película</span>
+          {% elif media.audio %}
+            <span class="hero-badge">🎵 Audio</span>
+          {% else %}
+            <span class="hero-badge">📁 Archivo</span>
+          {% endif %}
+          <h1 class="hero-title" id="heroTitle">{{ name }}</h1>
+          <div class="hero-meta">
+            <span class="size">{{ human_size }}</span>
+          </div>
+          {% if caption_html %}
+            <p class="hero-overview">{{ caption_html | striptags }}</p>
+          {% endif %}
+          <div class="hero-actions">
+            {% if media.video %}
+              <button class="btn-play" onclick="scrollToPlayer()">▶ Reproducir</button>
+            {% endif %}
+            <a class="btn-download" href="{{ download_url }}" download="{{ name }}">⬇ Descargar ({{ human_size }})</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PLAYER ── -->
+    <div class="player-section">
+
+      {% if media.video %}
+      <div class="player-container" id="playerWrap">
+        <video id="mainVideo" controls controlsList="nodownload" poster="{{ thumbnail }}" preload="metadata">
+          <source src="{{ download_url }}" type="video/mp4">
+        </video>
+        <div class="video-error" id="videoError">
+          <div class="e-icon">⚠️</div>
+          <p>No se pudo reproducir el vídeo.<br>Prueba a descargarlo directamente.</p>
+        </div>
+      </div>
+      {% elif media.audio %}
+      <div class="player-container" id="playerWrap" style="background:#111; padding:32px;">
+        <img src="{{ thumbnail }}" alt="{{ name }}" style="width:160px; border-radius:8px; display:block; margin:0 auto 20px;" onerror="this.style.display='none'">
+        <audio controls style="width:100%; display:block;" preload="metadata">
+          <source src="{{ download_url }}" type="audio/mpeg">
+        </audio>
+      </div>
+      {% elif media.image %}
+      <div class="player-container" id="playerWrap">
+        <img src="{{ download_url }}" alt="{{ name }}" style="width:100%; display:block; border-radius:12px;">
+      </div>
+      {% endif %}
+
+      <!-- caption -->
+      {% if caption_html %}
+      <div class="caption-box">{{ caption_html | safe }}</div>
+      {% endif %}
+
+      <!-- reply buttons -->
+      {% if reply_btns %}
+      <div class="reply-btns">
+        {% for row in reply_btns %}
+        <div class="reply-row">
+          {% for btn in row %}
+          <a class="reply-btn" href="{{ btn.url }}" target="_blank">{{ btn.text }}</a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- info table -->
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Archivo</span>
+          <span class="info-value">{{ name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tamaño</span>
+          <span class="info-value">{{ human_size }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tipo</span>
+          <span class="info-value">{{ media.type }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  {% else %}
+    <!-- text message -->
+    <div class="player-section" style="padding-top:40px;">
+      <div class="caption-box">{{ text_html | safe }}</div>
+      {% if reply_btns %}
+      <div class="reply-btns">
+        {% for row in reply_btns %}
+        <div class="reply-row">
+          {% for btn in row %}
+          <a class="reply-btn" href="{{ btn.url }}" target="_blank">{{ btn.text }}</a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+{% else %}
+  <div class="not-found">
+    <div class="nf-icon">🎬</div>
+    <h2>Contenido no encontrado</h2>
+    <p>{{ reason }}</p>
+    <a href="javascript:history.back()" style="display:inline-block; margin-top:24px; background:var(--red); color:#fff; padding:10px 28px; border-radius:6px; font-weight:700;">← Volver</a>
+  </div>
+{% endif %}
+
+<footer>
+  <a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a>
+</footer>
+
+<script>
+  // Set backdrop from poster
+  const poster = document.getElementById('heroPoster');
+  const heroBg = document.getElementById('heroBg');
+  if(poster && heroBg){
+    heroBg.style.backgroundImage = `url('${poster.src}')`;
+  }
+
+  // Scroll to player
+  function scrollToPlayer(){
+    const p = document.getElementById('playerWrap');
+    if(p) p.scrollIntoView({ behavior:'smooth', block:'center' });
+    const v = document.getElementById('mainVideo');
+    if(v) setTimeout(() => v.play(), 600);
+  }
+
+  // Video error handler
+  const vid = document.getElementById('mainVideo');
+  if(vid){
+    vid.addEventListener('error', () => {
+      vid.style.display = 'none';
+      const err = document.getElementById('videoError');
+      if(err) err.style.display = 'block';
+    });
+  }
+</script>
+</body>
+</html>
