@@ -23,7 +23,10 @@ def _has_media(m):
         return False
     if isinstance(m.media, types.MessageMediaWebPage):
         return False
-    return bool(m.file)
+    if not m.file:
+        return False
+    mime = m.file.mime_type or ""
+    return mime.startswith("video/")
 
 
 def _group_results(results):
@@ -39,7 +42,6 @@ def _group_results(results):
         if is_series:
             tid = tmdb['tmdb_id']
             if tid in seen:
-                # Add as episode to existing series card
                 existing = grouped[seen[tid]]
                 existing.setdefault('episodes', []).append({
                     'url': entry['url'],
