@@ -188,7 +188,7 @@
     pointer-events:none;
   }
 
-  /* hover overlay — hidden by default, only shown on hover */
+  /* hover overlay */
   .card-info {
     position:absolute; inset:0; z-index:3;
     background:linear-gradient(0deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.7) 50%, transparent 100%);
@@ -455,8 +455,12 @@
   const sectionLabel = document.getElementById('sectionLabel');
   const sectionCount = document.getElementById('sectionCount');
   const heroSection = document.getElementById('heroSection');
+
   let activeFilter = 'all';
   const labels = { all:'Todo el contenido', movie:'Películas', series:'Series' };
+
+  // Guardar orden original al cargar
+  const originalOrder = grid ? Array.from(grid.querySelectorAll('.card')) : [];
 
   chips.forEach(chip => {
     chip.addEventListener('click', (e) => {
@@ -473,6 +477,10 @@
 
   function applyAll(){
     if(!grid) return;
+
+    // Restaurar orden original antes de aplicar filtros y orden
+    originalOrder.forEach(c => grid.appendChild(c));
+
     const cards = Array.from(grid.querySelectorAll('.card'));
     const search = (document.querySelector('.search-input')?.value || '').toLowerCase().trim();
 
@@ -493,12 +501,17 @@
 
     const sortVal = sortSel.value;
     const visible = cards.filter(c => c.style.display !== 'none');
+
     visible.sort((a,b) => {
       if(sortVal === 'title') return (a.dataset.title||'').localeCompare(b.dataset.title||'');
       if(sortVal === 'rating') return parseFloat(b.dataset.rating||0) - parseFloat(a.dataset.rating||0);
       return new Date(b.dataset.date) - new Date(a.dataset.date);
     });
-    visible.forEach(c => grid.appendChild(c));
+
+    const fragment = document.createDocumentFragment();
+    visible.forEach(c => fragment.appendChild(c));
+    cards.filter(c => c.style.display === 'none').forEach(c => fragment.appendChild(c));
+    grid.appendChild(fragment);
 
     if(sectionLabel){
       sectionLabel.textContent = labels[activeFilter] || activeFilter.replace('genre-','');
