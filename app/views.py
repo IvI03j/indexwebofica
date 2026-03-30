@@ -17,6 +17,8 @@ from .config import otg_settings, chat_ids, enable_otg, host
 
 log = logging.getLogger(__name__)
 
+CHUNK_SIZE = 5 * 1024 * 1024  # 5MB max per request
+
 
 def _has_media(m):
     if not m.media:
@@ -32,7 +34,7 @@ def _has_media(m):
 def _group_results(results):
     """Group episodes of the same series into one card entry."""
     grouped = []
-    seen = {}  # tmdb_id -> index in grouped
+    seen = {}
 
     for entry in results:
         tmdb = entry.get('tmdb')
@@ -460,8 +462,11 @@ class Views:
         mime_type = message.file.mime_type
         try:
             offset = req.http_range.start or 0
-            limit = req.http_range.stop if req.http_range.stop is not None else size
-            limit = min(limit, size)
+            # Limitar chunk a 5MB para que el navegador empiece a reproducir antes
+            if req.http_range.stop is not None:
+                limit = min(req.http_range.stop, size)
+            else:
+                limit = min(offset + CHUNK_SIZE, size)
             if offset < 0 or limit < offset or offset >= size:
                 raise ValueError("range not in acceptable format")
         except ValueError:
@@ -480,7 +485,7 @@ class Views:
             return web.Response(status=200, headers=headers)
         log.info(f"Serving file in {message.id} (chat {chat_id}) ; Range: {offset} - {limit}")
         response = web.StreamResponse(
-            status=206 if req.http_range.start is not None else 200,
+            status=206,
             headers=headers
         )
         await response.prepare(req)
