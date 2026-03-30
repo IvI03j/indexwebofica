@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for indexwebofica on 2026-03-30T13:11:54Z
+# fly.toml app configuration file generated for indexwebofica-pzwchg on 2026-03-30T13:21:09Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'indexwebofica'
-primary_region = 'iad'
+app = 'indexwebofica-pzwchg'
+primary_region = 'cdg'
 
 [build]
 
@@ -20,4 +20,4 @@ primary_region = 'iad'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
+  memory_mb = 512
