@@ -460,9 +460,9 @@ class Views:
         mime_type = message.file.mime_type
         try:
             offset = req.http_range.start or 0
-            limit = req.http_range.stop or size
+            limit = req.http_range.stop if req.http_range.stop is not None else size
             limit = min(limit, size)
-            if offset < 0 or limit < offset:
+            if offset < 0 or limit < offset or offset >= size:
                 raise ValueError("range not in acceptable format")
         except ValueError:
             return web.Response(status=416, text="416: Range Not Satisfiable",
@@ -472,7 +472,9 @@ class Views:
             "Content-Range": f"bytes {offset}-{limit - 1}/{size}",
             "Content-Length": str(limit - offset),
             "Accept-Ranges": "bytes",
-            "Content-Disposition": f'inline; filename="{file_name}"'
+            "Content-Disposition": f'inline; filename="{file_name}"',
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-store",
         }
         if head:
             return web.Response(status=200, headers=headers)
