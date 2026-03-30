@@ -17,8 +17,6 @@ from .config import otg_settings, chat_ids, enable_otg, host
 
 log = logging.getLogger(__name__)
 
-CHUNK_SIZE = 5 * 1024 * 1024  # 5MB max per request
-
 
 def _has_media(m):
     if not m.media:
@@ -28,14 +26,13 @@ def _has_media(m):
     if not m.file:
         return False
     mime = m.file.mime_type or ""
-    log.info(f"File mime_type: {mime} - name: {m.file.name}")
-    return mime.startswith("video/") or mime.startswith("application/")
+    return mime.startswith("video/")
 
 
 def _group_results(results):
     """Group episodes of the same series into one card entry."""
     grouped = []
-    seen = {}
+    seen = {}  # tmdb_id -> index in grouped
 
     for entry in results:
         tmdb = entry.get('tmdb')
@@ -80,6 +77,64 @@ class Views:
 
     async def wildcard(self, req):
         raise web.HTTPFound('/')
+
+    async def api_catalog(self, req):
+        """Endpoint que devuelve el catálogo completo para el bot de Netflix."""
+        from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
+
+        if not chat_ids:
+            return web.json_response([])
+
+        chat = chat_ids[0]
+        chat_id = chat['chat_id']
+        chat_id_short = str(chat_id).replace('-100', '')
+        items = []
+
+        thread_map = {
+            MOVIES_THREAD_ID: 'movie',
+            SERIES_THREAD_ID: 'tv',
+        }
+
+        for thread_id, media_type in thread_map.items():
+            try:
+                batch = await self.client.get_messages(
+                    entity=chat_id,
+                    limit=500,
+                )
+                batch = batch or []
+                msgs = [m for m in batch if _has_media(m)]
+
+                for m in msgs:
+                    entry = dict(
+                        file_id=m.id,
+                        media=True,
+                        insight=get_file_name(m),
+                        mime_type=m.file.mime_type,
+                        date=str(m.date),
+                        size=m.file.size,
+                        human_size=get_human_size(m.file.size),
+                        url=f"/{chat['alias_id']}/{m.id}/view",
+                        download=f"/{chat['alias_id']}/{m.id}/download",
+                        thumbnail=f"/{chat['alias_id']}/{m.id}/thumbnail",
+                    )
+                    enriched = await enrich_entry(entry)
+                    tmdb = enriched.get('tmdb')
+                    if tmdb and tmdb.get('tmdb_id'):
+                        items.append({
+                            'tmdb_id': tmdb['tmdb_id'],
+                            'media_type': media_type,
+                            'telegram_link': f"https://t.me/c/{chat_id_short}/{thread_id}/{m.id}",
+                            'title': tmdb.get('title'),
+                            'poster': tmdb.get('poster'),
+                            'year': tmdb.get('year'),
+                            'rating': tmdb.get('rating'),
+                            'overview': tmdb.get('overview'),
+                            'genres': tmdb.get('genres', []),
+                        })
+            except Exception:
+                log.debug(f"Error en api_catalog para thread {thread_id}", exc_info=True)
+
+        return web.json_response(items)
 
     @aiohttp_jinja2.template('home.html')
     async def home(self, req):
@@ -192,7 +247,7 @@ class Views:
             log.debug("failed to get messages", exc_info=True)
             messages = []
 
-        log.info(f"page={page} search='{search_query}' found={len(messages)} messages")
+        log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
 
         raw_results = []
         for m in messages:
@@ -463,10 +518,8 @@ class Views:
         mime_type = message.file.mime_type
         try:
             offset = req.http_range.start or 0
-            if req.http_range.stop is not None:
-                limit = min(req.http_range.stop, size)
-            else:
-                limit = min(offset + CHUNK_SIZE, size)
+            limit = req.http_range.stop if req.http_range.stop is not None else size
+            limit = min(limit, size)
             if offset < 0 or limit < offset or offset >= size:
                 raise ValueError("range not in acceptable format")
         except ValueError:
@@ -485,7 +538,7 @@ class Views:
             return web.Response(status=200, headers=headers)
         log.info(f"Serving file in {message.id} (chat {chat_id}) ; Range: {offset} - {limit}")
         response = web.StreamResponse(
-            status=206,
+            status=206 if req.http_range.start is not None else 200,
             headers=headers
         )
         await response.prepare(req)
