@@ -1,7 +1,7 @@
 # fly.toml — configuración para Fly.io
 # Reemplaza "indexwebofica" con el nombre que elijas al hacer flyctl launch
 
-app = "indexwebofica"
+app = "app-dry-night-8835"
 primary_region = "mad"  # Madrid — cambia según tu preferencia
 
 [build]
