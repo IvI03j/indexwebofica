@@ -28,7 +28,8 @@ def _has_media(m):
     if not m.file:
         return False
     mime = m.file.mime_type or ""
-    return mime.startswith("video/")
+    log.info(f"File mime_type: {mime} - name: {m.file.name}")
+    return mime.startswith("video/") or mime.startswith("application/")
 
 
 def _group_results(results):
@@ -191,7 +192,7 @@ class Views:
             log.debug("failed to get messages", exc_info=True)
             messages = []
 
-        log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
+        log.info(f"page={page} search='{search_query}' found={len(messages)} messages")
 
         raw_results = []
         for m in messages:
@@ -462,7 +463,6 @@ class Views:
         mime_type = message.file.mime_type
         try:
             offset = req.http_range.start or 0
-            # Limitar chunk a 5MB para que el navegador empiece a reproducir antes
             if req.http_range.stop is not None:
                 limit = min(req.http_range.stop, size)
             else:
