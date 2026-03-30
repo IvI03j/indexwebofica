@@ -90,49 +90,57 @@ class Views:
         chat_id_short = str(chat_id).replace('-100', '')
         items = []
 
-        thread_map = {
-            MOVIES_THREAD_ID: 'movie',
-            SERIES_THREAD_ID: 'tv',
-        }
+        try:
+            batch = await self.client.get_messages(
+                entity=chat_id,
+                limit=500,
+            )
+            batch = batch or []
+            msgs = [m for m in batch if _has_media(m)]
 
-        for thread_id, media_type in thread_map.items():
-            try:
-                batch = await self.client.get_messages(
-                    entity=chat_id,
-                    limit=500,
+            for m in msgs:
+                # Determinar a qué tema pertenece el mensaje
+                reply_to = getattr(m, 'reply_to', None)
+                top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
+
+                if top_id == MOVIES_THREAD_ID:
+                    media_type = 'movie'
+                    thread_id = MOVIES_THREAD_ID
+                elif top_id == SERIES_THREAD_ID:
+                    media_type = 'tv'
+                    thread_id = SERIES_THREAD_ID
+                else:
+                    # Si no tiene reply_to es el primer mensaje del tema (el propio topic)
+                    continue
+
+                entry = dict(
+                    file_id=m.id,
+                    media=True,
+                    insight=get_file_name(m),
+                    mime_type=m.file.mime_type,
+                    date=str(m.date),
+                    size=m.file.size,
+                    human_size=get_human_size(m.file.size),
+                    url=f"/{chat['alias_id']}/{m.id}/view",
+                    download=f"/{chat['alias_id']}/{m.id}/download",
+                    thumbnail=f"/{chat['alias_id']}/{m.id}/thumbnail",
                 )
-                batch = batch or []
-                msgs = [m for m in batch if _has_media(m)]
-
-                for m in msgs:
-                    entry = dict(
-                        file_id=m.id,
-                        media=True,
-                        insight=get_file_name(m),
-                        mime_type=m.file.mime_type,
-                        date=str(m.date),
-                        size=m.file.size,
-                        human_size=get_human_size(m.file.size),
-                        url=f"/{chat['alias_id']}/{m.id}/view",
-                        download=f"/{chat['alias_id']}/{m.id}/download",
-                        thumbnail=f"/{chat['alias_id']}/{m.id}/thumbnail",
-                    )
-                    enriched = await enrich_entry(entry)
-                    tmdb = enriched.get('tmdb')
-                    if tmdb and tmdb.get('tmdb_id'):
-                        items.append({
-                            'tmdb_id': tmdb['tmdb_id'],
-                            'media_type': media_type,
-                            'telegram_link': f"https://t.me/c/{chat_id_short}/{thread_id}/{m.id}",
-                            'title': tmdb.get('title'),
-                            'poster': tmdb.get('poster'),
-                            'year': tmdb.get('year'),
-                            'rating': tmdb.get('rating'),
-                            'overview': tmdb.get('overview'),
-                            'genres': tmdb.get('genres', []),
-                        })
-            except Exception:
-                log.debug(f"Error en api_catalog para thread {thread_id}", exc_info=True)
+                enriched = await enrich_entry(entry)
+                tmdb = enriched.get('tmdb')
+                if tmdb and tmdb.get('tmdb_id'):
+                    items.append({
+                        'tmdb_id': tmdb['tmdb_id'],
+                        'media_type': media_type,
+                        'telegram_link': f"https://t.me/c/{chat_id_short}/{thread_id}/{m.id}",
+                        'title': tmdb.get('title'),
+                        'poster': tmdb.get('poster'),
+                        'year': tmdb.get('year'),
+                        'rating': tmdb.get('rating'),
+                        'overview': tmdb.get('overview'),
+                        'genres': tmdb.get('genres', []),
+                    })
+        except Exception:
+            log.debug("Error en api_catalog", exc_info=True)
 
         return web.json_response(items)
 
