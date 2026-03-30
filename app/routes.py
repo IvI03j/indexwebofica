@@ -2,9 +2,7 @@ import random
 import string
 import logging
 import asyncio
-
 from aiohttp import web
-
 from .config import index_settings, alias_ids, chat_ids
 from .util import get_file_name, get_human_size
 from .tmdb import enrich_entry, parse_filename
@@ -41,7 +39,8 @@ def register_routes(app, handler):
         web.post("/otg", h.dynamic_view),
         web.get("/otg", h.otg_view),
         web.get("/pc", h.playlist_creator),
-        web.get("/api/catalog", h.api_catalog),
+        # Ruta del catálogo con prefijo _api para evitar conflicto con /{chat}
+        web.get("/_api/catalog", h.api_catalog),
         web.get(p, h.index),
         web.get(p + r"/logo", h.logo),
         web.get(p + r"/{id:\d+}/view", h.info),
