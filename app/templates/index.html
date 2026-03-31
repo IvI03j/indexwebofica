@@ -11,8 +11,8 @@
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --card-w: 160px;
-    --card-h: 240px;
+    --card-w: 150px;
+    --card-h: 225px;
     --radius: 6px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -87,72 +87,78 @@
   .main { padding-top:0; }
 
   /* ROW */
-  .row-section { padding:0 0 32px; }
-  .row-header { display:flex; align-items:center; gap:12px; padding:0 48px 14px; }
+  .row-section { padding:0 0 28px; }
+  .row-header { display:flex; align-items:center; gap:12px; padding:0 48px 12px; }
   .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; color:#fff; }
   .row-count { background:var(--red); color:#fff; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:3px; }
   .row-line { flex:1; height:1px; background:linear-gradient(90deg,#333,transparent); }
 
-  /* SCROLL */
-  .row-scroll-wrap { position:relative; }
+  /* SCROLL WRAPPER — altura fija para que no crezca */
+  .row-scroll-wrap {
+    position:relative;
+    height:calc(var(--card-h) + 24px); /* altura card + padding vertical */
+  }
+
   .row-scroll {
     display:flex;
     gap:10px;
-    align-items:stretch;
     overflow-x:auto;
-    overflow-y:visible;
-    padding:8px 48px 16px;
+    overflow-y:hidden;          /* ← corte limpio, sin cards flotantes */
+    padding:8px 48px;
+    height:100%;
+    align-items:flex-start;     /* ← ancla las cards arriba, sin estiramientos */
     scroll-behavior:smooth;
     scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
   }
   .row-scroll::-webkit-scrollbar { display:none; }
+
   .scroll-btn {
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:44px; height:80px;
+    position:absolute; top:0; bottom:0; margin:auto 0;
+    width:40px; height:70px;
     display:flex; align-items:center; justify-content:center;
     background:rgba(8,8,8,.85); border:none; color:#fff;
     font-size:1.4rem; cursor:pointer; z-index:10;
     opacity:0; transition:opacity .2s;
   }
   .row-scroll-wrap:hover .scroll-btn { opacity:1; }
-  .scroll-btn.left { left:0; border-radius:0 6px 6px 0; }
+  .scroll-btn.left  { left:0;  border-radius:0 6px 6px 0; }
   .scroll-btn.right { right:0; border-radius:6px 0 0 6px; }
   .scroll-btn:hover { background:rgba(8,8,8,.98); }
 
-  /* CARD */
+  /* CARD — tamaño absolutamente fijo */
   .card {
     flex: 0 0 var(--card-w);
     width: var(--card-w);
     height: var(--card-h);
-    min-width: var(--card-w);
-    max-width: var(--card-w);
-    min-height: var(--card-h);
-    max-height: var(--card-h);
     position: relative;
     border-radius: var(--radius);
     cursor: pointer;
+    /* overflow:visible permite el scale sin recorte */
     overflow: visible;
     transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
     z-index: 1;
-    display: block;
   }
   .card:hover {
-    transform: scale(1.18) translateY(-8px);
+    transform: scale(1.16) translateY(-6px);
     z-index: 50;
     transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
+
+  /* card-inner recorta la imagen dentro del card */
   .card-inner {
-    width: 100%;
-    height: 100%;
+    width: var(--card-w);
+    height: var(--card-h);
     border-radius: var(--radius);
     overflow: hidden;
     position: relative;
     box-shadow: 0 4px 20px rgba(0,0,0,.5);
     transition: box-shadow .3s;
+    /* evita que flex o block cambie las dimensiones */
+    flex-shrink: 0;
   }
   .card:hover .card-inner { box-shadow: 0 20px 60px rgba(0,0,0,.9); }
 
-  /* Poster: cubre exactamente el card, sin desbordarse ni dejar huecos */
   .card-poster {
     display: block;
     width: 100%;
@@ -161,23 +167,16 @@
     object-position: center top;
     pointer-events: none;
     transition: filter .3s;
-    /* Evita que el navegador cambie la altura intrínseca de la imagen */
-    flex-shrink: 0;
   }
   .card:hover .card-poster { filter: brightness(0.45); }
 
   .card-no-poster {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    text-align: center;
-    background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:16px; text-align:center;
+    background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
   }
-  .card-no-poster .np-icon { font-size:2.5rem; margin-bottom:10px; }
+  .card-no-poster .np-icon  { font-size:2.5rem; margin-bottom:10px; }
   .card-no-poster .np-title { font-size:0.75rem; font-weight:700; color:#ddd; line-height:1.3; }
 
   .card-type {
@@ -199,10 +198,10 @@
     background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.5) 50%,transparent 100%);
   }
   .card:hover .card-hover { opacity:1; pointer-events:auto; }
-  .ch-title { font-size:0.78rem; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; pointer-events:none; }
-  .ch-meta { font-size:0.65rem; color:#aaa; margin-bottom:6px; pointer-events:none; }
+  .ch-title  { font-size:0.78rem; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; pointer-events:none; }
+  .ch-meta   { font-size:0.65rem; color:#aaa; margin-bottom:6px; pointer-events:none; }
   .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
-  .ch-genre { background:rgba(229,9,20,.25); border:1px solid rgba(229,9,20,.4); color:#ff8080; font-size:0.55rem; padding:1px 5px; border-radius:2px; }
+  .ch-genre  { background:rgba(229,9,20,.25); border:1px solid rgba(229,9,20,.4); color:#ff8080; font-size:0.55rem; padding:1px 5px; border-radius:2px; }
   .ch-actions { display:flex; gap:6px; }
   .ch-play {
     flex:1; background:var(--red); color:#fff; border:none;
@@ -218,7 +217,7 @@
   .ch-dl:hover { background:#333; color:#fff; }
 
   /* GENRE TABS */
-  .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 48px 20px; scrollbar-width:none; }
+  .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 48px 16px; scrollbar-width:none; }
   .genre-tabs::-webkit-scrollbar { display:none; }
   .genre-tab {
     flex:0 0 auto; background:#1a1a1a; border:1px solid #2a2a2a;
@@ -226,19 +225,20 @@
     font-size:0.8rem; font-weight:500; cursor:pointer;
     transition:all .2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
   }
-  .genre-tab:hover { background:#2a2a2a; color:#fff; }
+  .genre-tab:hover  { background:#2a2a2a; color:#fff; }
   .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
 
   /* FOOTER */
   footer { text-align:center; padding:24px; color:#333; font-size:0.75rem; border-top:1px solid #1a1a1a; margin-top:20px; }
-  footer a { color:#444; } footer a:hover { color:var(--red); }
+  footer a { color:#444; }
+  footer a:hover { color:var(--red); }
 
   @media(max-width:768px){
-    :root { --card-w:130px; --card-h:195px; }
+    :root { --card-w:120px; --card-h:180px; }
     .header { padding:0 16px; }
     .hero-content { padding:0 20px 48px; }
     .row-header, .genre-tabs { padding-left:16px; padding-right:16px; }
-    .row-scroll { padding:8px 16px 16px; }
+    .row-scroll { padding:8px 16px; }
     .scroll-btn { display:none; }
     .hero-title { font-size:2rem; }
   }
@@ -265,7 +265,6 @@
 
 {% if media_items %}
 
-{# Preparar listas #}
 {% set movies = [] %}
 {% set series_list = [] %}
 {% set top_rated = [] %}
@@ -289,7 +288,6 @@
   {% endif %}
 {% endfor %}
 
-{# HERO #}
 {% set hero = namespace(item=None) %}
 {% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
 
@@ -313,21 +311,19 @@
 </div>
 {% endif %}
 
-{# Macro de card #}
 {% macro render_card(item) %}
 {% set tmdb = item.tmdb if item.get('tmdb') else None %}
 <a href="{{ item.url }}" class="card">
   <div class="card-inner">
     {% if tmdb and tmdb.poster %}
-      <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy"
-           width="{{ 160 }}" height="{{ 240 }}">
+      <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
     {% else %}
       <div class="card-no-poster">
         <div class="np-icon">{{ '📺' if (tmdb and tmdb.is_series) else '🎬' }}</div>
         <div class="np-title">{{ item.insight }}</div>
       </div>
     {% endif %}
-    <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else 'Película' }}</span>
+    <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else 'Pel' }}</span>
     {% if tmdb and tmdb.rating > 0 %}<span class="card-star">★ {{ tmdb.rating }}</span>{% endif %}
     <div class="card-hover">
       <div class="ch-title">{{ tmdb.title if tmdb else item.insight }}</div>
@@ -342,9 +338,8 @@
 </a>
 {% endmacro %}
 
-<div class="main">
+<div class="main" style="padding-top:24px;">
 
-{# LO MÁS NUEVO #}
 {% if newest %}
 <div class="row-section">
   <div class="row-header">
@@ -353,14 +348,13 @@
     <div class="row-line"></div>
   </div>
   <div class="row-scroll-wrap">
-    <button class="scroll-btn left" onclick="scrollRow(this,-1)">‹</button>
+    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
     <div class="row-scroll">{% for item in newest %}{{ render_card(item) }}{% endfor %}</div>
     <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
   </div>
 </div>
 {% endif %}
 
-{# MEJOR VALORADAS #}
 {% if top_rated %}
 <div class="row-section">
   <div class="row-header">
@@ -369,14 +363,13 @@
     <div class="row-line"></div>
   </div>
   <div class="row-scroll-wrap">
-    <button class="scroll-btn left" onclick="scrollRow(this,-1)">‹</button>
+    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
     <div class="row-scroll">{% for item in top_rated|sort(attribute='tmdb.rating',reverse=True) %}{{ render_card(item) }}{% endfor %}</div>
     <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
   </div>
 </div>
 {% endif %}
 
-{# PELÍCULAS #}
 {% if movies %}
 <div class="row-section">
   <div class="row-header">
@@ -385,14 +378,13 @@
     <div class="row-line"></div>
   </div>
   <div class="row-scroll-wrap">
-    <button class="scroll-btn left" onclick="scrollRow(this,-1)">‹</button>
+    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
     <div class="row-scroll">{% for item in movies %}{{ render_card(item) }}{% endfor %}</div>
     <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
   </div>
 </div>
 {% endif %}
 
-{# SERIES #}
 {% if series_list %}
 <div class="row-section">
   <div class="row-header">
@@ -401,14 +393,13 @@
     <div class="row-line"></div>
   </div>
   <div class="row-scroll-wrap">
-    <button class="scroll-btn left" onclick="scrollRow(this,-1)">‹</button>
+    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
     <div class="row-scroll">{% for item in series_list %}{{ render_card(item) }}{% endfor %}</div>
     <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
   </div>
 </div>
 {% endif %}
 
-{# POR GÉNERO #}
 {% if genre_map %}
 <div class="row-section">
   <div class="row-header">
@@ -421,8 +412,8 @@
     {% endfor %}
   </div>
   {% for genre, items in genre_map.items() %}
-  <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" style="{{ '' if loop.first else 'display:none' }}">
-    <button class="scroll-btn left" onclick="scrollRow(this,-1)">‹</button>
+  <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
     <div class="row-scroll">{% for item in items %}{{ render_card(item) }}{% endfor %}</div>
     <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
   </div>
@@ -433,7 +424,7 @@
 </div>
 
 {% else %}
-<div style="text-align:center;padding:120px 20px;color:#555;padding-top:180px;">
+<div style="text-align:center;padding:180px 20px 120px;color:#555;">
   <div style="font-size:4rem;margin-bottom:20px;">🎬</div>
   <p>No hay contenido disponible</p>
 </div>
@@ -445,7 +436,7 @@
 function scrollRow(btn, dir) {
   const wrap = btn.closest('.row-scroll-wrap');
   const scroll = wrap.querySelector('.row-scroll');
-  if(scroll) scroll.scrollBy({ left: dir * 600, behavior:'smooth' });
+  if (scroll) scroll.scrollBy({ left: dir * 500, behavior: 'smooth' });
 }
 
 document.querySelectorAll('.genre-tab').forEach(tab => {
@@ -461,42 +452,10 @@ document.querySelectorAll('.genre-tab').forEach(tab => {
 
 window.addEventListener('scroll', () => {
   const h = document.getElementById('mainHeader');
-  if(h) h.style.background = window.scrollY > 60
+  if (h) h.style.background = window.scrollY > 60
     ? 'rgba(8,8,8,0.98)'
     : 'linear-gradient(180deg,rgba(8,8,8,.98) 0%,rgba(8,8,8,.7) 80%,transparent 100%)';
 });
-
-// Forzar dimensiones uniformes en todas las cards al cargar y en resize
-function enforceCardSizes() {
-  const style = getComputedStyle(document.documentElement);
-  const w = style.getPropertyValue('--card-w').trim();
-  const h = style.getPropertyValue('--card-h').trim();
-  document.querySelectorAll('.card').forEach(card => {
-    card.style.width = w;
-    card.style.height = h;
-    card.style.minWidth = w;
-    card.style.maxWidth = w;
-    card.style.minHeight = h;
-    card.style.maxHeight = h;
-    card.style.flexShrink = '0';
-    card.style.flexGrow = '0';
-    const inner = card.querySelector('.card-inner');
-    if (inner) {
-      inner.style.width = '100%';
-      inner.style.height = '100%';
-    }
-    const img = card.querySelector('.card-poster');
-    if (img) {
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'cover';
-      img.style.display = 'block';
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', enforceCardSizes);
-window.addEventListener('resize', enforceCardSizes);
 </script>
 </body>
 </html>
