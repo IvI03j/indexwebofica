@@ -203,6 +203,10 @@ class Views:
 
     @aiohttp_jinja2.template('index.html')
     async def index(self, req):
+        # Ignorar peticiones de prefetch del navegador
+        purpose = req.headers.get('Purpose', '') or req.headers.get('Sec-Purpose', '')
+        if 'prefetch' in purpose.lower():
+            raise web.HTTPNoContent()
         alias_id = req.match_info['chat']
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
         if not chat:
