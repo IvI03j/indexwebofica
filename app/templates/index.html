@@ -461,12 +461,8 @@
   let activeFilter = 'all';
   const labels = { all:'Todo el contenido', movie:'Películas', series:'Series' };
 
-  // Clonar todas las cards al inicio para tener referencias limpias
+  // Guardar las cards originales UNA sola vez al cargar la página
   const allCards = grid ? Array.from(grid.querySelectorAll('.card')) : [];
-  allCards.forEach((c, i) => c.dataset.origIndex = i);
-
-  // Guardar clones del estado original para restaurar sin bugs de DOM
-  const originalClones = allCards.map(c => c.cloneNode(true));
 
   chips.forEach(chip => {
     chip.addEventListener('click', (e) => {
@@ -484,14 +480,10 @@
   function applyAll(){
     if(!grid) return;
 
-    // Limpiar el grid completamente y reinsertar desde los originales
-    grid.innerHTML = '';
-    originalClones.forEach(c => grid.appendChild(c.cloneNode(true)));
-
-    const cards = Array.from(grid.querySelectorAll('.card'));
+    // Usar siempre allCards — nunca tocar el DOM para restaurar
     const search = (document.querySelector('.search-input')?.value || '').toLowerCase().trim();
 
-    cards.forEach(card => {
+    allCards.forEach(card => {
       const type = card.dataset.type;
       const genresRaw = card.dataset.genres || '';
       const title = card.dataset.title || '';
@@ -507,7 +499,7 @@
     });
 
     const sortVal = sortSel.value;
-    const visible = cards.filter(c => c.style.display !== 'none');
+    const visible = allCards.filter(c => c.style.display !== 'none');
 
     visible.sort((a,b) => {
       if(sortVal === 'title') return (a.dataset.title||'').localeCompare(b.dataset.title||'');
@@ -517,7 +509,7 @@
 
     const fragment = document.createDocumentFragment();
     visible.forEach(c => fragment.appendChild(c));
-    cards.filter(c => c.style.display === 'none').forEach(c => fragment.appendChild(c));
+    allCards.filter(c => c.style.display === 'none').forEach(c => fragment.appendChild(c));
     grid.appendChild(fragment);
 
     if(sectionLabel){
