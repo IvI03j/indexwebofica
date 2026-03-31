@@ -267,7 +267,7 @@ class Views:
             messages = []
 
         log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
-        log.error(f"DEBUG TOTAL MESSAGES BEFORE FILTER: {len(messages)}")
+        log.error(f"REQUEST {req.method} {req.path} from={req.remote} ua={req.headers.get('User-Agent','?')[:80]} total={len(messages)}")
         for m in messages:
             reply_to = getattr(m, 'reply_to', None)
             top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
