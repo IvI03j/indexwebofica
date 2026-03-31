@@ -459,9 +459,12 @@
   let activeFilter = 'all';
   const labels = { all:'Todo el contenido', movie:'Películas', series:'Series' };
 
-  // Guardar orden original al cargar usando data-index para no perder referencia
+  // Clonar todas las cards al inicio para tener referencias limpias
   const allCards = grid ? Array.from(grid.querySelectorAll('.card')) : [];
   allCards.forEach((c, i) => c.dataset.origIndex = i);
+
+  // Guardar clones del estado original para restaurar sin bugs de DOM
+  const originalClones = allCards.map(c => c.cloneNode(true));
 
   chips.forEach(chip => {
     chip.addEventListener('click', (e) => {
@@ -479,10 +482,9 @@
   function applyAll(){
     if(!grid) return;
 
-    // Restaurar orden original usando data-origIndex para evitar duplicados
-    const sorted = Array.from(grid.querySelectorAll('.card'))
-      .sort((a,b) => parseInt(a.dataset.origIndex) - parseInt(b.dataset.origIndex));
-    sorted.forEach(c => grid.appendChild(c));
+    // Limpiar el grid completamente y reinsertar desde los originales
+    grid.innerHTML = '';
+    originalClones.forEach(c => grid.appendChild(c.cloneNode(true)));
 
     const cards = Array.from(grid.querySelectorAll('.card'));
     const search = (document.querySelector('.search-input')?.value || '').toLowerCase().trim();
