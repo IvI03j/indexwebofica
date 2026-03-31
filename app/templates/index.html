@@ -461,7 +461,7 @@
   let activeFilter = 'all';
   const labels = { all:'Todo el contenido', movie:'Películas', series:'Series' };
 
-  // Guardar las cards originales UNA sola vez al cargar la página
+  // Guardar las cards originales al cargar — NUNCA modificar el DOM
   const allCards = grid ? Array.from(grid.querySelectorAll('.card')) : [];
 
   chips.forEach(chip => {
@@ -471,18 +471,18 @@
       chip.classList.add('active');
       activeFilter = chip.dataset.filter;
       if(heroSection) heroSection.style.display = (activeFilter === 'all') ? '' : 'none';
-      applyAll();
+      applyFilter();
     });
   });
 
-  sortSel.addEventListener('change', applyAll);
+  sortSel.addEventListener('change', applyFilter);
 
-  function applyAll(){
+  function applyFilter(){
     if(!grid) return;
-
-    // Usar siempre allCards — nunca tocar el DOM para restaurar
     const search = (document.querySelector('.search-input')?.value || '').toLowerCase().trim();
+    let visible = 0;
 
+    // Solo mostrar/ocultar — nunca mover ni clonar nodos
     allCards.forEach(card => {
       const type = card.dataset.type;
       const genresRaw = card.dataset.genres || '';
@@ -496,27 +496,13 @@
       }
       if(search && !title.includes(search)) show = false;
       card.style.display = show ? '' : 'none';
+      if(show) visible++;
     });
-
-    const sortVal = sortSel.value;
-    const visible = allCards.filter(c => c.style.display !== 'none');
-
-    visible.sort((a,b) => {
-      if(sortVal === 'title') return (a.dataset.title||'').localeCompare(b.dataset.title||'');
-      if(sortVal === 'rating') return parseFloat(b.dataset.rating||0) - parseFloat(a.dataset.rating||0);
-      return new Date(b.dataset.date) - new Date(a.dataset.date);
-    });
-
-    const fragment = document.createDocumentFragment();
-    visible.forEach(c => fragment.appendChild(c));
-    allCards.filter(c => c.style.display === 'none').forEach(c => fragment.appendChild(c));
-    grid.innerHTML = '';
-    grid.appendChild(fragment);
 
     if(sectionLabel){
       sectionLabel.textContent = labels[activeFilter] || activeFilter.replace('genre-','');
     }
-    if(sectionCount) sectionCount.textContent = visible.length;
+    if(sectionCount) sectionCount.textContent = visible;
   }
 })();
 </script>
