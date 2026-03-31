@@ -11,8 +11,8 @@
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --card-w: 185px;
-    --card-h: 278px;
+    --card-w: 170px;
+    --card-h: 255px;
     --radius: 8px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -96,65 +96,77 @@
   /* SCROLL WRAPPER */
   .row-scroll-wrap {
     position: relative;
-    /* espacio extra a los lados para que las flechas NO se superpongan al scroll */
-    padding: 0 52px;
   }
 
+  /* Contenedor del scroll: altura fija = card + padding vertical.
+     overflow-x scroll, overflow-y hidden para que no se vean huecos */
   .row-scroll {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     overflow-x: auto;
-    overflow-y: visible;        /* visible para el efecto scale del hover */
-    padding: 12px 4px 20px;
-    align-items: flex-start;
+    overflow-y: hidden;
+    /* padding lateral deja espacio para las flechas */
+    padding: 16px 60px 24px;
+    align-items: center;
     scroll-behavior: smooth;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
   .row-scroll::-webkit-scrollbar { display: none; }
 
-  /* Las flechas viven FUERA del área de scroll (en el padding lateral),
-     así nunca quedan tapadas por las cards */
+  /* Flechas: posición absoluta sobre el wrapper,
+     siempre visibles, z-index muy alto */
   .scroll-btn {
     position: absolute;
-    top: 0; bottom: 0;
-    width: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 70px;
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(90deg, rgba(8,8,8,.97), rgba(8,8,8,.7));
     border: none; color: #fff;
-    font-size: 1.8rem; cursor: pointer;
-    z-index: 200;               /* siempre por encima de cualquier card */
-    opacity: 0.55;
+    font-size: 2rem; font-weight: bold;
+    cursor: pointer;
+    z-index: 500;
+    opacity: 0.85;
     transition: opacity .2s, background .2s;
     user-select: none;
+    pointer-events: all;
+    border-radius: 6px;
   }
-  .scroll-btn:hover  { opacity: 1; background: rgba(8,8,8,.98); }
-  .scroll-btn.left  { left: 0;  border-radius: 0 8px 8px 0; }
-  .scroll-btn.right { right: 0; border-radius: 8px 0 0 8px; background: linear-gradient(270deg, rgba(8,8,8,.97), rgba(8,8,8,.7)); }
+  .scroll-btn.left  {
+    left: 4px;
+    background: linear-gradient(90deg, rgba(8,8,8,.98) 60%, rgba(8,8,8,.5));
+  }
+  .scroll-btn.right {
+    right: 4px;
+    background: linear-gradient(270deg, rgba(8,8,8,.98) 60%, rgba(8,8,8,.5));
+  }
+  .scroll-btn:hover { opacity: 1; }
 
-  /* CARD — tamaño absolutamente fijo */
+  /* CARD */
   .card {
     flex: 0 0 var(--card-w);
     width: var(--card-w);
     height: var(--card-h);
+    min-width: var(--card-w);
+    min-height: var(--card-h);
     position: relative;
     border-radius: var(--radius);
     cursor: pointer;
     overflow: visible;
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
     z-index: 1;
   }
-  /* Al hacer hover la card sube en z-index pero NUNCA llega a z-index 200
-     para no tapar las flechas de navegación */
   .card:hover {
-    transform: scale(1.13) translateY(-6px);
+    transform: scale(1.12) translateY(-6px);
     z-index: 10;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
 
   /* card-inner recorta la imagen */
   .card-inner {
-    width: var(--card-w);
-    height: var(--card-h);
+    width: 100%;
+    height: 100%;
     border-radius: var(--radius);
     overflow: hidden;
     position: relative;
@@ -238,14 +250,14 @@
   footer a:hover { color:var(--red); }
 
   @media(max-width:768px){
-    :root { --card-w:140px; --card-h:210px; }
+    :root { --card-w:130px; --card-h:195px; }
     .header { padding:0 16px; }
     .hero-content { padding:0 20px 48px; }
     .row-header  { padding-left:16px; padding-right:16px; }
     .genre-tabs  { padding-left:16px; padding-right:16px; }
-    .row-scroll-wrap { padding:0 36px; }
-    .scroll-btn { width:34px; font-size:1.4rem; opacity:0.7; }
-    .hero-title { font-size:2rem; }
+    .row-scroll  { padding:12px 44px 20px; gap:10px; }
+    .scroll-btn  { width:36px; height:56px; font-size:1.5rem; }
+    .hero-title  { font-size:2rem; }
   }
 </style>
 </head>
@@ -439,14 +451,11 @@
 
 <script>
 function scrollRow(btn, dir) {
-  // Evitamos que el clic en la flecha propague al link de la card
-  btn.addEventListener('click', e => e.stopPropagation(), { once: true });
   const wrap = btn.closest('.row-scroll-wrap');
   const scroll = wrap.querySelector('.row-scroll');
   if (!scroll) return;
-  // Desplazamos ~4 cards a la vez
-  const cardW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 185;
-  scroll.scrollBy({ left: dir * (cardW + 12) * 4, behavior: 'smooth' });
+  const cardW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 170;
+  scroll.scrollBy({ left: dir * (cardW + 14) * 3, behavior: 'smooth' });
 }
 
 document.querySelectorAll('.genre-tab').forEach(tab => {
