@@ -11,9 +11,9 @@
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --card-w: 170px;
-    --card-h: 255px;
-    --radius: 8px;
+    --card-w: 160px;
+    --card-h: 240px;
+    --radius: 6px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
@@ -88,7 +88,7 @@
 
   /* ROW */
   .row-section { padding:0 0 32px; }
-  .row-header { display:flex; align-items:center; gap:12px; padding:0 56px 12px; }
+  .row-header { display:flex; align-items:center; gap:12px; padding:0 48px 14px; }
   .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; color:#fff; }
   .row-count { background:var(--red); color:#fff; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:3px; }
   .row-line { flex:1; height:1px; background:linear-gradient(90deg,#333,transparent); }
@@ -96,52 +96,29 @@
   /* SCROLL WRAPPER */
   .row-scroll-wrap {
     position: relative;
+    padding: 0 44px;
   }
 
-  /* Contenedor del scroll: altura fija = card + padding vertical.
-     overflow-x scroll, overflow-y hidden para que no se vean huecos */
   .row-scroll {
-    display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    /* padding lateral deja espacio para las flechas */
-    padding: 16px 60px 24px;
-    align-items: center;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display:flex; gap:10px;
+    overflow-x:auto; overflow-y:visible;
+    padding:8px 0 16px;
+    scroll-behavior:smooth; scrollbar-width:none;
   }
   .row-scroll::-webkit-scrollbar { display: none; }
 
-  /* Flechas: posición absoluta sobre el wrapper,
-     siempre visibles, z-index muy alto */
   .scroll-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 70px;
-    display: flex; align-items: center; justify-content: center;
-    border: none; color: #fff;
-    font-size: 2rem; font-weight: bold;
-    cursor: pointer;
-    z-index: 500;
-    opacity: 0.85;
-    transition: opacity .2s, background .2s;
-    user-select: none;
-    pointer-events: all;
-    border-radius: 6px;
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:44px; height:80px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(8,8,8,.88); border:none; color:#fff;
+    font-size:1.4rem; cursor:pointer; z-index:220;
+    opacity:.72; transition:opacity .2s, background .2s;
   }
-  .scroll-btn.left  {
-    left: 4px;
-    background: linear-gradient(90deg, rgba(8,8,8,.98) 60%, rgba(8,8,8,.5));
-  }
-  .scroll-btn.right {
-    right: 4px;
-    background: linear-gradient(270deg, rgba(8,8,8,.98) 60%, rgba(8,8,8,.5));
-  }
-  .scroll-btn:hover { opacity: 1; }
+  .row-scroll-wrap:hover .scroll-btn { opacity:1; }
+  .scroll-btn.left { left:0; border-radius:0 6px 6px 0; }
+  .scroll-btn.right { right:0; border-radius:6px 0 0 6px; }
+  .scroll-btn:hover { background:rgba(8,8,8,.98); }
 
   /* CARD */
   .card {
@@ -158,8 +135,8 @@
     z-index: 1;
   }
   .card:hover {
-    transform: scale(1.12) translateY(-6px);
-    z-index: 10;
+    transform: scale(1.18) translateY(-8px);
+    z-index: 50;
     transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
 
@@ -173,7 +150,7 @@
     box-shadow: 0 4px 20px rgba(0,0,0,.5);
     transition: box-shadow .3s;
   }
-  .card:hover .card-inner { box-shadow: 0 16px 50px rgba(0,0,0,.9); }
+  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
 
   .card-poster {
     display: block;
@@ -253,11 +230,11 @@
     :root { --card-w:130px; --card-h:195px; }
     .header { padding:0 16px; }
     .hero-content { padding:0 20px 48px; }
-    .row-header  { padding-left:16px; padding-right:16px; }
-    .genre-tabs  { padding-left:16px; padding-right:16px; }
-    .row-scroll  { padding:12px 44px 20px; gap:10px; }
-    .scroll-btn  { width:36px; height:56px; font-size:1.5rem; }
-    .hero-title  { font-size:2rem; }
+    .row-header, .genre-tabs { padding-left:16px; padding-right:16px; }
+    .row-scroll-wrap { padding:0; }
+    .row-scroll { padding:8px 16px 16px; }
+    .scroll-btn { display:none; }
+    .hero-title { font-size:2rem; }
   }
 </style>
 </head>
