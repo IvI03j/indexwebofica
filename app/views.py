@@ -232,25 +232,36 @@ class Views:
         PAGE_SIZE = 20
         messages = []
 
+        # Solo mostrar mensajes de los temas de películas y series
+        from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
+        ALLOWED_THREADS = {MOVIES_THREAD_ID, SERIES_THREAD_ID}
+
+        def _in_allowed_thread(m):
+            reply_to = getattr(m, 'reply_to', None)
+            if reply_to is None:
+                return False
+            top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
+            return top_id in ALLOWED_THREADS
+
         try:
             if search_query:
                 all_msgs = await self.client.get_messages(
                     entity=chat_id,
-                    limit=200,
+                    limit=500,
                     search=search_query,
                 )
                 all_msgs = all_msgs or []
-                media_msgs = [m for m in all_msgs if _has_media(m)]
+                media_msgs = [m for m in all_msgs if _has_media(m) and _in_allowed_thread(m)]
                 start = PAGE_SIZE * (page - 1)
                 messages = media_msgs[start: start + PAGE_SIZE]
             else:
                 batch = await self.client.get_messages(
                     entity=chat_id,
-                    limit=PAGE_SIZE * 5,
+                    limit=PAGE_SIZE * 10,
                     add_offset=PAGE_SIZE * (page - 1),
                 )
                 batch = batch or []
-                messages = [m for m in batch if _has_media(m)][:PAGE_SIZE]
+                messages = [m for m in batch if _has_media(m) and _in_allowed_thread(m)][:PAGE_SIZE]
         except Exception:
             log.debug("failed to get messages", exc_info=True)
             messages = []
