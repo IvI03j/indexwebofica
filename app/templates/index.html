@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="x-dns-prefetch-control" content="off">
 <title>{{ title }}</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -11,26 +10,73 @@
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --card-w: 150px;
-    --card-h: 225px;
+    --sidebar-w: 68px;
+    --card-w: 185px;
+    --card-h: 278px;
     --radius: 6px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+  body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
   a { text-decoration:none; color:inherit; }
 
-  /* HEADER */
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position:fixed; top:0; left:0; bottom:0;
+    width:var(--sidebar-w); z-index:400;
+    background:rgba(8,8,8,0.95);
+    border-right:1px solid #1a1a1a;
+    display:flex; flex-direction:column; align-items:center;
+    padding:20px 0; gap:8px;
+    transition:width .3s ease;
+  }
+  .sidebar:hover {
+    width:200px;
+  }
+  .sidebar:hover .sb-label { opacity:1; width:auto; }
+  .sidebar:hover .sb-item { justify-content:flex-start; padding:0 20px; }
+
+  .sb-logo {
+    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--red);
+    letter-spacing:2px; margin-bottom:20px; padding:0 14px;
+    display:flex; align-items:center; gap:10px; width:100%;
+    overflow:hidden; white-space:nowrap;
+  }
+  .sb-logo-icon { font-size:1.6rem; flex-shrink:0; }
+  .sb-logo-text { opacity:0; transition:opacity .2s; font-size:1.4rem; }
+  .sidebar:hover .sb-logo-text { opacity:1; }
+
+  .sb-item {
+    width:100%; height:48px;
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; padding:0 14px; border-radius:0;
+    cursor:pointer; transition:background .2s; color:#888;
+    white-space:nowrap; overflow:hidden;
+    border-left:3px solid transparent;
+  }
+  .sb-item:hover { background:rgba(255,255,255,0.07); color:#fff; }
+  .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,0.1); }
+  .sb-icon { font-size:1.3rem; flex-shrink:0; }
+  .sb-label { opacity:0; font-size:0.88rem; font-weight:500; transition:opacity .2s; }
+
+  .sb-divider { width:60%; height:1px; background:#1f1f1f; margin:8px 0; }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    margin-left:var(--sidebar-w);
+    flex:1; min-width:0;
+  }
+
+  /* ── HEADER ── */
   .header {
-    position:fixed; top:0; left:0; right:0; z-index:300;
+    position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:300;
     display:flex; align-items:center; gap:16px;
-    padding:0 48px; height:64px;
+    padding:0 32px; height:64px;
     background:linear-gradient(180deg,rgba(8,8,8,.98) 0%,rgba(8,8,8,.7) 80%,transparent 100%);
     backdrop-filter:blur(8px);
+    transition:left .3s;
   }
-  .logo { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--red); letter-spacing:2px; display:flex; align-items:center; gap:10px; }
-  .logo img { width:34px; height:34px; border-radius:50%; object-fit:cover; }
-  .header-name { color:#888; font-size:0.85rem; padding-left:12px; border-left:1px solid #333; }
+  .header-name { color:#888; font-size:0.85rem; }
   .spacer { flex:1; }
   .search-wrap { position:relative; }
   .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#666; }
@@ -43,9 +89,9 @@
   .search-input:focus { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.3); width:240px; }
   .search-input::placeholder { color:#555; }
 
-  /* HERO */
+  /* ── HERO ── */
   .hero {
-    position:relative; width:100%; height:90vh; min-height:520px;
+    position:relative; width:100%; height:88vh; min-height:500px;
     display:flex; align-items:flex-end; overflow:hidden;
   }
   .hero-bg {
@@ -57,9 +103,9 @@
   .hero-vignette {
     position:absolute; inset:0;
     background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.7) 30%,rgba(8,8,8,.1) 60%,transparent 100%),
-               linear-gradient(90deg,rgba(8,8,8,.85) 0%,rgba(8,8,8,.4) 50%,transparent 100%);
+               linear-gradient(90deg,rgba(8,8,8,.85) 0%,rgba(8,8,8,.3) 60%,transparent 100%);
   }
-  .hero-content { position:relative; z-index:2; padding:0 56px 64px; max-width:600px; }
+  .hero-content { position:relative; z-index:2; padding:0 48px 56px; max-width:580px; }
   .hero-badge {
     display:inline-block; background:var(--red); color:#fff;
     font-size:0.65rem; font-weight:700; padding:3px 10px; border-radius:3px;
@@ -68,45 +114,45 @@
   .hero-title {
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(2.5rem,5vw,4.5rem); line-height:1;
-    letter-spacing:1px; margin-bottom:14px;
+    letter-spacing:1px; margin-bottom:12px;
     text-shadow:0 2px 30px rgba(0,0,0,.8);
   }
   .hero-meta { display:flex; gap:12px; align-items:center; font-size:0.88rem; color:#ccc; margin-bottom:12px; flex-wrap:wrap; }
   .hero-meta .rating { color:#f5c518; font-weight:700; }
-  .hero-overview { font-size:0.95rem; color:#ccc; line-height:1.6; margin-bottom:16px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
+  .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.6; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
   .hero-genre { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#ddd; font-size:0.72rem; padding:3px 10px; border-radius:3px; }
-  .hero-btn {
+  .hero-actions { display:flex; gap:12px; }
+  .hero-btn-play {
     display:inline-flex; align-items:center; gap:8px;
     background:#fff; color:#000; padding:12px 32px; border-radius:5px;
     font-size:1rem; font-weight:700; transition:background .2s;
   }
-  .hero-btn:hover { background:#ddd; }
+  .hero-btn-play:hover { background:#ddd; }
+  .hero-btn-info {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(109,109,110,0.7); color:#fff; padding:12px 24px; border-radius:5px;
+    font-size:1rem; font-weight:700; transition:background .2s;
+  }
+  .hero-btn-info:hover { background:rgba(109,109,110,1); }
 
-  /* MAIN */
-  .main { padding-top:0; }
-
-  /* ROW */
-  .row-section { padding:0 0 28px; }
-  .row-header { display:flex; align-items:center; gap:12px; padding:0 48px 12px; }
+  /* ── ROWS ── */
+  .main { padding-top:20px; }
+  .row-section { padding:0 0 32px; }
+  .row-header { display:flex; align-items:center; gap:12px; padding:0 32px 12px; }
   .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; color:#fff; }
   .row-count { background:var(--red); color:#fff; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:3px; }
   .row-line { flex:1; height:1px; background:linear-gradient(90deg,#333,transparent); }
 
-  /* SCROLL WRAPPER — altura fija para que no crezca */
   .row-scroll-wrap {
     position:relative;
-    height:calc(var(--card-h) + 24px); /* altura card + padding vertical */
+    height:calc(var(--card-h) + 40px);
   }
-
   .row-scroll {
-    display:flex;
-    gap:10px;
-    overflow-x:auto;
-    overflow-y:hidden;          /* ← corte limpio, sin cards flotantes */
-    padding:8px 48px;
-    height:100%;
-    align-items:flex-start;     /* ← ancla las cards arriba, sin estiramientos */
+    display:flex; gap:6px;
+    overflow-x:auto; overflow-y:hidden;
+    padding:10px 32px;
+    height:100%; align-items:flex-start;
     scroll-behavior:smooth;
     scrollbar-width:none;
     -webkit-overflow-scrolling:touch;
@@ -115,60 +161,44 @@
 
   .scroll-btn {
     position:absolute; top:0; bottom:0; margin:auto 0;
-    width:40px; height:70px;
+    width:44px; height:80px;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(8,8,8,.85); border:none; color:#fff;
-    font-size:1.4rem; cursor:pointer; z-index:10;
+    background:rgba(8,8,8,.9); border:none; color:#fff;
+    font-size:1.6rem; cursor:pointer; z-index:10;
     opacity:0; transition:opacity .2s;
   }
   .row-scroll-wrap:hover .scroll-btn { opacity:1; }
-  .scroll-btn.left  { left:0;  border-radius:0 6px 6px 0; }
+  .scroll-btn.left  { left:0; border-radius:0 6px 6px 0; }
   .scroll-btn.right { right:0; border-radius:6px 0 0 6px; }
-  .scroll-btn:hover { background:rgba(8,8,8,.98); }
+  .scroll-btn:hover { background:rgba(8,8,8,1); }
 
-  /* CARD — tamaño absolutamente fijo */
+  /* ── CARD ── */
   .card {
-    flex: 0 0 var(--card-w);
-    width: var(--card-w);
-    height: var(--card-h);
-    position: relative;
-    border-radius: var(--radius);
-    cursor: pointer;
-    /* overflow:visible permite el scale sin recorte */
-    overflow: visible;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
-    z-index: 1;
+    flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
+    position:relative; border-radius:var(--radius);
+    cursor:pointer; overflow:visible;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
+    z-index:1;
   }
   .card:hover {
-    transform: scale(1.16) translateY(-6px);
-    z-index: 50;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
+    transform:scale(1.14) translateY(-6px);
+    z-index:50;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
-
-  /* card-inner recorta la imagen dentro del card */
   .card-inner {
-    width: var(--card-w);
-    height: var(--card-h);
-    border-radius: var(--radius);
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,.5);
-    transition: box-shadow .3s;
-    /* evita que flex o block cambie las dimensiones */
-    flex-shrink: 0;
+    width:var(--card-w); height:var(--card-h);
+    border-radius:var(--radius); overflow:hidden; position:relative;
+    box-shadow:0 4px 20px rgba(0,0,0,.5);
+    transition:box-shadow .3s;
   }
-  .card:hover .card-inner { box-shadow: 0 20px 60px rgba(0,0,0,.9); }
+  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
 
   .card-poster {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    pointer-events: none;
-    transition: filter .3s;
+    display:block; width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    pointer-events:none; transition:filter .3s;
   }
-  .card:hover .card-poster { filter: brightness(0.45); }
+  .card:hover .card-poster { filter:brightness(0.4); }
 
   .card-no-poster {
     width:100%; height:100%;
@@ -198,7 +228,7 @@
     background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.5) 50%,transparent 100%);
   }
   .card:hover .card-hover { opacity:1; pointer-events:auto; }
-  .ch-title  { font-size:0.78rem; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; pointer-events:none; }
+  .ch-title  { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; pointer-events:none; }
   .ch-meta   { font-size:0.65rem; color:#aaa; margin-bottom:6px; pointer-events:none; }
   .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
   .ch-genre  { background:rgba(229,9,20,.25); border:1px solid rgba(229,9,20,.4); color:#ff8080; font-size:0.55rem; padding:1px 5px; border-radius:2px; }
@@ -209,15 +239,9 @@
     cursor:pointer; text-align:center; transition:background .2s; font-family:'DM Sans',sans-serif;
   }
   .ch-play:hover { background:var(--red2); }
-  .ch-dl {
-    background:#222; color:#aaa; border:1px solid #333;
-    padding:6px 9px; border-radius:4px; font-size:0.72rem;
-    cursor:pointer; transition:all .2s; display:flex; align-items:center;
-  }
-  .ch-dl:hover { background:#333; color:#fff; }
 
-  /* GENRE TABS */
-  .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 48px 16px; scrollbar-width:none; }
+  /* ── GENRE TABS ── */
+  .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
   .genre-tabs::-webkit-scrollbar { display:none; }
   .genre-tab {
     flex:0 0 auto; background:#1a1a1a; border:1px solid #2a2a2a;
@@ -228,215 +252,271 @@
   .genre-tab:hover  { background:#2a2a2a; color:#fff; }
   .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
 
-  /* FOOTER */
-  footer { text-align:center; padding:24px; color:#333; font-size:0.75rem; border-top:1px solid #1a1a1a; margin-top:20px; }
-  footer a { color:#444; }
-  footer a:hover { color:var(--red); }
+  /* ── PAGINATION ── */
+  .pagination {
+    display:flex; justify-content:center; align-items:center;
+    gap:10px; padding:24px 0 32px;
+  }
+  .pg-btn {
+    background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
+    padding:9px 22px; border-radius:6px; font-size:0.85rem; transition:all .2s;
+  }
+  .pg-btn:hover { background:var(--red); border-color:var(--red); color:#fff; }
+  .pg-cur {
+    background:var(--red); border:1px solid var(--red); color:#fff;
+    padding:9px 22px; border-radius:6px; font-size:0.85rem; font-weight:700;
+  }
 
+  /* ── FOOTER ── */
+  footer { text-align:center; padding:24px; color:#333; font-size:0.75rem; border-top:1px solid #1a1a1a; margin-top:10px; }
+  footer a { color:#444; } footer a:hover { color:var(--red); }
+
+  /* ── RESPONSIVE ── */
   @media(max-width:768px){
-    :root { --card-w:120px; --card-h:180px; }
-    .header { padding:0 16px; }
-    .hero-content { padding:0 20px 48px; }
+    :root { --sidebar-w:0px; --card-w:130px; --card-h:195px; }
+    .sidebar { display:none; }
+    .content { margin-left:0; }
+    .header { left:0; padding:0 16px; }
+    .hero-content { padding:0 16px 40px; }
     .row-header, .genre-tabs { padding-left:16px; padding-right:16px; }
     .row-scroll { padding:8px 16px; }
     .scroll-btn { display:none; }
-    .hero-title { font-size:2rem; }
   }
 </style>
 </head>
 <body>
 
-<header class="header" id="mainHeader">
-  <a class="logo" href="/">
-    <img src="{{ logo }}" onerror="this.style.display='none'">
-    TGINDEX
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <span class="sb-logo-icon">🎬</span>
+    <span class="sb-logo-text">TGINDEX</span>
+  </div>
+
+  <a class="sb-item active" href="/">
+    <span class="sb-icon">🏠</span>
+    <span class="sb-label">Inicio</span>
   </a>
-  <span class="header-name">{{ name }}</span>
-  <div class="spacer"></div>
-  <div class="search-wrap">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <form method="GET">
-      <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
-    </form>
-  </div>
-</header>
+  <a class="sb-item" href="/otg">
+    <span class="sb-icon">🔍</span>
+    <span class="sb-label">Buscar</span>
+  </a>
+  <a class="sb-item" href="/pc">
+    <span class="sb-icon">🎵</span>
+    <span class="sb-label">Playlist</span>
+  </a>
 
-{% set media_items = item_list | selectattr('media') | list %}
+  <div class="sb-divider"></div>
 
-{% if media_items %}
-
-{% set movies = [] %}
-{% set series_list = [] %}
-{% set top_rated = [] %}
-{% set newest = [] %}
-{% set genre_map = {} %}
-
-{% for item in media_items %}
-  {% set tmdb = item.tmdb if item.get('tmdb') else None %}
-  {% if tmdb %}
-    {% if tmdb.is_series %}{% if series_list.append(item) %}{% endif %}
-    {% else %}{% if movies.append(item) %}{% endif %}
-    {% endif %}
-    {% if tmdb.rating and tmdb.rating >= 7.0 %}{% if top_rated.append(item) %}{% endif %}{% endif %}
-    {% if tmdb.year and tmdb.year >= '2024' %}{% if newest.append(item) %}{% endif %}{% endif %}
-    {% for g in tmdb.genres %}
-      {% if g not in genre_map %}{% if genre_map.update({g: []}) %}{% endif %}{% endif %}
-      {% if genre_map[g].append(item) %}{% endif %}
-    {% endfor %}
-  {% else %}
-    {% if movies.append(item) %}{% endif %}
-  {% endif %}
-{% endfor %}
-
-{% set hero = namespace(item=None) %}
-{% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
-
-{% if hero.item %}
-{% set hi = hero.item %}{% set ht = hi.tmdb %}
-<div class="hero">
-  <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
-  <div class="hero-vignette"></div>
-  <div class="hero-content">
-    <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-    <h1 class="hero-title">{{ ht.title }}</h1>
-    <div class="hero-meta">
-      {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
-      {% if ht.rating > 0 %}<span class="rating">⭐ {{ ht.rating }}</span>{% endif %}
-      {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
-    </div>
-    {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
-    {% if ht.genres %}<div class="hero-genres">{% for g in ht.genres %}<span class="hero-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
-    <a class="hero-btn" href="{{ hi.url }}">▶ Ver ahora</a>
-  </div>
-</div>
-{% endif %}
-
-{% macro render_card(item) %}
-{% set tmdb = item.tmdb if item.get('tmdb') else None %}
-<a href="{{ item.url }}" class="card">
-  <div class="card-inner">
-    {% if tmdb and tmdb.poster %}
-      <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
-    {% else %}
-      <div class="card-no-poster">
-        <div class="np-icon">{{ '📺' if (tmdb and tmdb.is_series) else '🎬' }}</div>
-        <div class="np-title">{{ item.insight }}</div>
-      </div>
-    {% endif %}
-    <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else 'Pel' }}</span>
-    {% if tmdb and tmdb.rating > 0 %}<span class="card-star">★ {{ tmdb.rating }}</span>{% endif %}
-    <div class="card-hover">
-      <div class="ch-title">{{ tmdb.title if tmdb else item.insight }}</div>
-      <div class="ch-meta">{{ tmdb.year if tmdb else '' }}{% if tmdb and tmdb.rating > 0 %} · ⭐ {{ tmdb.rating }}{% endif %}</div>
-      {% if tmdb and tmdb.genres %}<div class="ch-genres">{% for g in tmdb.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
-      <div class="ch-actions">
-        <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
-        <a class="ch-dl" href="{{ item.download }}" onclick="event.stopPropagation()" title="Descargar">⬇</a>
-      </div>
-    </div>
-  </div>
-</a>
-{% endmacro %}
-
-<div class="main" style="padding-top:24px;">
-
-{% if newest %}
-<div class="row-section">
-  <div class="row-header">
-    <h2 class="row-title">🆕 Lo más nuevo</h2>
-    <span class="row-count">{{ newest|length }}</span>
-    <div class="row-line"></div>
-  </div>
-  <div class="row-scroll-wrap">
-    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-    <div class="row-scroll">{% for item in newest %}{{ render_card(item) }}{% endfor %}</div>
-    <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-  </div>
-</div>
-{% endif %}
-
-{% if top_rated %}
-<div class="row-section">
-  <div class="row-header">
-    <h2 class="row-title">⭐ Mejor valoradas</h2>
-    <span class="row-count">{{ top_rated|length }}</span>
-    <div class="row-line"></div>
-  </div>
-  <div class="row-scroll-wrap">
-    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-    <div class="row-scroll">{% for item in top_rated|sort(attribute='tmdb.rating',reverse=True) %}{{ render_card(item) }}{% endfor %}</div>
-    <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-  </div>
-</div>
-{% endif %}
-
-{% if movies %}
-<div class="row-section">
-  <div class="row-header">
-    <h2 class="row-title">🎬 Películas</h2>
-    <span class="row-count">{{ movies|length }}</span>
-    <div class="row-line"></div>
-  </div>
-  <div class="row-scroll-wrap">
-    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-    <div class="row-scroll">{% for item in movies %}{{ render_card(item) }}{% endfor %}</div>
-    <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-  </div>
-</div>
-{% endif %}
-
-{% if series_list %}
-<div class="row-section">
-  <div class="row-header">
-    <h2 class="row-title">📺 Series</h2>
-    <span class="row-count">{{ series_list|length }}</span>
-    <div class="row-line"></div>
-  </div>
-  <div class="row-scroll-wrap">
-    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-    <div class="row-scroll">{% for item in series_list %}{{ render_card(item) }}{% endfor %}</div>
-    <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-  </div>
-</div>
-{% endif %}
-
-{% if genre_map %}
-<div class="row-section">
-  <div class="row-header">
-    <h2 class="row-title">🎭 Por género</h2>
-    <div class="row-line"></div>
-  </div>
-  <div class="genre-tabs">
-    {% for genre in genre_map.keys() %}
-    <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
-    {% endfor %}
-  </div>
-  {% for genre, items in genre_map.items() %}
-  <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-    <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-    <div class="row-scroll">{% for item in items %}{{ render_card(item) }}{% endfor %}</div>
-    <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-  </div>
+  {% for genre in all_genres[:6] %}
+  <a class="sb-item" href="#genre-{{ genre }}" onclick="jumpGenre('{{ genre }}')">
+    <span class="sb-icon">🎭</span>
+    <span class="sb-label">{{ genre }}</span>
+  </a>
   {% endfor %}
-</div>
-{% endif %}
+</nav>
 
-</div>
+<!-- ── MAIN ── -->
+<div class="content">
 
-{% else %}
-<div style="text-align:center;padding:180px 20px 120px;color:#555;">
-  <div style="font-size:4rem;margin-bottom:20px;">🎬</div>
-  <p>No hay contenido disponible</p>
-</div>
-{% endif %}
+  <header class="header" id="mainHeader">
+    <span class="header-name">{{ name }}</span>
+    <div class="spacer"></div>
+    <div class="search-wrap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <form method="GET">
+        <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
+      </form>
+    </div>
+  </header>
 
-<footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
+  {% set media_items = item_list | selectattr('media') | list %}
+
+  {% if media_items %}
+
+    {% set movies = [] %}
+    {% set series_list = [] %}
+    {% set top_rated = [] %}
+    {% set newest = [] %}
+    {% set genre_map = {} %}
+
+    {% for item in media_items %}
+      {% set tmdb = item.tmdb if item.get('tmdb') else None %}
+      {% if tmdb %}
+        {% if tmdb.is_series %}{% if series_list.append(item) %}{% endif %}
+        {% else %}{% if movies.append(item) %}{% endif %}
+        {% endif %}
+        {% if tmdb.rating and tmdb.rating >= 7.0 %}{% if top_rated.append(item) %}{% endif %}{% endif %}
+        {% if tmdb.year and tmdb.year >= '2024' %}{% if newest.append(item) %}{% endif %}{% endif %}
+        {% for g in tmdb.genres %}
+          {% if g not in genre_map %}{% if genre_map.update({g: []}) %}{% endif %}{% endif %}
+          {% if genre_map[g].append(item) %}{% endif %}
+        {% endfor %}
+      {% else %}
+        {% if movies.append(item) %}{% endif %}
+      {% endif %}
+    {% endfor %}
+
+    {% set hero = namespace(item=None) %}
+    {% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
+
+    {% if hero.item %}
+    {% set hi = hero.item %}{% set ht = hi.tmdb %}
+    <div class="hero">
+      <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
+      <div class="hero-vignette"></div>
+      <div class="hero-content">
+        <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
+        <h1 class="hero-title">{{ ht.title }}</h1>
+        <div class="hero-meta">
+          {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
+          {% if ht.rating > 0 %}<span class="rating">⭐ {{ ht.rating }}</span>{% endif %}
+          {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
+        </div>
+        {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
+        {% if ht.genres %}<div class="hero-genres">{% for g in ht.genres %}<span class="hero-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
+        <div class="hero-actions">
+          <a class="hero-btn-play" href="{{ hi.url }}">▶ Ver ahora</a>
+          <a class="hero-btn-info" href="{{ hi.url }}">ℹ Más info</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% macro render_card(item) %}
+    {% set tmdb = item.tmdb if item.get('tmdb') else None %}
+    <a href="{{ item.url }}" class="card">
+      <div class="card-inner">
+        {% if tmdb and tmdb.poster %}
+          <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
+        {% else %}
+          <div class="card-no-poster">
+            <div class="np-icon">{{ '📺' if (tmdb and tmdb.is_series) else '🎬' }}</div>
+            <div class="np-title">{{ item.insight }}</div>
+          </div>
+        {% endif %}
+        <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else 'Pel' }}</span>
+        {% if tmdb and tmdb.rating > 0 %}<span class="card-star">★ {{ tmdb.rating }}</span>{% endif %}
+        <div class="card-hover">
+          <div class="ch-title">{{ tmdb.title if tmdb else item.insight }}</div>
+          <div class="ch-meta">{{ tmdb.year if tmdb else '' }}{% if tmdb and tmdb.rating > 0 %} · ⭐ {{ tmdb.rating }}{% endif %}</div>
+          {% if tmdb and tmdb.genres %}<div class="ch-genres">{% for g in tmdb.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
+          <div class="ch-actions">
+            <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
+          </div>
+        </div>
+      </div>
+    </a>
+    {% endmacro %}
+
+    <div class="main">
+
+      {% if newest %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">🆕 Lo más nuevo</h2>
+          <span class="row-count">{{ newest|length }}</span>
+          <div class="row-line"></div>
+        </div>
+        <div class="row-scroll-wrap">
+          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+          <div class="row-scroll">{% for item in newest %}{{ render_card(item) }}{% endfor %}</div>
+          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if top_rated %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">⭐ Mejor valoradas</h2>
+          <span class="row-count">{{ top_rated|length }}</span>
+          <div class="row-line"></div>
+        </div>
+        <div class="row-scroll-wrap">
+          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+          <div class="row-scroll">{% for item in top_rated|sort(attribute='tmdb.rating',reverse=True) %}{{ render_card(item) }}{% endfor %}</div>
+          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if movies %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">🎬 Películas</h2>
+          <span class="row-count">{{ movies|length }}</span>
+          <div class="row-line"></div>
+        </div>
+        <div class="row-scroll-wrap">
+          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+          <div class="row-scroll">{% for item in movies %}{{ render_card(item) }}{% endfor %}</div>
+          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if series_list %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">📺 Series</h2>
+          <span class="row-count">{{ series_list|length }}</span>
+          <div class="row-line"></div>
+        </div>
+        <div class="row-scroll-wrap">
+          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+          <div class="row-scroll">{% for item in series_list %}{{ render_card(item) }}{% endfor %}</div>
+          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if genre_map %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">🎭 Por género</h2>
+          <div class="row-line"></div>
+        </div>
+        <div class="genre-tabs">
+          {% for genre in genre_map.keys() %}
+          <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}" id="tab-{{ genre }}">{{ genre }}</button>
+          {% endfor %}
+        </div>
+        {% for genre, items in genre_map.items() %}
+        <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" id="genre-{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+          <div class="row-scroll">{% for item in items %}{{ render_card(item) }}{% endfor %}</div>
+          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- pagination -->
+      <div class="pagination">
+        {% if prev_page %}<a class="pg-btn" href="{{ prev_page.url }}">← Pág. {{ prev_page.no }}</a>{% endif %}
+        <span class="pg-cur">Página {{ cur_page }}</span>
+        {% if next_page %}<a class="pg-btn" href="{{ next_page.url }}">Pág. {{ next_page.no }} →</a>{% endif %}
+      </div>
+
+    </div>
+
+  {% else %}
+  <div style="text-align:center;padding:180px 20px 120px;color:#555;">
+    <div style="font-size:4rem;margin-bottom:20px;">🎬</div>
+    <p>No hay contenido disponible</p>
+  </div>
+  {% endif %}
+
+  <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
+
+</div><!-- end .content -->
 
 <script>
 function scrollRow(btn, dir) {
   const wrap = btn.closest('.row-scroll-wrap');
   const scroll = wrap.querySelector('.row-scroll');
-  if (scroll) scroll.scrollBy({ left: dir * 500, behavior: 'smooth' });
+  if (scroll) scroll.scrollBy({ left: dir * 600, behavior: 'smooth' });
 }
 
 document.querySelectorAll('.genre-tab').forEach(tab => {
@@ -449,6 +529,13 @@ document.querySelectorAll('.genre-tab').forEach(tab => {
     });
   });
 });
+
+function jumpGenre(genre) {
+  const tab = document.getElementById('tab-' + genre);
+  if (tab) tab.click();
+  const el = document.getElementById('genre-' + genre);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 window.addEventListener('scroll', () => {
   const h = document.getElementById('mainHeader');
