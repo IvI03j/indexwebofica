@@ -96,10 +96,14 @@
   /* SCROLL */
   .row-scroll-wrap { position:relative; }
   .row-scroll {
-    display:flex; gap:10px;
-    overflow-x:auto; overflow-y:visible;
+    display:flex;
+    gap:10px;
+    align-items:stretch;
+    overflow-x:auto;
+    overflow-y:visible;
     padding:8px 48px 16px;
-    scroll-behavior:smooth; scrollbar-width:none;
+    scroll-behavior:smooth;
+    scrollbar-width:none;
   }
   .row-scroll::-webkit-scrollbar { display:none; }
   .scroll-btn {
@@ -117,29 +121,65 @@
 
   /* CARD */
   .card {
-    flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
-    position:relative; border-radius:var(--radius);
-    cursor:pointer; overflow:visible;
-    transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
-    z-index:1;
+    flex: 0 0 var(--card-w);
+    width: var(--card-w);
+    height: var(--card-h);
+    min-width: var(--card-w);
+    max-width: var(--card-w);
+    min-height: var(--card-h);
+    max-height: var(--card-h);
+    position: relative;
+    border-radius: var(--radius);
+    cursor: pointer;
+    overflow: visible;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
+    z-index: 1;
+    display: block;
   }
-  .card:hover { transform:scale(1.18) translateY(-8px); z-index:50; transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s; }
+  .card:hover {
+    transform: scale(1.18) translateY(-8px);
+    z-index: 50;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
+  }
   .card-inner {
-    width:100%; height:100%; border-radius:var(--radius); overflow:hidden;
-    position:relative; box-shadow:0 4px 20px rgba(0,0,0,.5);
-    transition:box-shadow .3s;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,.5);
+    transition: box-shadow .3s;
   }
-  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
-  .card-poster { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; transition:filter .3s; }
-  .card:hover .card-poster { filter:brightness(0.45); }
+  .card:hover .card-inner { box-shadow: 0 20px 60px rgba(0,0,0,.9); }
+
+  /* Poster: cubre exactamente el card, sin desbordarse ni dejar huecos */
+  .card-poster {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    pointer-events: none;
+    transition: filter .3s;
+    /* Evita que el navegador cambie la altura intrínseca de la imagen */
+    flex-shrink: 0;
+  }
+  .card:hover .card-poster { filter: brightness(0.45); }
+
   .card-no-poster {
-    width:100%; height:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:16px; text-align:center;
-    background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
   }
   .card-no-poster .np-icon { font-size:2.5rem; margin-bottom:10px; }
   .card-no-poster .np-title { font-size:0.75rem; font-weight:700; color:#ddd; line-height:1.3; }
+
   .card-type {
     position:absolute; top:7px; left:7px; z-index:2;
     background:var(--red); color:#fff;
@@ -279,7 +319,8 @@
 <a href="{{ item.url }}" class="card">
   <div class="card-inner">
     {% if tmdb and tmdb.poster %}
-      <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
+      <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy"
+           width="{{ 160 }}" height="{{ 240 }}">
     {% else %}
       <div class="card-no-poster">
         <div class="np-icon">{{ '📺' if (tmdb and tmdb.is_series) else '🎬' }}</div>
@@ -424,6 +465,38 @@ window.addEventListener('scroll', () => {
     ? 'rgba(8,8,8,0.98)'
     : 'linear-gradient(180deg,rgba(8,8,8,.98) 0%,rgba(8,8,8,.7) 80%,transparent 100%)';
 });
+
+// Forzar dimensiones uniformes en todas las cards al cargar y en resize
+function enforceCardSizes() {
+  const style = getComputedStyle(document.documentElement);
+  const w = style.getPropertyValue('--card-w').trim();
+  const h = style.getPropertyValue('--card-h').trim();
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.width = w;
+    card.style.height = h;
+    card.style.minWidth = w;
+    card.style.maxWidth = w;
+    card.style.minHeight = h;
+    card.style.maxHeight = h;
+    card.style.flexShrink = '0';
+    card.style.flexGrow = '0';
+    const inner = card.querySelector('.card-inner');
+    if (inner) {
+      inner.style.width = '100%';
+      inner.style.height = '100%';
+    }
+    const img = card.querySelector('.card-poster');
+    if (img) {
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.display = 'block';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', enforceCardSizes);
+window.addEventListener('resize', enforceCardSizes);
 </script>
 </body>
 </html>
