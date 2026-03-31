@@ -4,92 +4,148 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --sidebar-w: 68px;
-    --card-w: 185px;
-    --card-h: 278px;
-    --radius: 6px;
+    --sb: #0d0d0d;
+    --sb-w: 70px;
+    --sb-expanded: 220px;
+    --card-w: 160px;
+    --card-h: 240px;
+    --radius: 8px;
+    --gap: 8px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
+  body {
+    background:var(--dark); color:#e5e5e5;
+    font-family:'DM Sans',sans-serif; min-height:100vh;
+    overflow-x:hidden; display:flex;
+  }
   a { text-decoration:none; color:inherit; }
 
-  /* ── SIDEBAR ── */
+  /* ════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════ */
   .sidebar {
     position:fixed; top:0; left:0; bottom:0;
-    width:var(--sidebar-w); z-index:400;
-    background:rgba(8,8,8,0.95);
-    border-right:1px solid #1a1a1a;
-    display:flex; flex-direction:column; align-items:center;
-    padding:20px 0; gap:8px;
-    transition:width .3s ease;
+    width:var(--sb-w); z-index:500;
+    background:var(--sb);
+    border-right:1px solid #111;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+    box-shadow:4px 0 24px rgba(0,0,0,.6);
   }
-  .sidebar:hover {
-    width:200px;
-  }
-  .sidebar:hover .sb-label { opacity:1; width:auto; }
-  .sidebar:hover .sb-item { justify-content:flex-start; padding:0 20px; }
+  .sidebar:hover { width:var(--sb-expanded); }
 
+  /* logo */
   .sb-logo {
-    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--red);
-    letter-spacing:2px; margin-bottom:20px; padding:0 14px;
-    display:flex; align-items:center; gap:10px; width:100%;
+    display:flex; align-items:center; gap:12px;
+    padding:22px 18px 20px;
+    border-bottom:1px solid #161616;
+    flex-shrink:0;
     overflow:hidden; white-space:nowrap;
   }
-  .sb-logo-icon { font-size:1.6rem; flex-shrink:0; }
-  .sb-logo-text { opacity:0; transition:opacity .2s; font-size:1.4rem; }
+  .sb-logo-mark {
+    width:34px; height:34px; flex-shrink:0;
+    background:var(--red); border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; font-weight:900; color:#fff;
+    letter-spacing:-1px; font-family:'Bebas Neue',sans-serif;
+  }
+  .sb-logo-text {
+    font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
+    color:#fff; letter-spacing:2px;
+    opacity:0; transition:opacity .2s .1s;
+  }
   .sidebar:hover .sb-logo-text { opacity:1; }
 
+  /* nav groups */
+  .sb-group { padding:12px 0; border-bottom:1px solid #111; }
+  .sb-group-label {
+    font-size:0.6rem; font-weight:700; color:#444; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 18px 8px;
+    opacity:0; transition:opacity .2s; white-space:nowrap;
+  }
+  .sidebar:hover .sb-group-label { opacity:1; }
+
   .sb-item {
-    width:100%; height:48px;
-    display:flex; align-items:center; justify-content:center;
-    gap:14px; padding:0 14px; border-radius:0;
-    cursor:pointer; transition:background .2s; color:#888;
+    display:flex; align-items:center; gap:14px;
+    height:46px; padding:0 18px;
+    cursor:pointer; color:#777;
+    transition:color .2s, background .2s;
     white-space:nowrap; overflow:hidden;
-    border-left:3px solid transparent;
+    position:relative; border-left:3px solid transparent;
+    text-decoration:none;
   }
-  .sb-item:hover { background:rgba(255,255,255,0.07); color:#fff; }
-  .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,0.1); }
-  .sb-icon { font-size:1.3rem; flex-shrink:0; }
-  .sb-label { opacity:0; font-size:0.88rem; font-weight:500; transition:opacity .2s; }
+  .sb-item:hover { color:#fff; background:rgba(255,255,255,.05); }
+  .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,.1); }
 
-  .sb-divider { width:60%; height:1px; background:#1f1f1f; margin:8px 0; }
-
-  /* ── MAIN CONTENT ── */
-  .content {
-    margin-left:var(--sidebar-w);
-    flex:1; min-width:0;
+  .sb-icon {
+    width:22px; height:22px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.15rem;
   }
+  /* SVG icons */
+  .sb-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
-  /* ── HEADER ── */
-  .header {
-    position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:300;
-    display:flex; align-items:center; gap:16px;
-    padding:0 32px; height:64px;
-    background:linear-gradient(180deg,rgba(8,8,8,.98) 0%,rgba(8,8,8,.7) 80%,transparent 100%);
-    backdrop-filter:blur(8px);
-    transition:left .3s;
+  .sb-label {
+    font-size:0.88rem; font-weight:500;
+    opacity:0; transition:opacity .15s;
   }
-  .header-name { color:#888; font-size:0.85rem; }
+  .sidebar:hover .sb-label { opacity:1; }
+
+  /* genre pills in sidebar */
+  .sb-genres { padding:10px 0 6px; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
+  .sb-genres::-webkit-scrollbar { display:none; }
+
+  /* bottom user area */
+  .sb-bottom {
+    padding:14px 18px; border-top:1px solid #111; flex-shrink:0;
+    display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;
+  }
+  .sb-avatar {
+    width:32px; height:32px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--red),#ff6b6b);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem; font-weight:700; color:#fff;
+  }
+  .sb-user-info { opacity:0; transition:opacity .2s; }
+  .sidebar:hover .sb-user-info { opacity:1; }
+  .sb-user-name { font-size:0.82rem; font-weight:600; color:#ddd; }
+  .sb-user-sub  { font-size:0.7rem; color:#555; }
+
+  /* ════════════════════════════════
+     MAIN CONTENT
+  ════════════════════════════════ */
+  .content { margin-left:var(--sb-w); flex:1; min-width:0; }
+
+  /* TOPBAR */
+  .topbar {
+    position:fixed; top:0; left:var(--sb-w); right:0; z-index:300; height:64px;
+    display:flex; align-items:center; gap:16px; padding:0 32px;
+    background:linear-gradient(180deg,rgba(8,8,8,.98) 60%,transparent 100%);
+    backdrop-filter:blur(6px);
+    transition:background .3s;
+  }
+  .topbar-name { color:#666; font-size:0.85rem; font-style:italic; }
   .spacer { flex:1; }
   .search-wrap { position:relative; }
-  .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#666; }
+  .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
   .search-input {
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
-    border-radius:20px; padding:8px 14px 8px 34px;
-    color:#fff; font-size:0.85rem; width:200px; outline:none;
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+    border-radius:24px; padding:9px 16px 9px 36px;
+    color:#fff; font-size:0.85rem; width:210px; outline:none;
     transition:all .3s; font-family:'DM Sans',sans-serif;
   }
-  .search-input:focus { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.3); width:240px; }
-  .search-input::placeholder { color:#555; }
+  .search-input:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:260px; }
+  .search-input::placeholder { color:#444; }
 
-  /* ── HERO ── */
+  /* HERO */
   .hero {
     position:relative; width:100%; height:88vh; min-height:500px;
     display:flex; align-items:flex-end; overflow:hidden;
@@ -97,108 +153,136 @@
   .hero-bg {
     position:absolute; inset:0;
     background-size:cover; background-position:center top;
-    transform:scale(1.04); transition:transform 8s ease;
+    transform:scale(1.04); transition:transform 9s ease;
   }
   .hero:hover .hero-bg { transform:scale(1); }
   .hero-vignette {
     position:absolute; inset:0;
-    background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.7) 30%,rgba(8,8,8,.1) 60%,transparent 100%),
-               linear-gradient(90deg,rgba(8,8,8,.85) 0%,rgba(8,8,8,.3) 60%,transparent 100%);
+    background:
+      linear-gradient(0deg,  rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
+      linear-gradient(90deg, rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
   }
-  .hero-content { position:relative; z-index:2; padding:0 48px 56px; max-width:580px; }
+  .hero-content { position:relative; z-index:2; padding:0 52px 60px; max-width:560px; }
+  .hero-eyebrow {
+    display:flex; align-items:center; gap:8px; margin-bottom:12px;
+  }
   .hero-badge {
-    display:inline-block; background:var(--red); color:#fff;
-    font-size:0.65rem; font-weight:700; padding:3px 10px; border-radius:3px;
-    letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px;
+    background:var(--red); color:#fff;
+    font-size:0.6rem; font-weight:800; padding:3px 10px; border-radius:3px;
+    letter-spacing:1.5px; text-transform:uppercase;
   }
+  .hero-platform { color:#aaa; font-size:0.75rem; }
   .hero-title {
     font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(2.5rem,5vw,4.5rem); line-height:1;
-    letter-spacing:1px; margin-bottom:12px;
-    text-shadow:0 2px 30px rgba(0,0,0,.8);
+    font-size:clamp(2.8rem,5.5vw,5rem); line-height:.95;
+    letter-spacing:1px; margin-bottom:14px;
+    text-shadow:0 2px 40px rgba(0,0,0,.9);
   }
-  .hero-meta { display:flex; gap:12px; align-items:center; font-size:0.88rem; color:#ccc; margin-bottom:12px; flex-wrap:wrap; }
-  .hero-meta .rating { color:#f5c518; font-weight:700; }
-  .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.6; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
-  .hero-genre { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#ddd; font-size:0.72rem; padding:3px 10px; border-radius:3px; }
-  .hero-actions { display:flex; gap:12px; }
-  .hero-btn-play {
+  .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:14px; flex-wrap:wrap; }
+  .hero-rating { color:#f5c518; font-weight:800; font-size:0.95rem; }
+  .hero-dot { color:#444; }
+  .hero-overview {
+    font-size:0.93rem; color:#ccc; line-height:1.65; margin-bottom:16px;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
+  .hero-genre {
+    background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18);
+    color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px;
+  }
+  .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+  .btn-play {
     display:inline-flex; align-items:center; gap:8px;
-    background:#fff; color:#000; padding:12px 32px; border-radius:5px;
-    font-size:1rem; font-weight:700; transition:background .2s;
+    background:#fff; color:#000; padding:13px 34px; border-radius:6px;
+    font-size:1rem; font-weight:800; transition:background .2s, transform .1s;
   }
-  .hero-btn-play:hover { background:#ddd; }
-  .hero-btn-info {
+  .btn-play:hover { background:#e0e0e0; transform:scale(1.02); }
+  .btn-info {
     display:inline-flex; align-items:center; gap:8px;
-    background:rgba(109,109,110,0.7); color:#fff; padding:12px 24px; border-radius:5px;
+    background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px;
     font-size:1rem; font-weight:700; transition:background .2s;
+    backdrop-filter:blur(4px);
   }
-  .hero-btn-info:hover { background:rgba(109,109,110,1); }
+  .btn-info:hover { background:rgba(120,120,120,.8); }
 
-  /* ── ROWS ── */
-  .main { padding-top:20px; }
-  .row-section { padding:0 0 32px; }
-  .row-header { display:flex; align-items:center; gap:12px; padding:0 32px 12px; }
-  .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; color:#fff; }
-  .row-count { background:var(--red); color:#fff; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:3px; }
-  .row-line { flex:1; height:1px; background:linear-gradient(90deg,#333,transparent); }
+  /* MAIN AREA */
+  .main { padding-top:24px; }
+
+  /* ROW */
+  .row-section { padding:0 0 36px; }
+  .row-header {
+    display:flex; align-items:center; gap:10px;
+    padding:0 32px 14px;
+  }
+  .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; letter-spacing:1px; color:#fff; }
+  .row-count {
+    background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4);
+    color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px;
+  }
+  .row-line { flex:1; height:1px; background:linear-gradient(90deg,#2a2a2a,transparent); }
+  .btn-see-all {
+    background:transparent; border:1px solid #333; color:#888;
+    padding:5px 14px; border-radius:20px; font-size:0.75rem; font-weight:600;
+    cursor:pointer; transition:all .2s; white-space:nowrap;
+    font-family:'DM Sans',sans-serif; text-decoration:none;
+  }
+  .btn-see-all:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.1); }
 
   .row-scroll-wrap {
     position:relative;
-    height:calc(var(--card-h) + 40px);
+    height:calc(var(--card-h) + 44px);
   }
   .row-scroll {
-    display:flex; gap:6px;
+    display:flex; gap:var(--gap);
     overflow-x:auto; overflow-y:hidden;
     padding:10px 32px;
     height:100%; align-items:flex-start;
-    scroll-behavior:smooth;
-    scrollbar-width:none;
+    scroll-behavior:smooth; scrollbar-width:none;
     -webkit-overflow-scrolling:touch;
   }
   .row-scroll::-webkit-scrollbar { display:none; }
 
+  /* arrow buttons */
   .scroll-btn {
-    position:absolute; top:0; bottom:0; margin:auto 0;
-    width:44px; height:80px;
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:42px; height:100%;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(8,8,8,.9); border:none; color:#fff;
-    font-size:1.6rem; cursor:pointer; z-index:10;
+    background:linear-gradient(90deg,rgba(8,8,8,.95),rgba(8,8,8,.5));
+    border:none; color:#fff; font-size:1.8rem;
+    cursor:pointer; z-index:10;
     opacity:0; transition:opacity .2s;
   }
   .row-scroll-wrap:hover .scroll-btn { opacity:1; }
-  .scroll-btn.left  { left:0; border-radius:0 6px 6px 0; }
-  .scroll-btn.right { right:0; border-radius:6px 0 0 6px; }
-  .scroll-btn:hover { background:rgba(8,8,8,1); }
+  .scroll-btn.left  { left:0;  background:linear-gradient(90deg,rgba(8,8,8,.98),transparent); border-radius:0 6px 6px 0; }
+  .scroll-btn.right { right:0; background:linear-gradient(270deg,rgba(8,8,8,.98),transparent); border-radius:6px 0 0 6px; }
 
-  /* ── CARD ── */
+  /* CARD */
   .card {
     flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
     position:relative; border-radius:var(--radius);
     cursor:pointer; overflow:visible;
-    transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
+    transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s .32s;
     z-index:1;
   }
   .card:hover {
-    transform:scale(1.14) translateY(-6px);
+    transform:scale(1.15) translateY(-8px);
     z-index:50;
-    transition:transform .3s cubic-bezier(.4,0,.2,1), z-index 0s;
+    transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
   .card-inner {
     width:var(--card-w); height:var(--card-h);
     border-radius:var(--radius); overflow:hidden; position:relative;
-    box-shadow:0 4px 20px rgba(0,0,0,.5);
-    transition:box-shadow .3s;
+    box-shadow:0 4px 24px rgba(0,0,0,.55);
+    transition:box-shadow .32s;
   }
-  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
+  .card:hover .card-inner { box-shadow:0 24px 70px rgba(0,0,0,.95); }
 
   .card-poster {
     display:block; width:100%; height:100%;
     object-fit:cover; object-position:center top;
-    pointer-events:none; transition:filter .3s;
+    pointer-events:none; transition:filter .32s;
   }
-  .card:hover .card-poster { filter:brightness(0.4); }
+  .card:hover .card-poster { filter:brightness(.38); }
 
   .card-no-poster {
     width:100%; height:100%;
@@ -206,124 +290,171 @@
     padding:16px; text-align:center;
     background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
   }
-  .card-no-poster .np-icon  { font-size:2.5rem; margin-bottom:10px; }
-  .card-no-poster .np-title { font-size:0.75rem; font-weight:700; color:#ddd; line-height:1.3; }
+  .card-no-poster .np-icon  { font-size:2.4rem; margin-bottom:10px; }
+  .card-no-poster .np-title { font-size:0.72rem; font-weight:600; color:#ccc; line-height:1.3; }
 
-  .card-type {
-    position:absolute; top:7px; left:7px; z-index:2;
+  .card-badge {
+    position:absolute; top:8px; left:8px; z-index:2;
     background:var(--red); color:#fff;
-    font-size:0.55rem; font-weight:900; padding:2px 6px; border-radius:3px;
+    font-size:0.52rem; font-weight:900; padding:2px 7px; border-radius:3px;
     letter-spacing:1px; text-transform:uppercase; pointer-events:none;
   }
   .card-star {
-    position:absolute; top:7px; right:7px; z-index:2;
-    background:rgba(0,0,0,.7); color:#f5c518;
-    font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:3px; pointer-events:none;
+    position:absolute; top:8px; right:8px; z-index:2;
+    background:rgba(0,0,0,.75); color:#f5c518;
+    font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:3px;
+    pointer-events:none; display:flex; align-items:center; gap:2px;
   }
+
   .card-hover {
     position:absolute; inset:0; z-index:3;
-    padding:12px 10px 10px;
+    padding:14px 12px 12px;
     display:flex; flex-direction:column; justify-content:flex-end;
-    opacity:0; transition:opacity .25s; pointer-events:none;
-    background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.5) 50%,transparent 100%);
+    opacity:0; transition:opacity .28s; pointer-events:none;
+    background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.55) 55%,transparent 100%);
   }
   .card:hover .card-hover { opacity:1; pointer-events:auto; }
-  .ch-title  { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; pointer-events:none; }
-  .ch-meta   { font-size:0.65rem; color:#aaa; margin-bottom:6px; pointer-events:none; }
-  .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
-  .ch-genre  { background:rgba(229,9,20,.25); border:1px solid rgba(229,9,20,.4); color:#ff8080; font-size:0.55rem; padding:1px 5px; border-radius:2px; }
-  .ch-actions { display:flex; gap:6px; }
+  .ch-title  { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.2; pointer-events:none; }
+  .ch-meta   { font-size:0.63rem; color:#999; margin-bottom:6px; pointer-events:none; }
+  .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:9px; pointer-events:none; }
+  .ch-genre  { background:rgba(229,9,20,.22); border:1px solid rgba(229,9,20,.38); color:#ff8888; font-size:0.52rem; padding:1px 5px; border-radius:2px; }
   .ch-play {
-    flex:1; background:var(--red); color:#fff; border:none;
-    padding:6px 0; border-radius:4px; font-size:0.72rem; font-weight:700;
+    width:100%; background:var(--red); color:#fff; border:none;
+    padding:7px 0; border-radius:5px; font-size:0.75rem; font-weight:700;
     cursor:pointer; text-align:center; transition:background .2s; font-family:'DM Sans',sans-serif;
   }
   .ch-play:hover { background:var(--red2); }
 
-  /* ── GENRE TABS ── */
+  /* MODAL — "Ver todas" */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:600;
+    background:rgba(0,0,0,.85); backdrop-filter:blur(6px);
+    align-items:flex-start; justify-content:center;
+    padding:60px 20px 20px;
+    overflow-y:auto;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:#111; border-radius:12px; width:100%; max-width:1100px;
+    padding:28px; position:relative;
+    border:1px solid #222;
+  }
+  .modal-close {
+    position:absolute; top:16px; right:16px;
+    background:#222; border:none; color:#aaa;
+    width:32px; height:32px; border-radius:50%;
+    font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s;
+  }
+  .modal-close:hover { background:var(--red); color:#fff; }
+  .modal-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:#fff;
+    letter-spacing:1px; margin-bottom:20px;
+  }
+  .modal-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
+    gap:12px;
+  }
+  /* card inside modal — simpler, no hover scale */
+  .modal-grid .card { flex:unset; width:100%; height:var(--card-h); }
+  .modal-grid .card:hover { transform:scale(1.06) translateY(-4px); }
+  .modal-grid .card-inner { width:100%; }
+
+  /* GENRE TABS */
   .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
   .genre-tabs::-webkit-scrollbar { display:none; }
   .genre-tab {
-    flex:0 0 auto; background:#1a1a1a; border:1px solid #2a2a2a;
-    color:#aaa; padding:7px 18px; border-radius:20px;
+    flex:0 0 auto; background:#161616; border:1px solid #222;
+    color:#888; padding:7px 18px; border-radius:20px;
     font-size:0.8rem; font-weight:500; cursor:pointer;
     transition:all .2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
   }
-  .genre-tab:hover  { background:#2a2a2a; color:#fff; }
+  .genre-tab:hover  { background:#222; color:#fff; }
   .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
 
-  /* ── PAGINATION ── */
-  .pagination {
-    display:flex; justify-content:center; align-items:center;
-    gap:10px; padding:24px 0 32px;
-  }
-  .pg-btn {
-    background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
-    padding:9px 22px; border-radius:6px; font-size:0.85rem; transition:all .2s;
-  }
-  .pg-btn:hover { background:var(--red); border-color:var(--red); color:#fff; }
-  .pg-cur {
-    background:var(--red); border:1px solid var(--red); color:#fff;
-    padding:9px 22px; border-radius:6px; font-size:0.85rem; font-weight:700;
-  }
+  /* FOOTER */
+  footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; margin-top:8px; }
+  footer a { color:#333; } footer a:hover { color:var(--red); }
 
-  /* ── FOOTER ── */
-  footer { text-align:center; padding:24px; color:#333; font-size:0.75rem; border-top:1px solid #1a1a1a; margin-top:10px; }
-  footer a { color:#444; } footer a:hover { color:var(--red); }
-
-  /* ── RESPONSIVE ── */
+  /* ════════════════════════════════
+     MOBILE
+  ════════════════════════════════ */
   @media(max-width:768px){
-    :root { --sidebar-w:0px; --card-w:130px; --card-h:195px; }
+    :root { --sb-w:0px; --card-w:120px; --card-h:180px; --gap:6px; }
     .sidebar { display:none; }
     .content { margin-left:0; }
-    .header { left:0; padding:0 16px; }
-    .hero-content { padding:0 16px 40px; }
-    .row-header, .genre-tabs { padding-left:16px; padding-right:16px; }
+    .topbar { left:0; padding:0 16px; }
+    .hero-content { padding:0 18px 40px; }
+    .hero-title { font-size:2rem; }
+    .hero-overview { -webkit-line-clamp:2; }
+    .row-header { padding:0 16px 10px; }
     .row-scroll { padding:8px 16px; }
+    .genre-tabs { padding:0 16px 12px; }
     .scroll-btn { display:none; }
+    .btn-play, .btn-info { padding:10px 20px; font-size:0.9rem; }
+    .modal { padding:20px; }
+    .modal-overlay { padding:40px 12px 12px; }
+  }
+  @media(max-width:480px){
+    :root { --card-w:100px; --card-h:150px; }
+    .hero { height:70vh; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
+<!-- ════════════════ SIDEBAR ════════════════ -->
 <nav class="sidebar" id="sidebar">
   <div class="sb-logo">
-    <span class="sb-logo-icon">🎬</span>
+    <div class="sb-logo-mark">TG</div>
     <span class="sb-logo-text">TGINDEX</span>
   </div>
 
-  <a class="sb-item active" href="/">
-    <span class="sb-icon">🏠</span>
-    <span class="sb-label">Inicio</span>
-  </a>
-  <a class="sb-item" href="/otg">
-    <span class="sb-icon">🔍</span>
-    <span class="sb-label">Buscar</span>
-  </a>
-  <a class="sb-item" href="/pc">
-    <span class="sb-icon">🎵</span>
-    <span class="sb-label">Playlist</span>
-  </a>
+  <div class="sb-group">
+    <div class="sb-group-label">Menú</div>
+    <a class="sb-item active" href="/">
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      <span class="sb-label">Inicio</span>
+    </a>
+    <a class="sb-item" href="/otg">
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <span class="sb-label">OTG Indexing</span>
+    </a>
+    <a class="sb-item" href="/pc">
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </span>
+      <span class="sb-label">Playlist</span>
+    </a>
+  </div>
 
-  <div class="sb-divider"></div>
+  <div class="sb-group sb-genres" id="sbGenres">
+    <div class="sb-group-label">Géneros</div>
+    <!-- populated by JS -->
+  </div>
 
-  {% for genre in all_genres[:6] %}
-  <a class="sb-item" href="#genre-{{ genre }}" onclick="jumpGenre('{{ genre }}')">
-    <span class="sb-icon">🎭</span>
-    <span class="sb-label">{{ genre }}</span>
-  </a>
-  {% endfor %}
+  <div class="sb-bottom">
+    <div class="sb-avatar">U</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">{{ name }}</div>
+      <div class="sb-user-sub">TgIndex Pro</div>
+    </div>
+  </div>
 </nav>
 
-<!-- ── MAIN ── -->
+<!-- ════════════════ CONTENT ════════════════ -->
 <div class="content">
 
-  <header class="header" id="mainHeader">
-    <span class="header-name">{{ name }}</span>
+  <header class="topbar" id="topbar">
+    <span class="topbar-name">{{ name }}</span>
     <div class="spacer"></div>
     <div class="search-wrap">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <form method="GET">
         <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
       </form>
@@ -334,22 +465,22 @@
 
   {% if media_items %}
 
-    {% set movies = [] %}
+    {# — categorise — #}
+    {% set movies      = [] %}
     {% set series_list = [] %}
-    {% set top_rated = [] %}
-    {% set newest = [] %}
-    {% set genre_map = {} %}
+    {% set top_rated   = [] %}
+    {% set newest      = [] %}
+    {% set genre_map   = {} %}
 
     {% for item in media_items %}
       {% set tmdb = item.tmdb if item.get('tmdb') else None %}
       {% if tmdb %}
         {% if tmdb.is_series %}{% if series_list.append(item) %}{% endif %}
-        {% else %}{% if movies.append(item) %}{% endif %}
-        {% endif %}
+        {% else %}{% if movies.append(item) %}{% endif %}{% endif %}
         {% if tmdb.rating and tmdb.rating >= 7.0 %}{% if top_rated.append(item) %}{% endif %}{% endif %}
         {% if tmdb.year and tmdb.year >= '2024' %}{% if newest.append(item) %}{% endif %}{% endif %}
         {% for g in tmdb.genres %}
-          {% if g not in genre_map %}{% if genre_map.update({g: []}) %}{% endif %}{% endif %}
+          {% if g not in genre_map %}{% if genre_map.update({g:[]}) %}{% endif %}{% endif %}
           {% if genre_map[g].append(item) %}{% endif %}
         {% endfor %}
       {% else %}
@@ -357,6 +488,7 @@
       {% endif %}
     {% endfor %}
 
+    {# — hero — #}
     {% set hero = namespace(item=None) %}
     {% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
 
@@ -366,110 +498,74 @@
       <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
       <div class="hero-vignette"></div>
       <div class="hero-content">
-        <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
+        <div class="hero-eyebrow">
+          <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
+        </div>
         <h1 class="hero-title">{{ ht.title }}</h1>
         <div class="hero-meta">
-          {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
-          {% if ht.rating > 0 %}<span class="rating">⭐ {{ ht.rating }}</span>{% endif %}
+          {% if ht.year %}<span>{{ ht.year }}</span><span class="hero-dot">·</span>{% endif %}
+          {% if ht.rating > 0 %}<span class="hero-rating">⭐ {{ ht.rating }}</span><span class="hero-dot">·</span>{% endif %}
           {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
         </div>
         {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
-        {% if ht.genres %}<div class="hero-genres">{% for g in ht.genres %}<span class="hero-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
+        {% if ht.genres %}<div class="hero-genres">{% for g in ht.genres[:4] %}<span class="hero-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
         <div class="hero-actions">
-          <a class="hero-btn-play" href="{{ hi.url }}">▶ Ver ahora</a>
-          <a class="hero-btn-info" href="{{ hi.url }}">ℹ Más info</a>
+          <a class="btn-play" href="{{ hi.url }}">▶ Ver ahora</a>
+          <a class="btn-info" href="{{ hi.url }}">ℹ Más info</a>
         </div>
       </div>
     </div>
     {% endif %}
 
-    {% macro render_card(item) %}
-    {% set tmdb = item.tmdb if item.get('tmdb') else None %}
+    {# ─ card macro ─ #}
+    {% macro card(item) %}
+    {% set t = item.tmdb if item.get('tmdb') else None %}
     <a href="{{ item.url }}" class="card">
       <div class="card-inner">
-        {% if tmdb and tmdb.poster %}
-          <img class="card-poster" src="{{ tmdb.poster }}" alt="{{ tmdb.title }}" loading="lazy">
+        {% if t and t.poster %}
+          <img class="card-poster" src="{{ t.poster }}" alt="{{ t.title }}" loading="lazy">
         {% else %}
           <div class="card-no-poster">
-            <div class="np-icon">{{ '📺' if (tmdb and tmdb.is_series) else '🎬' }}</div>
+            <div class="np-icon">{{ '📺' if (t and t.is_series) else '🎬' }}</div>
             <div class="np-title">{{ item.insight }}</div>
           </div>
         {% endif %}
-        <span class="card-type">{{ 'Serie' if (tmdb and tmdb.is_series) else 'Pel' }}</span>
-        {% if tmdb and tmdb.rating > 0 %}<span class="card-star">★ {{ tmdb.rating }}</span>{% endif %}
+        <span class="card-badge">{{ 'Serie' if (t and t.is_series) else 'Pel' }}</span>
+        {% if t and t.rating > 0 %}<span class="card-star">★ {{ t.rating }}</span>{% endif %}
         <div class="card-hover">
-          <div class="ch-title">{{ tmdb.title if tmdb else item.insight }}</div>
-          <div class="ch-meta">{{ tmdb.year if tmdb else '' }}{% if tmdb and tmdb.rating > 0 %} · ⭐ {{ tmdb.rating }}{% endif %}</div>
-          {% if tmdb and tmdb.genres %}<div class="ch-genres">{% for g in tmdb.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
-          <div class="ch-actions">
-            <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
-          </div>
+          <div class="ch-title">{{ t.title if t else item.insight }}</div>
+          <div class="ch-meta">{{ t.year if t else '' }}{% if t and t.rating > 0 %} · ⭐ {{ t.rating }}{% endif %}</div>
+          {% if t and t.genres %}<div class="ch-genres">{% for g in t.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
+          <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
         </div>
       </div>
     </a>
     {% endmacro %}
 
+    {# ─ row macro ─ #}
+    {% macro row(title, items, modal_id) %}
+    {% if items %}
+    <div class="row-section">
+      <div class="row-header">
+        <h2 class="row-title">{{ title }}</h2>
+        <span class="row-count">{{ items|length }}</span>
+        <div class="row-line"></div>
+        <button class="btn-see-all" onclick="openModal('{{ modal_id }}')">Ver todas →</button>
+      </div>
+      <div class="row-scroll-wrap">
+        <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
+        <div class="row-scroll">{% for item in items %}{{ card(item) }}{% endfor %}</div>
+        <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+      </div>
+    </div>
+    {% endif %}
+    {% endmacro %}
+
     <div class="main">
-
-      {% if newest %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🆕 Lo más nuevo</h2>
-          <span class="row-count">{{ newest|length }}</span>
-          <div class="row-line"></div>
-        </div>
-        <div class="row-scroll-wrap">
-          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in newest %}{{ render_card(item) }}{% endfor %}</div>
-          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if top_rated %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">⭐ Mejor valoradas</h2>
-          <span class="row-count">{{ top_rated|length }}</span>
-          <div class="row-line"></div>
-        </div>
-        <div class="row-scroll-wrap">
-          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in top_rated|sort(attribute='tmdb.rating',reverse=True) %}{{ render_card(item) }}{% endfor %}</div>
-          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if movies %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🎬 Películas</h2>
-          <span class="row-count">{{ movies|length }}</span>
-          <div class="row-line"></div>
-        </div>
-        <div class="row-scroll-wrap">
-          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in movies %}{{ render_card(item) }}{% endfor %}</div>
-          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if series_list %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">📺 Series</h2>
-          <span class="row-count">{{ series_list|length }}</span>
-          <div class="row-line"></div>
-        </div>
-        <div class="row-scroll-wrap">
-          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in series_list %}{{ render_card(item) }}{% endfor %}</div>
-          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-        </div>
-      </div>
-      {% endif %}
+      {{ row('🆕 Lo más nuevo',    newest,      'modal-newest') }}
+      {{ row('⭐ Mejor valoradas', top_rated,   'modal-top') }}
+      {{ row('🎬 Películas',       movies,      'modal-movies') }}
+      {{ row('📺 Series',          series_list, 'modal-series') }}
 
       {% if genre_map %}
       <div class="row-section">
@@ -479,69 +575,113 @@
         </div>
         <div class="genre-tabs">
           {% for genre in genre_map.keys() %}
-          <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}" id="tab-{{ genre }}">{{ genre }}</button>
+          <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
           {% endfor %}
         </div>
         {% for genre, items in genre_map.items() %}
-        <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" id="genre-{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+        <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
           <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in items %}{{ render_card(item) }}{% endfor %}</div>
+          <div class="row-scroll">{% for item in items %}{{ card(item) }}{% endfor %}</div>
           <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
+        </div>
+        {# see-all button per genre #}
+        <div style="text-align:right;padding:6px 32px 0;" {% if not loop.first %}class="genre-see-all" data-genre="{{ genre }}" style="display:none"{% else %}class="genre-see-all" data-genre="{{ genre }}"{% endif %}>
+          <button class="btn-see-all" onclick="openModal('modal-genre-{{ genre }}')">Ver todas las de {{ genre }} →</button>
         </div>
         {% endfor %}
       </div>
       {% endif %}
 
-      <!-- pagination -->
-      <div class="pagination">
-        {% if prev_page %}<a class="pg-btn" href="{{ prev_page.url }}">← Pág. {{ prev_page.no }}</a>{% endif %}
-        <span class="pg-cur">Página {{ cur_page }}</span>
-        {% if next_page %}<a class="pg-btn" href="{{ next_page.url }}">Pág. {{ next_page.no }} →</a>{% endif %}
-      </div>
+    </div><!-- .main -->
 
+    <!-- ════ MODALS ════ -->
+    {% macro modal(id, title, items) %}
+    <div class="modal-overlay" id="{{ id }}">
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal('{{ id }}')">✕</button>
+        <div class="modal-title">{{ title }}</div>
+        <div class="modal-grid">
+          {% for item in items %}{{ card(item) }}{% endfor %}
+        </div>
+      </div>
     </div>
+    {% endmacro %}
+
+    {{ modal('modal-newest',  '🆕 Lo más nuevo',    newest) }}
+    {{ modal('modal-top',     '⭐ Mejor valoradas', top_rated) }}
+    {{ modal('modal-movies',  '🎬 Todas las películas', movies) }}
+    {{ modal('modal-series',  '📺 Todas las series',   series_list) }}
+    {% for genre, items in genre_map.items() %}
+    {{ modal('modal-genre-' ~ genre, '🎭 ' ~ genre, items) }}
+    {% endfor %}
 
   {% else %}
-  <div style="text-align:center;padding:180px 20px 120px;color:#555;">
-    <div style="font-size:4rem;margin-bottom:20px;">🎬</div>
-    <p>No hay contenido disponible</p>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#444;gap:16px;">
+    <div style="font-size:5rem;">🎬</div>
+    <p style="font-size:1.1rem;">No hay contenido disponible</p>
   </div>
   {% endif %}
 
   <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
-
-</div><!-- end .content -->
+</div><!-- .content -->
 
 <script>
+/* scroll row */
 function scrollRow(btn, dir) {
-  const wrap = btn.closest('.row-scroll-wrap');
-  const scroll = wrap.querySelector('.row-scroll');
-  if (scroll) scroll.scrollBy({ left: dir * 600, behavior: 'smooth' });
+  const s = btn.closest('.row-scroll-wrap').querySelector('.row-scroll');
+  if (s) s.scrollBy({ left: dir * 620, behavior: 'smooth' });
 }
 
+/* genre tabs */
 document.querySelectorAll('.genre-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    const genre = tab.dataset.genre;
+    const g = tab.dataset.genre;
     document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('.genre-row').forEach(r => {
-      r.style.display = r.dataset.genre === genre ? '' : 'none';
-    });
+    document.querySelectorAll('.genre-row').forEach(r => r.style.display = r.dataset.genre === g ? '' : 'none');
+    document.querySelectorAll('.genre-see-all').forEach(r => r.style.display = r.dataset.genre === g ? '' : 'none');
   });
 });
 
-function jumpGenre(genre) {
-  const tab = document.getElementById('tab-' + genre);
-  if (tab) tab.click();
-  const el = document.getElementById('genre-' + genre);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+/* modals */
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (m) { m.classList.add('open'); document.body.style.overflow='hidden'; }
 }
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) { m.classList.remove('open'); document.body.style.overflow=''; }
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+});
 
+/* populate sidebar genres */
+(function(){
+  const map = {};
+  {% for genre in genre_map.keys() %}map['{{ genre }}'] = true;{% endfor %}
+  const container = document.getElementById('sbGenres');
+  Object.keys(map).forEach(g => {
+    const a = document.createElement('a');
+    a.className = 'sb-item';
+    a.href = '#';
+    a.innerHTML = `<span class="sb-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="sb-label">${g}</span>`;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const tab = [...document.querySelectorAll('.genre-tab')].find(t => t.dataset.genre === g);
+      if (tab) { tab.click(); tab.scrollIntoView({ behavior:'smooth', block:'center' }); }
+    });
+    container.appendChild(a);
+  });
+})();
+
+/* sticky header */
 window.addEventListener('scroll', () => {
-  const h = document.getElementById('mainHeader');
-  if (h) h.style.background = window.scrollY > 60
-    ? 'rgba(8,8,8,0.98)'
-    : 'linear-gradient(180deg,rgba(8,8,8,.98) 0%,rgba(8,8,8,.7) 80%,transparent 100%)';
+  const h = document.getElementById('topbar');
+  if (h) h.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.98)' : '';
 });
 </script>
 </body>
