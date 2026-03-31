@@ -510,6 +510,7 @@
     const fragment = document.createDocumentFragment();
     visible.forEach(c => fragment.appendChild(c));
     allCards.filter(c => c.style.display === 'none').forEach(c => fragment.appendChild(c));
+    grid.innerHTML = '';
     grid.appendChild(fragment);
 
     if(sectionLabel){
