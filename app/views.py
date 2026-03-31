@@ -2,6 +2,7 @@ import asyncio
 import logging
 import random
 import io
+import time
 from PIL import Image, ImageDraw
 
 from aiohttp import web
@@ -74,6 +75,8 @@ class Views:
 
     def __init__(self, client):
         self.client = client
+        self._index_cache = {}  # {cache_key: (timestamp, result)}
+        self._cache_ttl = 30    # segundos
 
     async def wildcard(self, req):
         raise web.HTTPFound('/')
@@ -208,6 +211,14 @@ class Views:
         if 'prefetch' in purpose.lower():
             raise web.HTTPNoContent()
         alias_id = req.match_info['chat']
+        page = max(1, int(req.query.get('page', '1') or '1'))
+        search_query = req.query.get('search', '') or ''
+        cache_key = f"{alias_id}:{page}:{search_query}"
+        now = time.time()
+        if cache_key in self._index_cache:
+            ts, cached = self._index_cache[cache_key]
+            if now - ts < self._cache_ttl:
+                return cached
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
         if not chat:
             if not enable_otg:
@@ -271,7 +282,7 @@ class Views:
             messages = []
 
         log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
-        log.error(f"REQUEST {req.method} {req.path} from={req.remote} ua={req.headers.get('User-Agent','?')[:80]} total={len(messages)}")
+        log.error(f"REQUEST {req.method} {req.path} from={req.remote} total={len(messages)}")
         for m in messages:
             reply_to = getattr(m, 'reply_to', None)
             top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
@@ -328,7 +339,7 @@ class Views:
                 query['search'] = search_query
             next_page = {'url': str(req.rel_url.with_query(query)), 'no': page + 1}
 
-        return {
+        result = {
             'item_list': results,
             'prev_page': prev_page,
             'cur_page': page,
@@ -339,6 +350,8 @@ class Views:
             'title': "Index of " + chat_name,
             'all_genres': all_genres,
         }
+        self._index_cache[cache_key] = (time.time(), result)
+        return result
 
     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
