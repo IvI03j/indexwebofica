@@ -267,6 +267,10 @@ class Views:
             messages = []
 
         log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
+        for m in messages:
+            reply_to = getattr(m, 'reply_to', None)
+            top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
+            log.info(f"MSG id={m.id} top_id={top_id} file={getattr(m.file, 'name', None)}")
 
         raw_results = []
         for m in messages:
@@ -284,7 +288,17 @@ class Views:
             ))
 
         enriched = list(await asyncio.gather(*[enrich_entry(e) for e in raw_results]))
-        results = _group_results(enriched)
+
+        # Deduplicar por file_id para evitar que el mismo vídeo aparezca varias veces
+        seen_ids = set()
+        deduped = []
+        for e in enriched:
+            fid = e.get('file_id')
+            if fid not in seen_ids:
+                seen_ids.add(fid)
+                deduped.append(e)
+
+        results = _group_results(deduped)
 
         all_genres = []
         for r in results:
