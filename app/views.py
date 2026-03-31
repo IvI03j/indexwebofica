@@ -267,10 +267,11 @@ class Views:
             messages = []
 
         log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
+        log.error(f"DEBUG TOTAL MESSAGES BEFORE FILTER: {len(messages)}")
         for m in messages:
             reply_to = getattr(m, 'reply_to', None)
             top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
-            log.info(f"MSG id={m.id} top_id={top_id} file={getattr(m.file, 'name', None)}")
+            log.error(f"MSG id={m.id} top_id={top_id}")
 
         raw_results = []
         for m in messages:
