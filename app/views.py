@@ -94,6 +94,7 @@ class Views:
         items = []
 
         try:
+            # ✅ FIX: límite aumentado a 500 para capturar todos los mensajes
             batch = await self.client.get_messages(
                 entity=chat_id,
                 limit=500,
@@ -102,7 +103,6 @@ class Views:
             msgs = [m for m in batch if _has_media(m)]
 
             for m in msgs:
-                # Determinar a qué tema pertenece el mensaje
                 reply_to = getattr(m, 'reply_to', None)
                 top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
 
@@ -113,7 +113,6 @@ class Views:
                     media_type = 'tv'
                     thread_id = SERIES_THREAD_ID
                 else:
-                    # Si no tiene reply_to es el primer mensaje del tema (el propio topic)
                     continue
 
                 entry = dict(
@@ -210,15 +209,17 @@ class Views:
         purpose = req.headers.get('Purpose', '') or req.headers.get('Sec-Purpose', '')
         if 'prefetch' in purpose.lower():
             raise web.HTTPNoContent()
+
         alias_id = req.match_info['chat']
-        page = max(1, int(req.query.get('page', '1') or '1'))
         search_query = req.query.get('search', '') or ''
-        cache_key = f"{alias_id}:{page}:{search_query}"
+        # ✅ FIX: la clave de caché ya no incluye 'page' porque cargamos todo de una vez
+        cache_key = f"{alias_id}:{search_query}"
         now = time.time()
         if cache_key in self._index_cache:
             ts, cached = self._index_cache[cache_key]
             if now - ts < self._cache_ttl:
                 return cached
+
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
         if not chat:
             if not enable_otg:
@@ -234,19 +235,6 @@ class Views:
             chat_id = chat['chat_id']
             chat_name = chat['title']
 
-        try:
-            page = max(1, int(req.query.get('page', '1')))
-        except:
-            page = 1
-
-        try:
-            search_query = req.query.get('search', '')
-        except:
-            search_query = ''
-
-        PAGE_SIZE = 20
-        messages = []
-
         # Solo mostrar mensajes de los temas de películas y series
         from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
         ALLOWED_THREADS = {MOVIES_THREAD_ID, SERIES_THREAD_ID}
@@ -258,30 +246,35 @@ class Views:
             top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
             return top_id in ALLOWED_THREADS
 
+        messages = []
+
         try:
             if search_query:
+                # ✅ FIX: límite aumentado a 1000 para búsquedas, sin paginación
                 all_msgs = await self.client.get_messages(
                     entity=chat_id,
-                    limit=500,
+                    limit=1000,
                     search=search_query,
                 )
                 all_msgs = all_msgs or []
-                media_msgs = [m for m in all_msgs if _has_media(m) and _in_allowed_thread(m)]
-                start = PAGE_SIZE * (page - 1)
-                messages = media_msgs[start: start + PAGE_SIZE]
+                # ✅ FIX: sin [:PAGE_SIZE] — devolvemos TODOS los resultados que coincidan
+                messages = [m for m in all_msgs if _has_media(m) and _in_allowed_thread(m)]
             else:
+                # ✅ FIX: límite de 1000 para garantizar que se recogen todos los mensajes
+                #         del grupo aunque haya muchos mensajes no-media intercalados.
+                #         Sin add_offset ni paginación: cargamos el catálogo completo.
                 batch = await self.client.get_messages(
                     entity=chat_id,
-                    limit=PAGE_SIZE * 10,
-                    add_offset=PAGE_SIZE * (page - 1),
+                    limit=1000,
                 )
                 batch = batch or []
-                messages = [m for m in batch if _has_media(m) and _in_allowed_thread(m)][:PAGE_SIZE]
+                # ✅ FIX: eliminado el [:PAGE_SIZE] que cortaba a 20
+                messages = [m for m in batch if _has_media(m) and _in_allowed_thread(m)]
         except Exception:
             log.debug("failed to get messages", exc_info=True)
             messages = []
 
-        log.debug(f"page={page} search='{search_query}' found={len(messages)} messages")
+        log.debug(f"search='{search_query}' found={len(messages)} messages")
         log.error(f"REQUEST {req.method} {req.path} from={req.remote} total={len(messages)}")
         for m in messages:
             reply_to = getattr(m, 'reply_to', None)
@@ -325,25 +318,13 @@ class Views:
                         all_genres.append(g)
         all_genres.sort()
 
-        prev_page = False
-        next_page = False
-        if page > 1:
-            query = {'page': page - 1}
-            if search_query:
-                query['search'] = search_query
-            prev_page = {'url': str(req.rel_url.with_query(query)), 'no': page - 1}
-
-        if len(messages) == PAGE_SIZE:
-            query = {'page': page + 1}
-            if search_query:
-                query['search'] = search_query
-            next_page = {'url': str(req.rel_url.with_query(query)), 'no': page + 1}
-
+        # ✅ FIX: se eliminó la paginación — ya no se necesita prev_page / next_page
+        #         porque el catálogo completo se carga de una sola vez.
         result = {
             'item_list': results,
-            'prev_page': prev_page,
-            'cur_page': page,
-            'next_page': next_page,
+            'prev_page': False,
+            'cur_page': 1,
+            'next_page': False,
             'search': search_query,
             'name': chat_name,
             'logo': f"/{alias_id}/logo",
