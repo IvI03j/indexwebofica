@@ -1,334 +1,344 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --red: #e50914;
-    --red2: #b2070f;
-    --dark: #080808;
-    --sb-w: 70px;
-    --sb-expanded: 220px;
-    --card-w: 160px;
-    --card-h: 240px;
-    --radius: 8px;
-    --gap: 8px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
-  a { text-decoration:none; color:inherit; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TGIndex – Tu cine privado</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #e50914;
+      --red2: #b2070f;
+      --dark: #080808;
+      --sb-w: 70px;
+      --sb-expanded: 220px;
+      --card-w: 160px;
+      --card-h: 240px;
+      --radius: 8px;
+      --gap: 8px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
+    a { text-decoration:none; color:inherit; }
 
-  /* ── SIDEBAR ── */
-  .sidebar {
-    position:fixed; top:0; left:0; bottom:0;
-    width:var(--sb-w); z-index:500;
-    background:#0d0d0d;
-    border-right:1px solid #111;
-    display:flex; flex-direction:column;
-    overflow:hidden;
-    transition:width .35s cubic-bezier(.4,0,.2,1);
-    box-shadow:4px 0 24px rgba(0,0,0,.6);
-  }
-  .sidebar:hover { width:var(--sb-expanded); }
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position:fixed; top:0; left:0; bottom:0;
+      width:var(--sb-w); z-index:500;
+      background:#0d0d0d;
+      border-right:1px solid #111;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transition:width .35s cubic-bezier(.4,0,.2,1);
+      box-shadow:4px 0 24px rgba(0,0,0,.6);
+    }
+    .sidebar:hover { width:var(--sb-expanded); }
+    .sb-logo {
+      display:flex; align-items:center; gap:12px;
+      padding:22px 18px 20px;
+      border-bottom:1px solid #161616;
+      flex-shrink:0; overflow:hidden; white-space:nowrap;
+    }
+    .sb-logo-mark {
+      width:34px; height:34px; flex-shrink:0;
+      background:var(--red); border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.1rem; font-weight:900; color:#fff;
+      font-family:'Bebas Neue',sans-serif; letter-spacing:-1px;
+    }
+    .sb-logo-text {
+      font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
+      color:#fff; letter-spacing:2px;
+      opacity:0; transition:opacity .2s .1s;
+    }
+    .sidebar:hover .sb-logo-text { opacity:1; }
+    .sb-group { padding:10px 0; border-bottom:1px solid #111; }
+    .sb-group-label {
+      font-size:0.58rem; font-weight:700; color:#444; letter-spacing:2px;
+      text-transform:uppercase; padding:4px 18px 6px;
+      opacity:0; transition:opacity .2s; white-space:nowrap;
+    }
+    .sidebar:hover .sb-group-label { opacity:1; }
+    .sb-item {
+      display:flex; align-items:center; gap:14px;
+      height:46px; padding:0 18px;
+      cursor:pointer; color:#666;
+      transition:color .2s, background .2s;
+      white-space:nowrap; overflow:hidden;
+      border-left:3px solid transparent;
+      text-decoration:none;
+    }
+    .sb-item:hover { color:#fff; background:rgba(255,255,255,.05); }
+    .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,.1); }
+    .sb-icon { width:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
+    .sb-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .sb-label { font-size:0.88rem; font-weight:500; opacity:0; transition:opacity .15s; }
+    .sidebar:hover .sb-label { opacity:1; }
+    .sb-genres { padding:8px 0; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
+    .sb-genres::-webkit-scrollbar { display:none; }
+    .sb-bottom {
+      padding:14px 18px; border-top:1px solid #111; flex-shrink:0;
+      display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;
+    }
+    .sb-avatar {
+      width:32px; height:32px; flex-shrink:0;
+      background:linear-gradient(135deg,var(--red),#ff6b6b);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:0.85rem; font-weight:700; color:#fff;
+    }
+    .sb-user-info { opacity:0; transition:opacity .2s; }
+    .sidebar:hover .sb-user-info { opacity:1; }
+    .sb-user-name { font-size:0.82rem; font-weight:600; color:#ddd; }
+    .sb-user-sub { font-size:0.7rem; color:#555; }
 
-  .sb-logo {
-    display:flex; align-items:center; gap:12px;
-    padding:22px 18px 20px;
-    border-bottom:1px solid #161616;
-    flex-shrink:0; overflow:hidden; white-space:nowrap;
-  }
-  .sb-logo-mark {
-    width:34px; height:34px; flex-shrink:0;
-    background:var(--red); border-radius:8px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.1rem; font-weight:900; color:#fff;
-    font-family:'Bebas Neue',sans-serif; letter-spacing:-1px;
-  }
-  .sb-logo-text {
-    font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
-    color:#fff; letter-spacing:2px;
-    opacity:0; transition:opacity .2s .1s;
-  }
-  .sidebar:hover .sb-logo-text { opacity:1; }
+    /* ── CONTENT ── */
+    .content { margin-left:var(--sb-w); flex:1; min-width:0; }
+    .topbar {
+      position:fixed; top:0; left:var(--sb-w); right:0; z-index:300; height:64px;
+      display:flex; align-items:center; gap:16px; padding:0 32px;
+      background:linear-gradient(180deg,rgba(8,8,8,.98) 60%,transparent 100%);
+      backdrop-filter:blur(6px);
+    }
+    .topbar-name { color:#555; font-size:0.85rem; font-style:italic; }
+    .spacer { flex:1; }
+    .search-wrap { position:relative; }
+    .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
+    .search-input {
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+      border-radius:24px; padding:9px 16px 9px 36px;
+      color:#fff; font-size:0.85rem; width:210px; outline:none;
+      transition:all .3s; font-family:'DM Sans',sans-serif;
+    }
+    .search-input:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:260px; }
+    .search-input::placeholder { color:#444; }
 
-  .sb-group { padding:10px 0; border-bottom:1px solid #111; }
-  .sb-group-label {
-    font-size:0.58rem; font-weight:700; color:#444; letter-spacing:2px;
-    text-transform:uppercase; padding:4px 18px 6px;
-    opacity:0; transition:opacity .2s; white-space:nowrap;
-  }
-  .sidebar:hover .sb-group-label { opacity:1; }
+    /* ── HERO ── */
+    .hero {
+      position:relative; width:100%; height:88vh; min-height:500px;
+      display:flex; align-items:flex-end; overflow:hidden;
+    }
+    .hero-bg {
+      position:absolute; inset:0; background-size:cover; background-position:center top;
+      transform:scale(1.04); transition:transform 9s ease;
+    }
+    .hero:hover .hero-bg { transform:scale(1); }
+    .hero-vignette {
+      position:absolute; inset:0;
+      background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
+                linear-gradient(90deg,rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
+    }
+    .hero-content { position:relative; z-index:2; padding:0 52px 60px; max-width:560px; }
+    .hero-badge {
+      display:inline-block; background:var(--red); color:#fff;
+      font-size:0.6rem; font-weight:800; padding:3px 10px; border-radius:3px;
+      letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;
+    }
+    .hero-title {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(2.8rem,5.5vw,5rem); line-height:.95;
+      letter-spacing:1px; margin-bottom:14px;
+      text-shadow:0 2px 40px rgba(0,0,0,.9);
+    }
+    .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:12px; flex-wrap:wrap; }
+    .hero-rating { color:#f5c518; font-weight:800; }
+    .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.65; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
+    .hero-genre { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-play { display:inline-flex; align-items:center; gap:8px; background:#fff; color:#000; padding:13px 34px; border-radius:6px; font-size:1rem; font-weight:800; transition:background .2s; }
+    .btn-play:hover { background:#e0e0e0; }
+    .btn-info { display:inline-flex; align-items:center; gap:8px; background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px; font-size:1rem; font-weight:700; transition:background .2s; backdrop-filter:blur(4px); }
+    .btn-info:hover { background:rgba(120,120,120,.8); }
 
-  .sb-item {
-    display:flex; align-items:center; gap:14px;
-    height:46px; padding:0 18px;
-    cursor:pointer; color:#666;
-    transition:color .2s, background .2s;
-    white-space:nowrap; overflow:hidden;
-    border-left:3px solid transparent;
-    text-decoration:none;
-  }
-  .sb-item:hover { color:#fff; background:rgba(255,255,255,.05); }
-  .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,.1); }
+    /* ── MAIN ── */
+    .main { padding-top:24px; }
 
-  .sb-icon { width:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
-  .sb-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .sb-label { font-size:0.88rem; font-weight:500; opacity:0; transition:opacity .15s; }
-  .sidebar:hover .sb-label { opacity:1; }
+    /* ── ROW SECTION ── */
+    .row-section { padding:0 0 40px; }
+    .row-header { display:flex; align-items:center; gap:10px; padding:0 32px 14px; flex-wrap:wrap; }
+    .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; letter-spacing:1px; color:#fff; }
+    .row-count { background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4); color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px; }
+    .row-line { flex:1; height:1px; background:linear-gradient(90deg,#2a2a2a,transparent); }
+    .btn-ver-mas {
+      display:inline-flex; align-items:center; gap:6px;
+      background:transparent; border:1px solid #333; color:#999;
+      padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:600;
+      cursor:pointer; transition:all .2s; white-space:nowrap;
+      font-family:'DM Sans',sans-serif;
+    }
+    .btn-ver-mas:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.12); }
 
-  .sb-genres { padding:8px 0; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
-  .sb-genres::-webkit-scrollbar { display:none; }
+    /* cards grid — flex-wrap, máx 15 en vista principal */
+    .cards-grid {
+      display:flex; flex-wrap:wrap; gap:var(--gap);
+      padding:0 32px;
+    }
 
-  .sb-bottom {
-    padding:14px 18px; border-top:1px solid #111; flex-shrink:0;
-    display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;
-  }
-  .sb-avatar {
-    width:32px; height:32px; flex-shrink:0;
-    background:linear-gradient(135deg,var(--red),#ff6b6b);
-    border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:0.85rem; font-weight:700; color:#fff;
-  }
-  .sb-user-info { opacity:0; transition:opacity .2s; }
-  .sidebar:hover .sb-user-info { opacity:1; }
-  .sb-user-name { font-size:0.82rem; font-weight:600; color:#ddd; }
-  .sb-user-sub  { font-size:0.7rem; color:#555; }
+    /* ── CARD ── */
+    .card {
+      flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
+      position:relative; border-radius:var(--radius);
+      cursor:pointer; overflow:visible;
+      transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s .32s;
+      z-index:1;
+    }
+    .card:hover {
+      transform:scale(1.12) translateY(-6px);
+      z-index:50;
+      transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s;
+    }
+    .card-inner {
+      width:var(--card-w); height:var(--card-h);
+      border-radius:var(--radius); overflow:hidden; position:relative;
+      box-shadow:0 4px 24px rgba(0,0,0,.55);
+      transition:box-shadow .32s;
+    }
+    .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
+    .card-poster {
+      display:block; width:100%; height:100%;
+      object-fit:cover; object-position:center top;
+      pointer-events:none; transition:filter .32s;
+    }
+    .card:hover .card-poster { filter:brightness(.38); }
+    .card-no-poster {
+      width:100%; height:100%;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:16px; text-align:center;
+      background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
+    }
+    .card-no-poster .np-icon { font-size:2.4rem; margin-bottom:10px; }
+    .card-no-poster .np-title { font-size:0.72rem; font-weight:600; color:#ccc; line-height:1.3; }
+    .card-badge {
+      position:absolute; top:8px; left:8px; z-index:2;
+      background:var(--red); color:#fff;
+      font-size:0.52rem; font-weight:900; padding:2px 7px; border-radius:3px;
+      letter-spacing:1px; text-transform:uppercase; pointer-events:none;
+    }
+    .card-star {
+      position:absolute; top:8px; right:8px; z-index:2;
+      background:rgba(0,0,0,.75); color:#f5c518;
+      font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:3px;
+      pointer-events:none;
+    }
+    .card-hover {
+      position:absolute; inset:0; z-index:3;
+      padding:12px 10px 10px;
+      display:flex; flex-direction:column; justify-content:flex-end;
+      opacity:0; transition:opacity .28s; pointer-events:none;
+      background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
+    }
+    .card:hover .card-hover { opacity:1; pointer-events:auto; }
+    .ch-title { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.2; pointer-events:none; }
+    .ch-meta { font-size:0.63rem; color:#999; margin-bottom:6px; pointer-events:none; }
+    .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
+    .ch-genre { background:rgba(229,9,20,.22); border:1px solid rgba(229,9,20,.38); color:#ff8888; font-size:0.52rem; padding:1px 5px; border-radius:2px; }
+    .ch-play {
+      width:100%; background:var(--red); color:#fff; border:none;
+      padding:7px 0; border-radius:5px; font-size:0.75rem; font-weight:700;
+      cursor:pointer; text-align:center; transition:background .2s; font-family:'DM Sans',sans-serif;
+      display:block;
+    }
+    .ch-play:hover { background:var(--red2); }
 
-  /* ── CONTENT ── */
-  .content { margin-left:var(--sb-w); flex:1; min-width:0; }
+    /* ── GENRE TABS ── */
+    .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
+    .genre-tabs::-webkit-scrollbar { display:none; }
+    .genre-tab {
+      flex:0 0 auto; background:#161616; border:1px solid #222;
+      color:#888; padding:7px 18px; border-radius:20px;
+      font-size:0.8rem; font-weight:500; cursor:pointer;
+      transition:all .2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
+    }
+    .genre-tab:hover { background:#222; color:#fff; }
+    .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
 
-  .topbar {
-    position:fixed; top:0; left:var(--sb-w); right:0; z-index:300; height:64px;
-    display:flex; align-items:center; gap:16px; padding:0 32px;
-    background:linear-gradient(180deg,rgba(8,8,8,.98) 60%,transparent 100%);
-    backdrop-filter:blur(6px);
-  }
-  .topbar-name { color:#555; font-size:0.85rem; font-style:italic; }
-  .spacer { flex:1; }
-  .search-wrap { position:relative; }
-  .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
-  .search-input {
-    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
-    border-radius:24px; padding:9px 16px 9px 36px;
-    color:#fff; font-size:0.85rem; width:210px; outline:none;
-    transition:all .3s; font-family:'DM Sans',sans-serif;
-  }
-  .search-input:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:260px; }
-  .search-input::placeholder { color:#444; }
+    /* ── FULLSCREEN MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; z-index:600;
+      background:rgba(8,8,8,.97); backdrop-filter:blur(8px);
+      overflow-y:auto;
+      animation:fadeIn .25s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+    .modal-overlay.open { display:block; }
+    .modal {
+      min-height:100vh; padding:24px 32px 48px;
+      max-width:1400px; margin:0 auto;
+    }
+    .modal-topbar {
+      display:flex; align-items:center; gap:14px;
+      padding:16px 0 24px;
+      position:sticky; top:0; z-index:10;
+      background:rgba(8,8,8,.97); backdrop-filter:blur(8px);
+      border-bottom:1px solid #1a1a1a; margin-bottom:28px;
+    }
+    .modal-back {
+      background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
+      width:40px; height:40px; border-radius:50%; font-size:1.2rem;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:all .2s; flex-shrink:0;
+    }
+    .modal-back:hover { background:var(--red); border-color:var(--red); color:#fff; }
+    .modal-title { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#fff; letter-spacing:1px; }
+    .modal-subtitle { color:#555; font-size:0.85rem; margin-left:auto; }
+    .modal-search-wrap { position:relative; margin-left:auto; }
+    .modal-search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
+    .modal-search {
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+      border-radius:24px; padding:8px 16px 8px 34px;
+      color:#fff; font-size:0.82rem; width:200px; outline:none;
+      transition:all .3s; font-family:'DM Sans',sans-serif;
+    }
+    .modal-search:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); }
+    .modal-search::placeholder { color:#444; }
 
-  /* ── HERO ── */
-  .hero {
-    position:relative; width:100%; height:88vh; min-height:500px;
-    display:flex; align-items:flex-end; overflow:hidden;
-  }
-  .hero-bg {
-    position:absolute; inset:0; background-size:cover; background-position:center top;
-    transform:scale(1.04); transition:transform 9s ease;
-  }
-  .hero:hover .hero-bg { transform:scale(1); }
-  .hero-vignette {
-    position:absolute; inset:0;
-    background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
-               linear-gradient(90deg,rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
-  }
-  .hero-content { position:relative; z-index:2; padding:0 52px 60px; max-width:560px; }
-  .hero-badge {
-    display:inline-block; background:var(--red); color:#fff;
-    font-size:0.6rem; font-weight:800; padding:3px 10px; border-radius:3px;
-    letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;
-  }
-  .hero-title {
-    font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(2.8rem,5.5vw,5rem); line-height:.95;
-    letter-spacing:1px; margin-bottom:14px;
-    text-shadow:0 2px 40px rgba(0,0,0,.9);
-  }
-  .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:12px; flex-wrap:wrap; }
-  .hero-rating { color:#f5c518; font-weight:800; }
-  .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.65; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
-  .hero-genre { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px; }
-  .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
-  .btn-play { display:inline-flex; align-items:center; gap:8px; background:#fff; color:#000; padding:13px 34px; border-radius:6px; font-size:1rem; font-weight:800; transition:background .2s; }
-  .btn-play:hover { background:#e0e0e0; }
-  .btn-info { display:inline-flex; align-items:center; gap:8px; background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px; font-size:1rem; font-weight:700; transition:background .2s; backdrop-filter:blur(4px); }
-  .btn-info:hover { background:rgba(120,120,120,.8); }
+    .modal-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(var(--card-w), 1fr));
+      gap:12px;
+    }
+    .modal-grid .card { flex:unset; width:100%; height:var(--card-h); }
+    .modal-grid .card-inner { width:100%; height:100%; }
+    .modal-no-results { text-align:center; padding:60px 0; color:#444; font-size:1rem; }
 
-  /* ── MAIN ── */
-  .main { padding-top:24px; }
+    /* ── FOOTER ── */
+    footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; }
+    footer a { color:#333; }
+    footer a:hover { color:var(--red); }
 
-  /* ── ROW SECTION ── */
-  .row-section { padding:0 0 40px; }
-  .row-header { display:flex; align-items:center; gap:10px; padding:0 32px 14px; flex-wrap:wrap; }
-  .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; letter-spacing:1px; color:#fff; }
-  .row-count { background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4); color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px; }
-  .row-line { flex:1; height:1px; background:linear-gradient(90deg,#2a2a2a,transparent); }
-  .btn-ver-mas {
-    display:inline-flex; align-items:center; gap:6px;
-    background:transparent; border:1px solid #333; color:#999;
-    padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:600;
-    cursor:pointer; transition:all .2s; white-space:nowrap;
-    font-family:'DM Sans',sans-serif;
-  }
-  .btn-ver-mas:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.12); }
+    /* ── SKELETON / LOADING ── */
+    .skeleton { background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:var(--radius); }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-  /* card grid — NOT a scroll, just a normal flex-wrap limited to 15 */
-  .cards-grid {
-    display:flex; flex-wrap:wrap; gap:var(--gap);
-    padding:0 32px;
-  }
-
-  /* ── CARD ── */
-  .card {
-    flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
-    position:relative; border-radius:var(--radius);
-    cursor:pointer; overflow:visible;
-    transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s .32s;
-    z-index:1;
-  }
-  .card:hover {
-    transform:scale(1.12) translateY(-6px);
-    z-index:50;
-    transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s;
-  }
-  .card-inner {
-    width:var(--card-w); height:var(--card-h);
-    border-radius:var(--radius); overflow:hidden; position:relative;
-    box-shadow:0 4px 24px rgba(0,0,0,.55);
-    transition:box-shadow .32s;
-  }
-  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
-  .card-poster {
-    display:block; width:100%; height:100%;
-    object-fit:cover; object-position:center top;
-    pointer-events:none; transition:filter .32s;
-  }
-  .card:hover .card-poster { filter:brightness(.38); }
-  .card-no-poster {
-    width:100%; height:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:16px; text-align:center;
-    background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
-  }
-  .card-no-poster .np-icon  { font-size:2.4rem; margin-bottom:10px; }
-  .card-no-poster .np-title { font-size:0.72rem; font-weight:600; color:#ccc; line-height:1.3; }
-
-  .card-badge {
-    position:absolute; top:8px; left:8px; z-index:2;
-    background:var(--red); color:#fff;
-    font-size:0.52rem; font-weight:900; padding:2px 7px; border-radius:3px;
-    letter-spacing:1px; text-transform:uppercase; pointer-events:none;
-  }
-  .card-star {
-    position:absolute; top:8px; right:8px; z-index:2;
-    background:rgba(0,0,0,.75); color:#f5c518;
-    font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:3px;
-    pointer-events:none;
-  }
-  .card-hover {
-    position:absolute; inset:0; z-index:3;
-    padding:12px 10px 10px;
-    display:flex; flex-direction:column; justify-content:flex-end;
-    opacity:0; transition:opacity .28s; pointer-events:none;
-    background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
-  }
-  .card:hover .card-hover { opacity:1; pointer-events:auto; }
-  .ch-title  { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.2; pointer-events:none; }
-  .ch-meta   { font-size:0.63rem; color:#999; margin-bottom:6px; pointer-events:none; }
-  .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
-  .ch-genre  { background:rgba(229,9,20,.22); border:1px solid rgba(229,9,20,.38); color:#ff8888; font-size:0.52rem; padding:1px 5px; border-radius:2px; }
-  .ch-play {
-    width:100%; background:var(--red); color:#fff; border:none;
-    padding:7px 0; border-radius:5px; font-size:0.75rem; font-weight:700;
-    cursor:pointer; text-align:center; transition:background .2s; font-family:'DM Sans',sans-serif;
-  }
-  .ch-play:hover { background:var(--red2); }
-
-  /* ── GENRE TABS ── */
-  .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
-  .genre-tabs::-webkit-scrollbar { display:none; }
-  .genre-tab {
-    flex:0 0 auto; background:#161616; border:1px solid #222;
-    color:#888; padding:7px 18px; border-radius:20px;
-    font-size:0.8rem; font-weight:500; cursor:pointer;
-    transition:all .2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
-  }
-  .genre-tab:hover  { background:#222; color:#fff; }
-  .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
-
-  /* ── FULLSCREEN MODAL ── */
-  .modal-overlay {
-    display:none; position:fixed; inset:0; z-index:600;
-    background:rgba(8,8,8,.96); backdrop-filter:blur(8px);
-    overflow-y:auto;
-  }
-  .modal-overlay.open { display:block; }
-
-  .modal {
-    min-height:100vh; padding:24px 32px 48px;
-    max-width:1400px; margin:0 auto;
-  }
-  .modal-topbar {
-    display:flex; align-items:center; gap:14px;
-    padding:16px 0 24px;
-    position:sticky; top:0; z-index:10;
-    background:rgba(8,8,8,.95); backdrop-filter:blur(8px);
-    border-bottom:1px solid #1a1a1a; margin-bottom:28px;
-  }
-  .modal-back {
-    background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
-    width:40px; height:40px; border-radius:50%; font-size:1.2rem;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:all .2s; flex-shrink:0;
-  }
-  .modal-back:hover { background:var(--red); border-color:var(--red); color:#fff; }
-  .modal-title {
-    font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#fff; letter-spacing:1px;
-  }
-  .modal-subtitle { color:#555; font-size:0.85rem; margin-left:auto; }
-
-  .modal-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(var(--card-w), 1fr));
-    gap:12px;
-  }
-  .modal-grid .card { flex:unset; width:100%; }
-  .modal-grid .card-inner { width:100%; }
-
-  /* ── FOOTER ── */
-  footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; }
-  footer a { color:#333; } footer a:hover { color:var(--red); }
-
-  /* ── RESPONSIVE ── */
-  @media(max-width:900px){
-    :root { --card-w:140px; --card-h:210px; }
-  }
-  @media(max-width:768px){
-    :root { --sb-w:0px; --card-w:120px; --card-h:180px; --gap:6px; }
-    .sidebar { display:none; }
-    .content { margin-left:0; }
-    .topbar { left:0; padding:0 16px; }
-    .hero-content { padding:0 18px 40px; }
-    .hero-title { font-size:2rem; }
-    .hero-overview { -webkit-line-clamp:2; }
-    .row-header { padding:0 16px 10px; }
-    .cards-grid { padding:0 16px; }
-    .genre-tabs { padding:0 16px 12px; }
-    .btn-play, .btn-info { padding:10px 20px; font-size:0.9rem; }
-    .modal { padding:16px 16px 40px; }
-    .modal-topbar { padding:12px 0 16px; margin-bottom:20px; }
-    .modal-title { font-size:1.5rem; }
-  }
-  @media(max-width:480px){
-    :root { --card-w:100px; --card-h:150px; }
-    .hero { height:70vh; }
-    .modal-grid { gap:8px; }
-  }
-</style>
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      :root { --card-w:140px; --card-h:210px; }
+    }
+    @media(max-width:768px){
+      :root { --sb-w:0px; --card-w:120px; --card-h:180px; --gap:6px; }
+      .sidebar { display:none; }
+      .content { margin-left:0; }
+      .topbar { left:0; padding:0 16px; }
+      .hero-content { padding:0 18px 40px; }
+      .hero-title { font-size:2rem; }
+      .hero-overview { -webkit-line-clamp:2; }
+      .row-header { padding:0 16px 10px; }
+      .cards-grid { padding:0 16px; }
+      .genre-tabs { padding:0 16px 12px; }
+      .btn-play, .btn-info { padding:10px 20px; font-size:0.9rem; }
+      .modal { padding:16px 16px 40px; }
+      .modal-topbar { padding:12px 0 16px; margin-bottom:20px; flex-wrap:wrap; }
+      .modal-title { font-size:1.5rem; }
+      .modal-search-wrap { width:100%; }
+      .modal-search { width:100%; }
+    }
+    @media(max-width:480px){
+      :root { --card-w:100px; --card-h:150px; }
+      .hero { height:70vh; }
+      .modal-grid { gap:8px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -338,302 +348,404 @@
     <div class="sb-logo-mark">TG</div>
     <span class="sb-logo-text">TGINDEX</span>
   </div>
-
   <div class="sb-group">
     <div class="sb-group-label">Menú</div>
-    <a class="sb-item active" href="/">
+    <a class="sb-item active" href="#">
       <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
       <span class="sb-label">Inicio</span>
     </a>
-    <a class="sb-item" href="/otg">
+    <a class="sb-item" href="#">
       <span class="sb-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       <span class="sb-label">OTG Indexing</span>
     </a>
-    <a class="sb-item" href="/pc">
+    <a class="sb-item" href="#">
       <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
       <span class="sb-label">Playlist</span>
     </a>
   </div>
-
   <div class="sb-group sb-genres" id="sbGenres">
     <div class="sb-group-label">Géneros</div>
   </div>
-
   <div class="sb-bottom">
     <div class="sb-avatar">U</div>
     <div class="sb-user-info">
-      <div class="sb-user-name">{{ name }}</div>
+      <div class="sb-user-name">Mi Canal</div>
       <div class="sb-user-sub">TgIndex Pro</div>
     </div>
   </div>
 </nav>
 
-<!-- ════════════ MAIN ════════════ -->
+<!-- ════════════ CONTENT ════════════ -->
 <div class="content">
-
   <header class="topbar" id="topbar">
-    <span class="topbar-name">{{ name }}</span>
+    <span class="topbar-name">Mi Canal de Telegram</span>
     <div class="spacer"></div>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <form method="GET">
-        <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
-      </form>
+      <input class="search-input" type="text" id="globalSearch" placeholder="Buscar título...">
     </div>
   </header>
 
-  {% set media_items = item_list | selectattr('media') | list %}
-
-  {% if media_items %}
-
-    {% set movies      = [] %}
-    {% set series_list = [] %}
-    {% set top_rated   = [] %}
-    {% set newest      = [] %}
-    {% set genre_map   = {} %}
-    {% set all_genres  = [] %}
-
-    {% for item in media_items %}
-      {% set tmdb = item.tmdb if item.get('tmdb') else None %}
-      {% if tmdb %}
-        {% if tmdb.is_series %}{% if series_list.append(item) %}{% endif %}
-        {% else %}{% if movies.append(item) %}{% endif %}{% endif %}
-        {% if tmdb.rating and tmdb.rating >= 7.0 %}{% if top_rated.append(item) %}{% endif %}{% endif %}
-        {% if tmdb.year and tmdb.year >= '2024' %}{% if newest.append(item) %}{% endif %}{% endif %}
-        {% for g in tmdb.genres %}
-          {% if g not in genre_map %}
-            {% if genre_map.update({g:[]}) %}{% endif %}
-            {% if all_genres.append(g) %}{% endif %}
-          {% endif %}
-          {% if genre_map[g].append(item) %}{% endif %}
-        {% endfor %}
-      {% else %}
-        {% if movies.append(item) %}{% endif %}
-      {% endif %}
-    {% endfor %}
-
-    {# HERO #}
-    {% set hero = namespace(item=None) %}
-    {% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
-
-    {% if hero.item %}
-    {% set hi = hero.item %}{% set ht = hi.tmdb %}
-    <div class="hero">
-      <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
-      <div class="hero-vignette"></div>
-      <div class="hero-content">
-        <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-        <h1 class="hero-title">{{ ht.title }}</h1>
-        <div class="hero-meta">
-          {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
-          {% if ht.rating > 0 %}<span class="hero-rating">⭐ {{ ht.rating }}</span>{% endif %}
-          {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
-        </div>
-        {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
-        {% if ht.genres %}<div class="hero-genres">{% for g in ht.genres[:4] %}<span class="hero-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
-        <div class="hero-actions">
-          <a class="btn-play" href="{{ hi.url }}">▶ Ver ahora</a>
-          <a class="btn-info" href="{{ hi.url }}">ℹ Más info</a>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-
-    {# CARD MACRO #}
-    {% macro card(item) %}
-    {% set t = item.tmdb if item.get('tmdb') else None %}
-    <a href="{{ item.url }}" class="card">
-      <div class="card-inner">
-        {% if t and t.poster %}
-          <img class="card-poster" src="{{ t.poster }}" alt="{{ t.title }}" loading="lazy">
-        {% else %}
-          <div class="card-no-poster">
-            <div class="np-icon">{{ '📺' if (t and t.is_series) else '🎬' }}</div>
-            <div class="np-title">{{ item.insight }}</div>
-          </div>
-        {% endif %}
-        <span class="card-badge">{{ 'Serie' if (t and t.is_series) else 'Pel' }}</span>
-        {% if t and t.rating > 0 %}<span class="card-star">★ {{ t.rating }}</span>{% endif %}
-        <div class="card-hover">
-          <div class="ch-title">{{ t.title if t else item.insight }}</div>
-          <div class="ch-meta">{{ t.year if t else '' }}{% if t and t.rating > 0 %} · ⭐ {{ t.rating }}{% endif %}</div>
-          {% if t and t.genres %}<div class="ch-genres">{% for g in t.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>{% endif %}
-          <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
-        </div>
-      </div>
-    </a>
-    {% endmacro %}
-
-    <div class="main">
-
-      {# ── PELÍCULAS ── #}
-      {% if movies %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🎬 Películas</h2>
-          <span class="row-count">{{ movies|length }}</span>
-          <div class="row-line"></div>
-          {% if movies|length > 15 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver más →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in movies[:15] %}{{ card(item) }}{% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {# ── SERIES ── #}
-      {% if series_list %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">📺 Series</h2>
-          <span class="row-count">{{ series_list|length }}</span>
-          <div class="row-line"></div>
-          {% if series_list|length > 15 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver más →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in series_list[:15] %}{{ card(item) }}{% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {# ── MEJOR VALORADAS ── #}
-      {% if top_rated %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">⭐ Mejor valoradas</h2>
-          <span class="row-count">{{ top_rated|length }}</span>
-          <div class="row-line"></div>
-          {% if top_rated|length > 15 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver más →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in top_rated[:15] %}{{ card(item) }}{% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {# ── LO MÁS NUEVO ── #}
-      {% if newest %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🆕 Lo más nuevo</h2>
-          <span class="row-count">{{ newest|length }}</span>
-          <div class="row-line"></div>
-          {% if newest|length > 15 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver más →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in newest[:15] %}{{ card(item) }}{% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {# ── POR GÉNERO ── #}
-      {% if genre_map %}
-      <div class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🎭 Por género</h2>
-          <div class="row-line"></div>
-        </div>
-        <div class="genre-tabs">
-          {% for genre in genre_map.keys() %}
-          <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
-          {% endfor %}
-        </div>
-        {% for genre, items in genre_map.items() %}
-        <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-          <div class="row-header" style="padding-top:8px;">
-            <span style="color:#555;font-size:0.85rem;">{{ items|length }} títulos</span>
-            <div class="row-line"></div>
-            {% if items|length > 15 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre }}')">Ver más →</button>
-            {% endif %}
-          </div>
-          <div class="cards-grid">
-            {% for item in items[:15] %}{{ card(item) }}{% endfor %}
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-    </div><!-- .main -->
-
-    <!-- ════ FULLSCREEN MODALS ════ -->
-
-    {% macro fullmodal(id, title, items) %}
-    <div class="modal-overlay" id="{{ id }}">
-      <div class="modal">
-        <div class="modal-topbar">
-          <button class="modal-back" onclick="closeModal('{{ id }}')">←</button>
-          <div class="modal-title">{{ title }}</div>
-          <span class="modal-subtitle">{{ items|length }} títulos</span>
-        </div>
-        <div class="modal-grid">
-          {% for item in items %}{{ card(item) }}{% endfor %}
-        </div>
-      </div>
-    </div>
-    {% endmacro %}
-
-    {{ fullmodal('modal-movies',  '🎬 Todas las películas',    movies) }}
-    {{ fullmodal('modal-series',  '📺 Todas las series',       series_list) }}
-    {{ fullmodal('modal-top',     '⭐ Mejor valoradas',        top_rated) }}
-    {{ fullmodal('modal-newest',  '🆕 Lo más nuevo',           newest) }}
-    {% for genre, items in genre_map.items() %}
-    {{ fullmodal('modal-genre-' ~ genre, '🎭 ' ~ genre, items) }}
-    {% endfor %}
-
-  {% else %}
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#444;gap:16px;">
-    <div style="font-size:5rem;">🎬</div>
-    <p style="font-size:1.1rem;">No hay contenido disponible</p>
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-content" id="heroContent"></div>
   </div>
-  {% endif %}
 
-  <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Películas -->
+    <div class="row-section" id="section-movies">
+      <div class="row-header">
+        <h2 class="row-title">🎬 Películas</h2>
+        <span class="row-count" id="count-movies">0</span>
+        <div class="row-line"></div>
+        <button class="btn-ver-mas" id="btn-vermas-movies" style="display:none" onclick="openModal('modal-movies')">Ver todas →</button>
+      </div>
+      <div class="cards-grid" id="grid-movies"></div>
+    </div>
+
+    <!-- Series -->
+    <div class="row-section" id="section-series">
+      <div class="row-header">
+        <h2 class="row-title">📺 Series</h2>
+        <span class="row-count" id="count-series">0</span>
+        <div class="row-line"></div>
+        <button class="btn-ver-mas" id="btn-vermas-series" style="display:none" onclick="openModal('modal-series')">Ver todas →</button>
+      </div>
+      <div class="cards-grid" id="grid-series"></div>
+    </div>
+
+    <!-- Mejor valoradas -->
+    <div class="row-section" id="section-top">
+      <div class="row-header">
+        <h2 class="row-title">⭐ Mejor valoradas</h2>
+        <span class="row-count" id="count-top">0</span>
+        <div class="row-line"></div>
+        <button class="btn-ver-mas" id="btn-vermas-top" style="display:none" onclick="openModal('modal-top')">Ver todas →</button>
+      </div>
+      <div class="cards-grid" id="grid-top"></div>
+    </div>
+
+    <!-- Lo más nuevo -->
+    <div class="row-section" id="section-newest">
+      <div class="row-header">
+        <h2 class="row-title">🆕 Lo más nuevo</h2>
+        <span class="row-count" id="count-newest">0</span>
+        <div class="row-line"></div>
+        <button class="btn-ver-mas" id="btn-vermas-newest" style="display:none" onclick="openModal('modal-newest')">Ver todas →</button>
+      </div>
+      <div class="cards-grid" id="grid-newest"></div>
+    </div>
+
+    <!-- Por género -->
+    <div class="row-section" id="section-genres">
+      <div class="row-header">
+        <h2 class="row-title">🎭 Por género</h2>
+        <div class="row-line"></div>
+      </div>
+      <div class="genre-tabs" id="genreTabs"></div>
+      <div id="genrePanels"></div>
+    </div>
+  </div>
+
+  <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a> · TGIndex</footer>
+</div>
+
+<!-- ════════════ MODALES ════════════ -->
+<div class="modal-overlay" id="modal-movies">
+  <div class="modal">
+    <div class="modal-topbar">
+      <button class="modal-back" onclick="closeModal('modal-movies')">←</button>
+      <div class="modal-title">🎬 Todas las películas</div>
+      <div class="modal-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('modal-movies',this.value)">
+      </div>
+      <span class="modal-subtitle" id="modal-movies-count"></span>
+    </div>
+    <div class="modal-grid" id="modal-movies-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-series">
+  <div class="modal">
+    <div class="modal-topbar">
+      <button class="modal-back" onclick="closeModal('modal-series')">←</button>
+      <div class="modal-title">📺 Todas las series</div>
+      <div class="modal-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('modal-series',this.value)">
+      </div>
+      <span class="modal-subtitle" id="modal-series-count"></span>
+    </div>
+    <div class="modal-grid" id="modal-series-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-top">
+  <div class="modal">
+    <div class="modal-topbar">
+      <button class="modal-back" onclick="closeModal('modal-top')">←</button>
+      <div class="modal-title">⭐ Mejor valoradas</div>
+      <div class="modal-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('modal-top',this.value)">
+      </div>
+      <span class="modal-subtitle" id="modal-top-count"></span>
+    </div>
+    <div class="modal-grid" id="modal-top-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-newest">
+  <div class="modal">
+    <div class="modal-topbar">
+      <button class="modal-back" onclick="closeModal('modal-newest')">←</button>
+      <div class="modal-title">🆕 Lo más nuevo</div>
+      <div class="modal-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('modal-newest',this.value)">
+      </div>
+      <span class="modal-subtitle" id="modal-newest-count"></span>
+    </div>
+    <div class="modal-grid" id="modal-newest-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-genre">
+  <div class="modal">
+    <div class="modal-topbar">
+      <button class="modal-back" onclick="closeModal('modal-genre')">←</button>
+      <div class="modal-title" id="modal-genre-title">🎭 Género</div>
+      <div class="modal-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('modal-genre',this.value)">
+      </div>
+      <span class="modal-subtitle" id="modal-genre-count"></span>
+    </div>
+    <div class="modal-grid" id="modal-genre-grid"></div>
+  </div>
 </div>
 
 <script>
-/* genre tabs */
-document.querySelectorAll('.genre-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const g = tab.dataset.genre;
-    document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.genre-panel').forEach(p => p.style.display = p.dataset.genre === g ? '' : 'none');
+// ══════════════════════════════════════════
+//  DATOS — Aquí van tus películas y series
+//  del grupo de Telegram. Esta es la fuente
+//  de verdad que el motor JS procesa.
+// ══════════════════════════════════════════
+const MEDIA_ITEMS = [
+  // ── PELÍCULAS ──
+  { title:"Dune: Parte Dos", year:"2024", rating:8.5, type:"movie", genres:["Ciencia Ficción","Aventura","Drama"], poster:"https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg", overview:"Paul Atreides se une a los Fremen para vengar la caída de su familia mientras intenta evitar un terrible futuro.", url:"#" },
+  { title:"Oppenheimer", year:"2023", rating:8.3, type:"movie", genres:["Drama","Historia","Thriller"], poster:"https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/rLb2cwF3Pazuxaj0sRXQ037tGI1.jpg", overview:"La historia del físico J. Robert Oppenheimer y su papel en el desarrollo de la bomba atómica.", url:"#" },
+  { title:"Barbie", year:"2023", rating:6.9, type:"movie", genres:["Comedia","Aventura","Fantasía"], poster:"https://image.tmdb.org/t/p/w500/iuFNMS8vlzmxHvehTnt1SvPSjmR.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/nHf61UzkfFno5X1ofIjKkl8RmIT.jpg", overview:"Barbie entra en una crisis existencial y debe salir de Barbieland para descubrir el mundo real.", url:"#" },
+  { title:"Guardians of the Galaxy Vol. 3", year:"2023", rating:7.9, type:"movie", genres:["Acción","Aventura","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/r2J02Z2OpNTctfOSN1Ydgii51I3.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/5YZbUmjbMa3ClvSW1Wj3D6XGkik.jpg", overview:"La última aventura de los Guardianes mientras descubren el pasado de Rocket.", url:"#" },
+  { title:"Indiana Jones y el Dial del Destino", year:"2023", rating:6.9, type:"movie", genres:["Aventura","Acción"], poster:"https://image.tmdb.org/t/p/w500/Af4bXE63pVsb2FtbW8uYajwKqhD.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/4fLZBCZZABHFgQTIAHHKSqJYiGx.jpg", overview:"Indiana Jones regresa en una última aventura para recuperar un artefacto antiguo.", url:"#" },
+  { title:"The Batman", year:"2022", rating:7.8, type:"movie", genres:["Acción","Crimen","Drama"], poster:"https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/5P8SmMzm5QAlA0SGRJ8D9scCPKL.jpg", overview:"Batman investiga la corrupción en Gotham City cuando un asesino deja pistas que lo implican.", url:"#" },
+  { title:"Top Gun: Maverick", year:"2022", rating:8.3, type:"movie", genres:["Acción","Drama"], poster:"https://image.tmdb.org/t/p/w500/62HCnUTHOmVZjPjmfw3bHTPsDRa.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/AkB7rpIRombopB0FoJaJbZFGFzl.jpg", overview:"Maverick regresa como instructor para entrenar a una nueva generación de pilotos Top Gun.", url:"#" },
+  { title:"Avatar: El Camino del Agua", year:"2022", rating:7.6, type:"movie", genres:["Ciencia Ficción","Aventura","Acción"], poster:"https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/s16H6tpK2utvwpapaR6xqS8fvAM.jpg", overview:"Jake Sully y su familia luchan por permanecer juntos cuando enfrentan un nuevo enemigo.", url:"#" },
+  { title:"Black Panther: Wakanda Forever", year:"2022", rating:7.3, type:"movie", genres:["Acción","Aventura","Drama"], poster:"https://image.tmdb.org/t/p/w500/sv1xJUazXoQuIDfQg8Vj71yFT3m.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/xDMIl84Qo5Tsu62c9DGWhmPI67A.jpg", overview:"Wakanda lucha para proteger a su hogar de las potencias mundiales después de la muerte de T'Challa.", url:"#" },
+  { title:"Everything Everywhere All at Once", year:"2022", rating:7.8, type:"movie", genres:["Ciencia Ficción","Comedia","Acción"], poster:"https://image.tmdb.org/t/p/w500/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/o5ht62VKNRlf9jYRhCBmBqaGMi3.jpg", overview:"Una mujer descubre que puede conectarse con versiones de sí misma de universos paralelos.", url:"#" },
+  { title:"Spider-Man: No Way Home", year:"2021", rating:8.2, type:"movie", genres:["Acción","Aventura","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/iQFcwSGbZXMkeyKrxbPnwnRo5fl.jpg", overview:"Peter Parker pide ayuda al Doctor Strange para que el mundo olvide que él es Spider-Man.", url:"#" },
+  { title:"The Suicide Squad", year:"2021", rating:7.2, type:"movie", genres:["Acción","Aventura","Comedia"], poster:"https://image.tmdb.org/t/p/w500/kb4s0ML0iVZlG6wAKbbs9NAm6X.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/jlGmlFOcfo8n5tURmhC7YVd4Iyy.jpg", overview:"El Escuadrón Suicida es enviado a una misión peligrosa en la isla de Corto Maltés.", url:"#" },
+  { title:"Cruella", year:"2021", rating:7.4, type:"movie", genres:["Crimen","Comedia","Drama"], poster:"https://image.tmdb.org/t/p/w500/rTh4K5uw9HypmpGslcKd4QfHl93.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/aA8pDjPVL08HHNHRhJTqKFXzLVx.jpg", overview:"La historia de los primeros años de la infame villana de 101 Dálmatas, Cruella de Vil.", url:"#" },
+  { title:"Godzilla vs. Kong", year:"2021", rating:6.3, type:"movie", genres:["Acción","Ciencia Ficción","Aventura"], poster:"https://image.tmdb.org/t/p/w500/pgqgaUx1cJb5oZQQ5v0tNARCeBp.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/inJjDhCjfhh3RtrJWBmmDqeuSYC.jpg", overview:"Los dos titanes más poderosos del mundo chocan en un espectacular combate.", url:"#" },
+  { title:"Raya y el Último Dragón", year:"2021", rating:7.4, type:"movie", genres:["Animación","Aventura","Familia"], poster:"https://image.tmdb.org/t/p/w500/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/rkB4LyZHo1NHXFEDHl9vSD9r1lI.jpg", overview:"En un mundo fantástico, una guerrera solitaria busca al último dragón para salvar su tierra.", url:"#" },
+  { title:"El Poder del Perro", year:"2021", rating:6.9, type:"movie", genres:["Drama","Western"], poster:"https://image.tmdb.org/t/p/w500/jNE3LHKA8ZtSJMBmxFbdTtEK0pN.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/lZ7LAMZhqOzOXLyIBqYEhFjJ4as.jpg", overview:"Un ranchero carismático que intimida a todos en su rancho hasta que llega un extraño.", url:"#" },
+  { title:"Dune Parte Uno", year:"2021", rating:7.9, type:"movie", genres:["Ciencia Ficción","Aventura"], poster:"https://image.tmdb.org/t/p/w500/d5NXSklpcvwN3Y1o0j3VtILo7lS.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/iopYFB1b6Bh7FWZh3onQhph1CZY.jpg", overview:"La épica adaptación de la novela de Frank Herbert sobre el joven Paul Atreides.", url:"#" },
+  { title:"Free Guy", year:"2021", rating:7.1, type:"movie", genres:["Acción","Comedia","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/xmbU4JTUm8rsdtn7Y3Fcm30GpeT.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/jtAI6OJIWLWiRItNSZoWjrsUtmi.jpg", overview:"Un personaje de videojuego descubre que es el protagonista de su propio universo.", url:"#" },
+  { title:"Shang-Chi y la Leyenda de los Diez Anillos", year:"2021", rating:7.4, type:"movie", genres:["Acción","Aventura","Fantasía"], poster:"https://image.tmdb.org/t/p/w500/1BIoJGKbXjdFDAqUEiA2VHqkK1Z.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/cinER0ESG0eJ49kXlExM0MEWGxW.jpg", overview:"Shang-Chi debe enfrentarse al pasado que pensaba haber dejado atrás.", url:"#" },
+  { title:"Eternals", year:"2021", rating:6.4, type:"movie", genres:["Acción","Aventura","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/bcCBq9N1EMo3daNbbe2EVrzKSk2.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/xmM8yECRMBz0J3QnlRtadWYCgJQ.jpg", overview:"Los Eternals son seres inmortales que han vivido en la Tierra en secreto durante miles de años.", url:"#" },
+
+  // ── SERIES ──
+  { title:"The Last of Us", year:"2023", rating:8.8, type:"series", genres:["Drama","Acción","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/uDgy6hyPd7ipXMfn8KpFZu4NDKR.jpg", overview:"Veinte años después de que la civilización sea destruida, Joel y Ellie deben sobrevivir en un mundo postapocalíptico.", url:"#" },
+  { title:"Stranger Things", year:"2022", rating:8.7, type:"series", genres:["Drama","Ciencia Ficción","Horror"], poster:"https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/56v2KjBlU4XaOv9rVYEQypROD7P.jpg", overview:"Cuando un niño desaparece, sus amigos y familiares descubren un misterio que involucra experimentos secretos.", url:"#" },
+  { title:"The Bear", year:"2023", rating:8.7, type:"series", genres:["Drama","Comedia"], poster:"https://image.tmdb.org/t/p/w500/sHm9vfPOOx7yk35bqFgRMfSP4SP.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/aIfaKABnzfPtGQwGcrPuSHPxLcE.jpg", overview:"Un chef de élite regresa a Chicago para dirigir el restaurante de su difunto hermano.", url:"#" },
+  { title:"House of the Dragon", year:"2022", rating:8.5, type:"series", genres:["Drama","Fantasía","Acción"], poster:"https://image.tmdb.org/t/p/w500/z2yahl2uefxDCl0nogcRBstwruJ.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/suopoADq0k8YZr4dQXcU6pToj6s.jpg", overview:"La precuela de Game of Thrones narra la historia de la Casa Targaryen 200 años antes.", url:"#" },
+  { title:"Wednesday", year:"2022", rating:8.1, type:"series", genres:["Fantasía","Comedia","Misterio"], poster:"https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg", overview:"Wednesday Addams asiste a la Academia Nevermore donde intenta dominar su habilidad psíquica.", url:"#" },
+  { title:"The Crown", year:"2022", rating:8.2, type:"series", genres:["Drama","Historia"], poster:"https://image.tmdb.org/t/p/w500/9oBFAMvZSPzJuJZqWEGYLIWMN5S.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/xPCE9bN8bYFEHXXVfJHW5oPFBZP.jpg", overview:"La historia de la Familia Real Británica a través de los reinados de la reina Isabel II.", url:"#" },
+  { title:"Andor", year:"2022", rating:8.4, type:"series", genres:["Ciencia Ficción","Acción","Drama"], poster:"https://image.tmdb.org/t/p/w500/59SVNwLfoMnZPPB6ukW6dlPxAdI.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/lr3WT5RDDI9RagCJnOCpHhoBuNJ.jpg", overview:"El espía rebelde Cassian Andor en los años previos a los eventos de Rogue One.", url:"#" },
+  { title:"Euphoria", year:"2022", rating:8.4, type:"series", genres:["Drama"], poster:"https://image.tmdb.org/t/p/w500/3Q0hd3heuWwDWpwcDkhQOA6TYWI.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/jtnfNzqZwN4E32FGGxx1YZaBWWf.jpg", overview:"Un grupo de estudiantes de secundaria navegan por experiencias de amor, pérdida y adicciones.", url:"#" },
+  { title:"Ozark", year:"2022", rating:8.4, type:"series", genres:["Crimen","Drama","Thriller"], poster:"https://image.tmdb.org/t/p/w500/pCGyPEqLpBsJ4NBGzpCIBgEHgOO.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/5VbGRysRRaK90EgMIHFZBqVSjAE.jpg", overview:"Un asesor financiero traslada a su familia al Ozark para lavar dinero para un cártel de drogas.", url:"#" },
+  { title:"Succession", year:"2023", rating:8.9, type:"series", genres:["Drama","Comedia"], poster:"https://image.tmdb.org/t/p/w500/e2X2oR2fAaVlHVKhCGHXam1lLTQ.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg", overview:"La disfuncional familia Roy compite por el control de su imperium mediático.", url:"#" },
+  { title:"The Witcher", year:"2021", rating:8.2, type:"series", genres:["Fantasía","Acción","Drama"], poster:"https://image.tmdb.org/t/p/w500/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/quvPkzF4t12xZvMEQnT5GoMV4aT.jpg", overview:"Geralt de Rivia, un cazador de monstruos solitario, lucha por encontrar su lugar en el mundo.", url:"#" },
+  { title:"Arcane", year:"2021", rating:9.0, type:"series", genres:["Animación","Acción","Fantasía"], poster:"https://image.tmdb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/rkB4LyZHo1NHXFEDHl9vSD9r1lI.jpg", overview:"Ambientada en el universo de League of Legends, sigue las historias de dos hermanas Vi y Jinx.", url:"#" },
+  { title:"Only Murders in the Building", year:"2023", rating:8.1, type:"series", genres:["Comedia","Crimen","Misterio"], poster:"https://image.tmdb.org/t/p/w500/rNJHDM9GrEa8pKZzmQLOJCiWjI1.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/9faGSFi5jam6pDWGNd0p8JzvPqx.jpg", overview:"Tres extraños obsesionados con los crímenes verdaderos se ven envueltos en un asesinato real.", url:"#" },
+  { title:"The Mandalorian", year:"2023", rating:8.7, type:"series", genres:["Ciencia Ficción","Acción","Aventura"], poster:"https://image.tmdb.org/t/p/w500/eU1i6eHXlzMqZVdUTCrOE6gR2Cs.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/9ijMGlJKqcslFSmAfs0B3noL9b5.jpg", overview:"Un cazarrecompensas mandaloriano vaga por las regiones exteriores de la galaxia.", url:"#" },
+  { title:"Better Call Saul", year:"2022", rating:9.0, type:"series", genres:["Crimen","Drama","Thriller"], poster:"https://image.tmdb.org/t/p/w500/fC2HDm5t0kHl7mTm7jxMR31b7by.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/9faGSFi5jam6pDWGNd0p8JzvPqx.jpg", overview:"La transformación del abogado Jimmy McGill en el despiadado abogado criminal Saul Goodman.", url:"#" },
+  { title:"Ted Lasso", year:"2023", rating:8.8, type:"series", genres:["Comedia","Drama"], poster:"https://image.tmdb.org/t/p/w500/xTHCMHDAbAFiXm5VGHqFmJQABQe.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/iopYFB1b6Bh7FWZh3onQhph1CZY.jpg", overview:"Un entrenador americano de fútbol americano es contratado para dirigir un equipo de fútbol inglés.", url:"#" },
+  { title:"The Handmaid's Tale", year:"2021", rating:8.4, type:"series", genres:["Drama","Ciencia Ficción"], poster:"https://image.tmdb.org/t/p/w500/oHlmFKABywNIjeczE6hS7VTsQFQ.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/suopoADq0k8YZr4dQXcU6pToj6s.jpg", overview:"Ambientada en una República teocrática donde las mujeres son esclavas reproductivas.", url:"#" },
+  { title:"Squid Game", year:"2021", rating:8.0, type:"series", genres:["Acción","Drama","Misterio"], poster:"https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg", backdrop:"https://image.tmdb.org/t/p/w1280/qw3J9cNeLioOLoR68WX7z79aCdK.jpg", overview:"Personas desesperadas arriesgan su vida jugando juegos infantiles por un premio enorme.", url:"#" },
+];
+
+// ══════════════════════════════════════════
+//  MOTOR DE RENDERIZADO
+// ══════════════════════════════════════════
+const MAX_VISIBLE = 15;
+
+// Clasificar items
+const movies    = MEDIA_ITEMS.filter(i => i.type === 'movie');
+const series    = MEDIA_ITEMS.filter(i => i.type === 'series');
+const topRated  = [...MEDIA_ITEMS].filter(i => i.rating >= 7.5).sort((a,b) => b.rating - a.rating);
+const newest    = [...MEDIA_ITEMS].filter(i => parseInt(i.year) >= 2023).sort((a,b) => parseInt(b.year) - parseInt(a.year));
+
+// Mapa de géneros
+const genreMap = {};
+MEDIA_ITEMS.forEach(item => {
+  item.genres.forEach(g => {
+    if (!genreMap[g]) genreMap[g] = [];
+    genreMap[g].push(item);
   });
 });
 
-/* modals */
-function openModal(id) {
-  const m = document.getElementById(id);
-  if (!m) return;
-  m.classList.add('open');
-  m.scrollTop = 0;
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-  const m = document.getElementById(id);
-  if (!m) return;
-  m.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-});
+// ── Crear card HTML ──
+function createCard(item) {
+  const isS = item.type === 'series';
+  const poster = item.poster
+    ? `<img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const noPoster = !item.poster
+    ? `<div class="card-no-poster"><div class="np-icon">${isS ? '📺' : '🎬'}</div><div class="np-title">${item.title}</div></div>`
+    : `<div class="card-no-poster" style="display:none"><div class="np-icon">${isS ? '📺' : '🎬'}</div><div class="np-title">${item.title}</div></div>`;
 
-/* sidebar genres */
-(function(){
-  const genres = [{% for g in all_genres %}'{{ g }}',{% endfor %}];
+  const genres = (item.genres || []).slice(0,2).map(g => `<span class="ch-genre">${g}</span>`).join('');
+
+  return `
+    <a href="${item.url}" class="card" data-title="${item.title.toLowerCase()}">
+      <div class="card-inner">
+        ${poster}${noPoster}
+        <span class="card-badge">${isS ? 'Serie' : 'Pel'}</span>
+        ${item.rating > 0 ? `<span class="card-star">★ ${item.rating}</span>` : ''}
+        <div class="card-hover">
+          <div class="ch-title">${item.title}</div>
+          <div class="ch-meta">${item.year}${item.rating > 0 ? ` · ⭐ ${item.rating}` : ''}</div>
+          ${genres ? `<div class="ch-genres">${genres}</div>` : ''}
+          <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
+        </div>
+      </div>
+    </a>`;
+}
+
+// ── Rellenar grid con límite ──
+function fillGrid(gridId, items, limit) {
+  const el = document.getElementById(gridId);
+  if (!el) return;
+  const slice = limit ? items.slice(0, limit) : items;
+  el.innerHTML = slice.map(createCard).join('');
+}
+
+// ── Rellenar contador ──
+function fillCount(id, n) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = n;
+}
+
+// ── Mostrar/ocultar botón ver más ──
+function toggleVerMas(btnId, total) {
+  const btn = document.getElementById(btnId);
+  if (btn) btn.style.display = total > MAX_VISIBLE ? 'inline-flex' : 'none';
+}
+
+// ── Rellenar modal ──
+function fillModal(gridId, countId, items) {
+  const grid = document.getElementById(gridId);
+  const cnt  = document.getElementById(countId);
+  if (grid) {
+    grid.innerHTML = items.map(createCard).join('');
+    grid.dataset.items = JSON.stringify(items.map(i => i.title.toLowerCase()));
+  }
+  if (cnt) cnt.textContent = `${items.length} títulos`;
+}
+
+// ══════════════════════════════════════════
+//  HERO
+// ══════════════════════════════════════════
+function renderHero() {
+  const heroItem = MEDIA_ITEMS.find(i => i.backdrop);
+  if (!heroItem) return;
+  document.getElementById('heroBg').style.backgroundImage = `url('${heroItem.backdrop}')`;
+  const isS = heroItem.type === 'series';
+  const genres = (heroItem.genres || []).slice(0,4).map(g => `<span class="hero-genre">${g}</span>`).join('');
+  document.getElementById('heroContent').innerHTML = `
+    <span class="hero-badge">${isS ? 'Serie' : 'Película'}</span>
+    <h1 class="hero-title">${heroItem.title}</h1>
+    <div class="hero-meta">
+      <span>${heroItem.year}</span>
+      ${heroItem.rating > 0 ? `<span class="hero-rating">⭐ ${heroItem.rating}</span>` : ''}
+    </div>
+    ${heroItem.overview ? `<p class="hero-overview">${heroItem.overview}</p>` : ''}
+    ${genres ? `<div class="hero-genres">${genres}</div>` : ''}
+    <div class="hero-actions">
+      <a class="btn-play" href="${heroItem.url}">▶ Ver ahora</a>
+      <a class="btn-info" href="${heroItem.url}">ℹ Más info</a>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+//  GÉNEROS — Tabs + Panels + Botones
+// ══════════════════════════════════════════
+let currentGenreItems = [];
+
+function renderGenres() {
+  const tabs   = document.getElementById('genreTabs');
+  const panels = document.getElementById('genrePanels');
+  const genres = Object.keys(genreMap);
+  if (!genres.length) return;
+
+  tabs.innerHTML = '';
+  panels.innerHTML = '';
+
+  genres.forEach((g, i) => {
+    const items = genreMap[g];
+    // Tab
+    const tab = document.createElement('button');
+    tab.className = 'genre-tab' + (i === 0 ? ' active' : '');
+    tab.dataset.genre = g;
+    tab.textContent = g;
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.genre-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('gp-' + g).style.display = '';
+    });
+    tabs.appendChild(tab);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.className = 'genre-panel';
+    panel.dataset.genre = g;
+    panel.id = 'gp-' + g;
+    panel.style.display = i === 0 ? '' : 'none';
+
+    const showVerMas = items.length > MAX_VISIBLE;
+    panel.innerHTML = `
+      <div class="row-header" style="padding-top:8px;">
+        <span style="color:#555;font-size:0.85rem;">${items.length} títulos</span>
+        <div class="row-line"></div>
+        ${showVerMas ? `<button class="btn-ver-mas" onclick="openGenreModal('${g}')">Ver todas →</button>` : ''}
+      </div>
+      <div class="cards-grid" id="gg-${g}"></div>`;
+
+    panels.appendChild(panel);
+    fillGrid('gg-' + g, items, MAX_VISIBLE);
+  });
+}
+
+function openGenreModal(genre) {
+  const items = genreMap[genre] || [];
+  currentGenreItems = items;
+  document.getElementById('modal-genre-title').textContent = '🎭 ' + genre;
+  fillModal('modal-genre-grid', 'modal-genre-count', items);
+  openModal('modal-genre');
+}
+
+// ══════════════════════════════════════════
+//  SIDEBAR GÉNEROS
+// ══════════════════════════════════════════
+function renderSidebarGenres() {
   const container = document.getElementById('sbGenres');
-  genres.forEach(g => {
+  Object.keys(genreMap).forEach(g => {
     const a = document.createElement('a');
     a.className = 'sb-item';
     a.href = '#';
@@ -641,17 +753,130 @@ document.addEventListener('keydown', e => {
     a.addEventListener('click', e => {
       e.preventDefault();
       const tab = [...document.querySelectorAll('.genre-tab')].find(t => t.dataset.genre === g);
-      if (tab) { tab.click(); tab.closest('.row-section')?.scrollIntoView({ behavior:'smooth' }); }
+      if (tab) { tab.click(); document.getElementById('section-genres').scrollIntoView({ behavior:'smooth' }); }
     });
     container.appendChild(a);
   });
-})();
+}
 
-/* sticky header */
+// ══════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.classList.add('open');
+  m.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+});
+
+// Cerrar al hacer clic fuera del contenido
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ── Filtrado dentro del modal ──
+function filterModal(modalId, query) {
+  const grid = document.getElementById(modalId + '-grid');
+  if (!grid) return;
+  const q = query.toLowerCase().trim();
+  let found = 0;
+  grid.querySelectorAll('.card').forEach(card => {
+    const title = card.dataset.title || '';
+    const show = !q || title.includes(q);
+    card.style.display = show ? '' : 'none';
+    if (show) found++;
+  });
+  // Mensaje si no hay resultados
+  let noRes = grid.nextElementSibling;
+  if (!noRes || !noRes.classList.contains('modal-no-results')) {
+    noRes = document.createElement('div');
+    noRes.className = 'modal-no-results';
+    grid.parentNode.insertBefore(noRes, grid.nextSibling);
+  }
+  noRes.textContent = found === 0 ? '🔍 No se encontraron resultados' : '';
+  noRes.style.display = found === 0 ? '' : 'none';
+}
+
+// ══════════════════════════════════════════
+//  BÚSQUEDA GLOBAL
+// ══════════════════════════════════════════
+document.getElementById('globalSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) {
+    // Restaurar vistas normales
+    fillGrid('grid-movies',  movies,   MAX_VISIBLE);
+    fillGrid('grid-series',  series,   MAX_VISIBLE);
+    fillGrid('grid-top',     topRated, MAX_VISIBLE);
+    fillGrid('grid-newest',  newest,   MAX_VISIBLE);
+    return;
+  }
+  const results = MEDIA_ITEMS.filter(i => i.title.toLowerCase().includes(q) || (i.overview || '').toLowerCase().includes(q));
+  ['grid-movies','grid-series','grid-top','grid-newest'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = results.length
+      ? results.map(createCard).join('')
+      : '<div style="color:#444;padding:20px 0;font-size:0.9rem;">Sin resultados</div>';
+  });
+});
+
+// ══════════════════════════════════════════
+//  STICKY TOPBAR
+// ══════════════════════════════════════════
 window.addEventListener('scroll', () => {
   const h = document.getElementById('topbar');
   if (h) h.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.98)' : '';
 });
+
+// ══════════════════════════════════════════
+//  INICIALIZAR TODO
+// ══════════════════════════════════════════
+(function init() {
+  renderHero();
+
+  // Películas
+  fillGrid('grid-movies', movies, MAX_VISIBLE);
+  fillCount('count-movies', movies.length);
+  toggleVerMas('btn-vermas-movies', movies.length);
+  fillModal('modal-movies-grid', 'modal-movies-count', movies);
+
+  // Series
+  fillGrid('grid-series', series, MAX_VISIBLE);
+  fillCount('count-series', series.length);
+  toggleVerMas('btn-vermas-series', series.length);
+  fillModal('modal-series-grid', 'modal-series-count', series);
+
+  // Top rated
+  fillGrid('grid-top', topRated, MAX_VISIBLE);
+  fillCount('count-top', topRated.length);
+  toggleVerMas('btn-vermas-top', topRated.length);
+  fillModal('modal-top-grid', 'modal-top-count', topRated);
+
+  // Newest
+  fillGrid('grid-newest', newest, MAX_VISIBLE);
+  fillCount('count-newest', newest.length);
+  toggleVerMas('btn-vermas-newest', newest.length);
+  fillModal('modal-newest-grid', 'modal-newest-count', newest);
+
+  // Géneros
+  renderGenres();
+
+  // Sidebar géneros
+  renderSidebarGenres();
+})();
 </script>
 </body>
 </html>
