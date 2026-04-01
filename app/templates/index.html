@@ -275,7 +275,6 @@
     .modal-title { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#fff; letter-spacing:1px; }
     .modal-subtitle { color:#555; font-size:0.85rem; margin-left:auto; white-space:nowrap; }
 
-    /* Buscador dentro del modal */
     .modal-search-wrap { position:relative; margin-left:16px; }
     .modal-search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
     .modal-search {
@@ -294,11 +293,8 @@
     }
     .modal-grid .card { flex:unset; width:100%; height:var(--card-h); }
     .modal-grid .card-inner { width:100%; height:100%; }
-
-    /* card oculta en búsqueda modal */
     .modal-grid .card.hidden { display:none; }
 
-    /* mensaje sin resultados */
     .no-results {
       display:none; grid-column:1/-1;
       text-align:center; padding:60px 20px;
@@ -504,6 +500,7 @@
             </div>
           </div>
           <div class="modal-grid" id="{{ id }}-grid">
+            {# ✅ FIX: eliminado [:15] — se muestran TODOS los items en el modal #}
             {% for item in items %}{{ card(item) }}{% endfor %}
             <div class="no-results" id="{{ id }}-nores">No se encontraron resultados</div>
           </div>
@@ -520,12 +517,14 @@
           <h2 class="row-title">🎬 Películas</h2>
           <span class="row-count">{{ movies | length }}</span>
           <div class="row-line"></div>
-          {% if movies | length > 15 %}
+          {# ✅ FIX: el botón "Ver todas" aparece si hay más de 20, antes era > 15 #}
+          {% if movies | length > 20 %}
           <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas ({{ movies | length }}) →</button>
           {% endif %}
         </div>
+        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
-          {% for item in movies[:15] %}{{ card(item) }}{% endfor %}
+          {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
         </div>
       </div>
       {% endif %}
@@ -537,12 +536,13 @@
           <h2 class="row-title">📺 Series</h2>
           <span class="row-count">{{ series_list | length }}</span>
           <div class="row-line"></div>
-          {% if series_list | length > 15 %}
+          {% if series_list | length > 20 %}
           <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas ({{ series_list | length }}) →</button>
           {% endif %}
         </div>
+        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
-          {% for item in series_list[:15] %}{{ card(item) }}{% endfor %}
+          {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
         </div>
       </div>
       {% endif %}
@@ -554,12 +554,13 @@
           <h2 class="row-title">⭐ Mejor valoradas</h2>
           <span class="row-count">{{ top_rated | length }}</span>
           <div class="row-line"></div>
-          {% if top_rated | length > 15 %}
+          {% if top_rated | length > 20 %}
           <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver todas ({{ top_rated | length }}) →</button>
           {% endif %}
         </div>
+        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
-          {% for item in top_rated[:15] %}{{ card(item) }}{% endfor %}
+          {% for item in top_rated[:20] %}{{ card(item) }}{% endfor %}
         </div>
       </div>
       {% endif %}
@@ -571,12 +572,13 @@
           <h2 class="row-title">🆕 Lo más nuevo</h2>
           <span class="row-count">{{ newest | length }}</span>
           <div class="row-line"></div>
-          {% if newest | length > 15 %}
+          {% if newest | length > 20 %}
           <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver todas ({{ newest | length }}) →</button>
           {% endif %}
         </div>
+        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
-          {% for item in newest[:15] %}{{ card(item) }}{% endfor %}
+          {% for item in newest[:20] %}{{ card(item) }}{% endfor %}
         </div>
       </div>
       {% endif %}
@@ -598,12 +600,13 @@
           <div class="row-header" style="padding-top:8px;">
             <span style="color:#555;font-size:0.85rem;">{{ items | length }} títulos</span>
             <div class="row-line"></div>
-            {% if items | length > 15 %}
+            {% if items | length > 20 %}
             <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas ({{ items | length }}) →</button>
             {% endif %}
           </div>
+          {# ✅ FIX: se muestran hasta 20 por género en la fila principal (era [:15]) #}
           <div class="cards-grid">
-            {% for item in items[:15] %}{{ card(item) }}{% endfor %}
+            {% for item in items[:20] %}{{ card(item) }}{% endfor %}
           </div>
         </div>
         {% endfor %}
@@ -648,7 +651,6 @@
   function openModal(id) {
     const m = document.getElementById(id);
     if (!m) return;
-    // Limpiar búsqueda al abrir
     const inp = m.querySelector('.modal-search');
     if (inp) { inp.value = ''; filterModal(id, ''); }
     m.classList.add('open');
