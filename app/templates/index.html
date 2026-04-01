@@ -4,13 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --red: #e50914;
     --red2: #b2070f;
     --dark: #080808;
-    --sb: #0d0d0d;
     --sb-w: 70px;
     --sb-expanded: 220px;
     --card-w: 160px;
@@ -20,20 +19,14 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  body {
-    background:var(--dark); color:#e5e5e5;
-    font-family:'DM Sans',sans-serif; min-height:100vh;
-    overflow-x:hidden; display:flex;
-  }
+  body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
   a { text-decoration:none; color:inherit; }
 
-  /* ════════════════════════════════
-     SIDEBAR
-  ════════════════════════════════ */
+  /* ── SIDEBAR ── */
   .sidebar {
     position:fixed; top:0; left:0; bottom:0;
     width:var(--sb-w); z-index:500;
-    background:var(--sb);
+    background:#0d0d0d;
     border-right:1px solid #111;
     display:flex; flex-direction:column;
     overflow:hidden;
@@ -42,20 +35,18 @@
   }
   .sidebar:hover { width:var(--sb-expanded); }
 
-  /* logo */
   .sb-logo {
     display:flex; align-items:center; gap:12px;
     padding:22px 18px 20px;
     border-bottom:1px solid #161616;
-    flex-shrink:0;
-    overflow:hidden; white-space:nowrap;
+    flex-shrink:0; overflow:hidden; white-space:nowrap;
   }
   .sb-logo-mark {
     width:34px; height:34px; flex-shrink:0;
     background:var(--red); border-radius:8px;
     display:flex; align-items:center; justify-content:center;
     font-size:1.1rem; font-weight:900; color:#fff;
-    letter-spacing:-1px; font-family:'Bebas Neue',sans-serif;
+    font-family:'Bebas Neue',sans-serif; letter-spacing:-1px;
   }
   .sb-logo-text {
     font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
@@ -64,11 +55,10 @@
   }
   .sidebar:hover .sb-logo-text { opacity:1; }
 
-  /* nav groups */
-  .sb-group { padding:12px 0; border-bottom:1px solid #111; }
+  .sb-group { padding:10px 0; border-bottom:1px solid #111; }
   .sb-group-label {
-    font-size:0.6rem; font-weight:700; color:#444; letter-spacing:2px;
-    text-transform:uppercase; padding:4px 18px 8px;
+    font-size:0.58rem; font-weight:700; color:#444; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 18px 6px;
     opacity:0; transition:opacity .2s; white-space:nowrap;
   }
   .sidebar:hover .sb-group-label { opacity:1; }
@@ -76,34 +66,23 @@
   .sb-item {
     display:flex; align-items:center; gap:14px;
     height:46px; padding:0 18px;
-    cursor:pointer; color:#777;
+    cursor:pointer; color:#666;
     transition:color .2s, background .2s;
     white-space:nowrap; overflow:hidden;
-    position:relative; border-left:3px solid transparent;
+    border-left:3px solid transparent;
     text-decoration:none;
   }
   .sb-item:hover { color:#fff; background:rgba(255,255,255,.05); }
   .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,.1); }
 
-  .sb-icon {
-    width:22px; height:22px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.15rem;
-  }
-  /* SVG icons */
+  .sb-icon { width:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
   .sb-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-
-  .sb-label {
-    font-size:0.88rem; font-weight:500;
-    opacity:0; transition:opacity .15s;
-  }
+  .sb-label { font-size:0.88rem; font-weight:500; opacity:0; transition:opacity .15s; }
   .sidebar:hover .sb-label { opacity:1; }
 
-  /* genre pills in sidebar */
-  .sb-genres { padding:10px 0 6px; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
+  .sb-genres { padding:8px 0; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
   .sb-genres::-webkit-scrollbar { display:none; }
 
-  /* bottom user area */
   .sb-bottom {
     padding:14px 18px; border-top:1px solid #111; flex-shrink:0;
     display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;
@@ -119,20 +98,16 @@
   .sb-user-name { font-size:0.82rem; font-weight:600; color:#ddd; }
   .sb-user-sub  { font-size:0.7rem; color:#555; }
 
-  /* ════════════════════════════════
-     MAIN CONTENT
-  ════════════════════════════════ */
+  /* ── CONTENT ── */
   .content { margin-left:var(--sb-w); flex:1; min-width:0; }
 
-  /* TOPBAR */
   .topbar {
     position:fixed; top:0; left:var(--sb-w); right:0; z-index:300; height:64px;
     display:flex; align-items:center; gap:16px; padding:0 32px;
     background:linear-gradient(180deg,rgba(8,8,8,.98) 60%,transparent 100%);
     backdrop-filter:blur(6px);
-    transition:background .3s;
   }
-  .topbar-name { color:#666; font-size:0.85rem; font-style:italic; }
+  .topbar-name { color:#555; font-size:0.85rem; font-style:italic; }
   .spacer { flex:1; }
   .search-wrap { position:relative; }
   .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
@@ -145,118 +120,69 @@
   .search-input:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:260px; }
   .search-input::placeholder { color:#444; }
 
-  /* HERO */
+  /* ── HERO ── */
   .hero {
     position:relative; width:100%; height:88vh; min-height:500px;
     display:flex; align-items:flex-end; overflow:hidden;
   }
   .hero-bg {
-    position:absolute; inset:0;
-    background-size:cover; background-position:center top;
+    position:absolute; inset:0; background-size:cover; background-position:center top;
     transform:scale(1.04); transition:transform 9s ease;
   }
   .hero:hover .hero-bg { transform:scale(1); }
   .hero-vignette {
     position:absolute; inset:0;
-    background:
-      linear-gradient(0deg,  rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
-      linear-gradient(90deg, rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
+    background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
+               linear-gradient(90deg,rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
   }
   .hero-content { position:relative; z-index:2; padding:0 52px 60px; max-width:560px; }
-  .hero-eyebrow {
-    display:flex; align-items:center; gap:8px; margin-bottom:12px;
-  }
   .hero-badge {
-    background:var(--red); color:#fff;
+    display:inline-block; background:var(--red); color:#fff;
     font-size:0.6rem; font-weight:800; padding:3px 10px; border-radius:3px;
-    letter-spacing:1.5px; text-transform:uppercase;
+    letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;
   }
-  .hero-platform { color:#aaa; font-size:0.75rem; }
   .hero-title {
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(2.8rem,5.5vw,5rem); line-height:.95;
     letter-spacing:1px; margin-bottom:14px;
     text-shadow:0 2px 40px rgba(0,0,0,.9);
   }
-  .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:14px; flex-wrap:wrap; }
-  .hero-rating { color:#f5c518; font-weight:800; font-size:0.95rem; }
-  .hero-dot { color:#444; }
-  .hero-overview {
-    font-size:0.93rem; color:#ccc; line-height:1.65; margin-bottom:16px;
-    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
-  }
-  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
-  .hero-genre {
-    background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18);
-    color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px;
-  }
+  .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:12px; flex-wrap:wrap; }
+  .hero-rating { color:#f5c518; font-weight:800; }
+  .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.65; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
+  .hero-genre { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px; }
   .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
-  .btn-play {
-    display:inline-flex; align-items:center; gap:8px;
-    background:#fff; color:#000; padding:13px 34px; border-radius:6px;
-    font-size:1rem; font-weight:800; transition:background .2s, transform .1s;
-  }
-  .btn-play:hover { background:#e0e0e0; transform:scale(1.02); }
-  .btn-info {
-    display:inline-flex; align-items:center; gap:8px;
-    background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px;
-    font-size:1rem; font-weight:700; transition:background .2s;
-    backdrop-filter:blur(4px);
-  }
+  .btn-play { display:inline-flex; align-items:center; gap:8px; background:#fff; color:#000; padding:13px 34px; border-radius:6px; font-size:1rem; font-weight:800; transition:background .2s; }
+  .btn-play:hover { background:#e0e0e0; }
+  .btn-info { display:inline-flex; align-items:center; gap:8px; background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px; font-size:1rem; font-weight:700; transition:background .2s; backdrop-filter:blur(4px); }
   .btn-info:hover { background:rgba(120,120,120,.8); }
 
-  /* MAIN AREA */
+  /* ── MAIN ── */
   .main { padding-top:24px; }
 
-  /* ROW */
-  .row-section { padding:0 0 36px; }
-  .row-header {
-    display:flex; align-items:center; gap:10px;
-    padding:0 32px 14px;
-  }
+  /* ── ROW SECTION ── */
+  .row-section { padding:0 0 40px; }
+  .row-header { display:flex; align-items:center; gap:10px; padding:0 32px 14px; flex-wrap:wrap; }
   .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; letter-spacing:1px; color:#fff; }
-  .row-count {
-    background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4);
-    color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px;
-  }
+  .row-count { background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4); color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px; }
   .row-line { flex:1; height:1px; background:linear-gradient(90deg,#2a2a2a,transparent); }
-  .btn-see-all {
-    background:transparent; border:1px solid #333; color:#888;
-    padding:5px 14px; border-radius:20px; font-size:0.75rem; font-weight:600;
+  .btn-ver-mas {
+    display:inline-flex; align-items:center; gap:6px;
+    background:transparent; border:1px solid #333; color:#999;
+    padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:600;
     cursor:pointer; transition:all .2s; white-space:nowrap;
-    font-family:'DM Sans',sans-serif; text-decoration:none;
+    font-family:'DM Sans',sans-serif;
   }
-  .btn-see-all:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.1); }
+  .btn-ver-mas:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.12); }
 
-  .row-scroll-wrap {
-    position:relative;
-    height:calc(var(--card-h) + 44px);
+  /* card grid — NOT a scroll, just a normal flex-wrap limited to 15 */
+  .cards-grid {
+    display:flex; flex-wrap:wrap; gap:var(--gap);
+    padding:0 32px;
   }
-  .row-scroll {
-    display:flex; gap:var(--gap);
-    overflow-x:auto; overflow-y:hidden;
-    padding:10px 32px;
-    height:100%; align-items:flex-start;
-    scroll-behavior:smooth; scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
-  }
-  .row-scroll::-webkit-scrollbar { display:none; }
 
-  /* arrow buttons */
-  .scroll-btn {
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:42px; height:100%;
-    display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(90deg,rgba(8,8,8,.95),rgba(8,8,8,.5));
-    border:none; color:#fff; font-size:1.8rem;
-    cursor:pointer; z-index:10;
-    opacity:0; transition:opacity .2s;
-  }
-  .row-scroll-wrap:hover .scroll-btn { opacity:1; }
-  .scroll-btn.left  { left:0;  background:linear-gradient(90deg,rgba(8,8,8,.98),transparent); border-radius:0 6px 6px 0; }
-  .scroll-btn.right { right:0; background:linear-gradient(270deg,rgba(8,8,8,.98),transparent); border-radius:6px 0 0 6px; }
-
-  /* CARD */
+  /* ── CARD ── */
   .card {
     flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
     position:relative; border-radius:var(--radius);
@@ -265,7 +191,7 @@
     z-index:1;
   }
   .card:hover {
-    transform:scale(1.15) translateY(-8px);
+    transform:scale(1.12) translateY(-6px);
     z-index:50;
     transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s;
   }
@@ -275,15 +201,13 @@
     box-shadow:0 4px 24px rgba(0,0,0,.55);
     transition:box-shadow .32s;
   }
-  .card:hover .card-inner { box-shadow:0 24px 70px rgba(0,0,0,.95); }
-
+  .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
   .card-poster {
     display:block; width:100%; height:100%;
     object-fit:cover; object-position:center top;
     pointer-events:none; transition:filter .32s;
   }
   .card:hover .card-poster { filter:brightness(.38); }
-
   .card-no-poster {
     width:100%; height:100%;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -303,20 +227,19 @@
     position:absolute; top:8px; right:8px; z-index:2;
     background:rgba(0,0,0,.75); color:#f5c518;
     font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:3px;
-    pointer-events:none; display:flex; align-items:center; gap:2px;
+    pointer-events:none;
   }
-
   .card-hover {
     position:absolute; inset:0; z-index:3;
-    padding:14px 12px 12px;
+    padding:12px 10px 10px;
     display:flex; flex-direction:column; justify-content:flex-end;
     opacity:0; transition:opacity .28s; pointer-events:none;
-    background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.55) 55%,transparent 100%);
+    background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
   }
   .card:hover .card-hover { opacity:1; pointer-events:auto; }
   .ch-title  { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.2; pointer-events:none; }
   .ch-meta   { font-size:0.63rem; color:#999; margin-bottom:6px; pointer-events:none; }
-  .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:9px; pointer-events:none; }
+  .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
   .ch-genre  { background:rgba(229,9,20,.22); border:1px solid rgba(229,9,20,.38); color:#ff8888; font-size:0.52rem; padding:1px 5px; border-radius:2px; }
   .ch-play {
     width:100%; background:var(--red); color:#fff; border:none;
@@ -325,43 +248,7 @@
   }
   .ch-play:hover { background:var(--red2); }
 
-  /* MODAL — "Ver todas" */
-  .modal-overlay {
-    display:none; position:fixed; inset:0; z-index:600;
-    background:rgba(0,0,0,.85); backdrop-filter:blur(6px);
-    align-items:flex-start; justify-content:center;
-    padding:60px 20px 20px;
-    overflow-y:auto;
-  }
-  .modal-overlay.open { display:flex; }
-  .modal {
-    background:#111; border-radius:12px; width:100%; max-width:1100px;
-    padding:28px; position:relative;
-    border:1px solid #222;
-  }
-  .modal-close {
-    position:absolute; top:16px; right:16px;
-    background:#222; border:none; color:#aaa;
-    width:32px; height:32px; border-radius:50%;
-    font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:all .2s;
-  }
-  .modal-close:hover { background:var(--red); color:#fff; }
-  .modal-title {
-    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:#fff;
-    letter-spacing:1px; margin-bottom:20px;
-  }
-  .modal-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
-    gap:12px;
-  }
-  /* card inside modal — simpler, no hover scale */
-  .modal-grid .card { flex:unset; width:100%; height:var(--card-h); }
-  .modal-grid .card:hover { transform:scale(1.06) translateY(-4px); }
-  .modal-grid .card-inner { width:100%; }
-
-  /* GENRE TABS */
+  /* ── GENRE TABS ── */
   .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
   .genre-tabs::-webkit-scrollbar { display:none; }
   .genre-tab {
@@ -373,13 +260,53 @@
   .genre-tab:hover  { background:#222; color:#fff; }
   .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
 
-  /* FOOTER */
-  footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; margin-top:8px; }
+  /* ── FULLSCREEN MODAL ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:600;
+    background:rgba(8,8,8,.96); backdrop-filter:blur(8px);
+    overflow-y:auto;
+  }
+  .modal-overlay.open { display:block; }
+
+  .modal {
+    min-height:100vh; padding:24px 32px 48px;
+    max-width:1400px; margin:0 auto;
+  }
+  .modal-topbar {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 0 24px;
+    position:sticky; top:0; z-index:10;
+    background:rgba(8,8,8,.95); backdrop-filter:blur(8px);
+    border-bottom:1px solid #1a1a1a; margin-bottom:28px;
+  }
+  .modal-back {
+    background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
+    width:40px; height:40px; border-radius:50%; font-size:1.2rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; flex-shrink:0;
+  }
+  .modal-back:hover { background:var(--red); border-color:var(--red); color:#fff; }
+  .modal-title {
+    font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#fff; letter-spacing:1px;
+  }
+  .modal-subtitle { color:#555; font-size:0.85rem; margin-left:auto; }
+
+  .modal-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(var(--card-w), 1fr));
+    gap:12px;
+  }
+  .modal-grid .card { flex:unset; width:100%; }
+  .modal-grid .card-inner { width:100%; }
+
+  /* ── FOOTER ── */
+  footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; }
   footer a { color:#333; } footer a:hover { color:var(--red); }
 
-  /* ════════════════════════════════
-     MOBILE
-  ════════════════════════════════ */
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    :root { --card-w:140px; --card-h:210px; }
+  }
   @media(max-width:768px){
     :root { --sb-w:0px; --card-w:120px; --card-h:180px; --gap:6px; }
     .sidebar { display:none; }
@@ -389,23 +316,24 @@
     .hero-title { font-size:2rem; }
     .hero-overview { -webkit-line-clamp:2; }
     .row-header { padding:0 16px 10px; }
-    .row-scroll { padding:8px 16px; }
+    .cards-grid { padding:0 16px; }
     .genre-tabs { padding:0 16px 12px; }
-    .scroll-btn { display:none; }
     .btn-play, .btn-info { padding:10px 20px; font-size:0.9rem; }
-    .modal { padding:20px; }
-    .modal-overlay { padding:40px 12px 12px; }
+    .modal { padding:16px 16px 40px; }
+    .modal-topbar { padding:12px 0 16px; margin-bottom:20px; }
+    .modal-title { font-size:1.5rem; }
   }
   @media(max-width:480px){
     :root { --card-w:100px; --card-h:150px; }
     .hero { height:70vh; }
+    .modal-grid { gap:8px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ════════════════ SIDEBAR ════════════════ -->
-<nav class="sidebar" id="sidebar">
+<!-- ════════════ SIDEBAR ════════════ -->
+<nav class="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-mark">TG</div>
     <span class="sb-logo-text">TGINDEX</span>
@@ -414,28 +342,21 @@
   <div class="sb-group">
     <div class="sb-group-label">Menú</div>
     <a class="sb-item active" href="/">
-      <span class="sb-icon">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </span>
+      <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
       <span class="sb-label">Inicio</span>
     </a>
     <a class="sb-item" href="/otg">
-      <span class="sb-icon">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </span>
+      <span class="sb-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       <span class="sb-label">OTG Indexing</span>
     </a>
     <a class="sb-item" href="/pc">
-      <span class="sb-icon">
-        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      </span>
+      <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
       <span class="sb-label">Playlist</span>
     </a>
   </div>
 
   <div class="sb-group sb-genres" id="sbGenres">
     <div class="sb-group-label">Géneros</div>
-    <!-- populated by JS -->
   </div>
 
   <div class="sb-bottom">
@@ -447,7 +368,7 @@
   </div>
 </nav>
 
-<!-- ════════════════ CONTENT ════════════════ -->
+<!-- ════════════ MAIN ════════════ -->
 <div class="content">
 
   <header class="topbar" id="topbar">
@@ -465,12 +386,12 @@
 
   {% if media_items %}
 
-    {# — categorise — #}
     {% set movies      = [] %}
     {% set series_list = [] %}
     {% set top_rated   = [] %}
     {% set newest      = [] %}
     {% set genre_map   = {} %}
+    {% set all_genres  = [] %}
 
     {% for item in media_items %}
       {% set tmdb = item.tmdb if item.get('tmdb') else None %}
@@ -480,7 +401,10 @@
         {% if tmdb.rating and tmdb.rating >= 7.0 %}{% if top_rated.append(item) %}{% endif %}{% endif %}
         {% if tmdb.year and tmdb.year >= '2024' %}{% if newest.append(item) %}{% endif %}{% endif %}
         {% for g in tmdb.genres %}
-          {% if g not in genre_map %}{% if genre_map.update({g:[]}) %}{% endif %}{% endif %}
+          {% if g not in genre_map %}
+            {% if genre_map.update({g:[]}) %}{% endif %}
+            {% if all_genres.append(g) %}{% endif %}
+          {% endif %}
           {% if genre_map[g].append(item) %}{% endif %}
         {% endfor %}
       {% else %}
@@ -488,7 +412,7 @@
       {% endif %}
     {% endfor %}
 
-    {# — hero — #}
+    {# HERO #}
     {% set hero = namespace(item=None) %}
     {% for item in media_items %}{% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}{% set hero.item = item %}{% endif %}{% endfor %}
 
@@ -498,13 +422,11 @@
       <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
       <div class="hero-vignette"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">
-          <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-        </div>
+        <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
         <h1 class="hero-title">{{ ht.title }}</h1>
         <div class="hero-meta">
-          {% if ht.year %}<span>{{ ht.year }}</span><span class="hero-dot">·</span>{% endif %}
-          {% if ht.rating > 0 %}<span class="hero-rating">⭐ {{ ht.rating }}</span><span class="hero-dot">·</span>{% endif %}
+          {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
+          {% if ht.rating > 0 %}<span class="hero-rating">⭐ {{ ht.rating }}</span>{% endif %}
           {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
         </div>
         {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
@@ -517,7 +439,7 @@
     </div>
     {% endif %}
 
-    {# ─ card macro ─ #}
+    {# CARD MACRO #}
     {% macro card(item) %}
     {% set t = item.tmdb if item.get('tmdb') else None %}
     <a href="{{ item.url }}" class="card">
@@ -542,31 +464,77 @@
     </a>
     {% endmacro %}
 
-    {# ─ row macro ─ #}
-    {% macro row(title, items, modal_id) %}
-    {% if items %}
-    <div class="row-section">
-      <div class="row-header">
-        <h2 class="row-title">{{ title }}</h2>
-        <span class="row-count">{{ items|length }}</span>
-        <div class="row-line"></div>
-        <button class="btn-see-all" onclick="openModal('{{ modal_id }}')">Ver todas →</button>
-      </div>
-      <div class="row-scroll-wrap">
-        <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-        <div class="row-scroll">{% for item in items %}{{ card(item) }}{% endfor %}</div>
-        <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-      </div>
-    </div>
-    {% endif %}
-    {% endmacro %}
-
     <div class="main">
-      {{ row('🆕 Lo más nuevo',    newest,      'modal-newest') }}
-      {{ row('⭐ Mejor valoradas', top_rated,   'modal-top') }}
-      {{ row('🎬 Películas',       movies,      'modal-movies') }}
-      {{ row('📺 Series',          series_list, 'modal-series') }}
 
+      {# ── PELÍCULAS ── #}
+      {% if movies %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">🎬 Películas</h2>
+          <span class="row-count">{{ movies|length }}</span>
+          <div class="row-line"></div>
+          {% if movies|length > 15 %}
+          <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver más →</button>
+          {% endif %}
+        </div>
+        <div class="cards-grid">
+          {% for item in movies[:15] %}{{ card(item) }}{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── SERIES ── #}
+      {% if series_list %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">📺 Series</h2>
+          <span class="row-count">{{ series_list|length }}</span>
+          <div class="row-line"></div>
+          {% if series_list|length > 15 %}
+          <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver más →</button>
+          {% endif %}
+        </div>
+        <div class="cards-grid">
+          {% for item in series_list[:15] %}{{ card(item) }}{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── MEJOR VALORADAS ── #}
+      {% if top_rated %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">⭐ Mejor valoradas</h2>
+          <span class="row-count">{{ top_rated|length }}</span>
+          <div class="row-line"></div>
+          {% if top_rated|length > 15 %}
+          <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver más →</button>
+          {% endif %}
+        </div>
+        <div class="cards-grid">
+          {% for item in top_rated[:15] %}{{ card(item) }}{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── LO MÁS NUEVO ── #}
+      {% if newest %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">🆕 Lo más nuevo</h2>
+          <span class="row-count">{{ newest|length }}</span>
+          <div class="row-line"></div>
+          {% if newest|length > 15 %}
+          <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver más →</button>
+          {% endif %}
+        </div>
+        <div class="cards-grid">
+          {% for item in newest[:15] %}{{ card(item) }}{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── POR GÉNERO ── #}
       {% if genre_map %}
       <div class="row-section">
         <div class="row-header">
@@ -579,14 +547,17 @@
           {% endfor %}
         </div>
         {% for genre, items in genre_map.items() %}
-        <div class="row-scroll-wrap genre-row" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-          <button class="scroll-btn left"  onclick="scrollRow(this,-1)">‹</button>
-          <div class="row-scroll">{% for item in items %}{{ card(item) }}{% endfor %}</div>
-          <button class="scroll-btn right" onclick="scrollRow(this,1)">›</button>
-        </div>
-        {# see-all button per genre #}
-        <div style="text-align:right;padding:6px 32px 0;" {% if not loop.first %}class="genre-see-all" data-genre="{{ genre }}" style="display:none"{% else %}class="genre-see-all" data-genre="{{ genre }}"{% endif %}>
-          <button class="btn-see-all" onclick="openModal('modal-genre-{{ genre }}')">Ver todas las de {{ genre }} →</button>
+        <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+          <div class="row-header" style="padding-top:8px;">
+            <span style="color:#555;font-size:0.85rem;">{{ items|length }} títulos</span>
+            <div class="row-line"></div>
+            {% if items|length > 15 %}
+            <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre }}')">Ver más →</button>
+            {% endif %}
+          </div>
+          <div class="cards-grid">
+            {% for item in items[:15] %}{{ card(item) }}{% endfor %}
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -594,12 +565,16 @@
 
     </div><!-- .main -->
 
-    <!-- ════ MODALS ════ -->
-    {% macro modal(id, title, items) %}
+    <!-- ════ FULLSCREEN MODALS ════ -->
+
+    {% macro fullmodal(id, title, items) %}
     <div class="modal-overlay" id="{{ id }}">
       <div class="modal">
-        <button class="modal-close" onclick="closeModal('{{ id }}')">✕</button>
-        <div class="modal-title">{{ title }}</div>
+        <div class="modal-topbar">
+          <button class="modal-back" onclick="closeModal('{{ id }}')">←</button>
+          <div class="modal-title">{{ title }}</div>
+          <span class="modal-subtitle">{{ items|length }} títulos</span>
+        </div>
         <div class="modal-grid">
           {% for item in items %}{{ card(item) }}{% endfor %}
         </div>
@@ -607,12 +582,12 @@
     </div>
     {% endmacro %}
 
-    {{ modal('modal-newest',  '🆕 Lo más nuevo',    newest) }}
-    {{ modal('modal-top',     '⭐ Mejor valoradas', top_rated) }}
-    {{ modal('modal-movies',  '🎬 Todas las películas', movies) }}
-    {{ modal('modal-series',  '📺 Todas las series',   series_list) }}
+    {{ fullmodal('modal-movies',  '🎬 Todas las películas',    movies) }}
+    {{ fullmodal('modal-series',  '📺 Todas las series',       series_list) }}
+    {{ fullmodal('modal-top',     '⭐ Mejor valoradas',        top_rated) }}
+    {{ fullmodal('modal-newest',  '🆕 Lo más nuevo',           newest) }}
     {% for genre, items in genre_map.items() %}
-    {{ modal('modal-genre-' ~ genre, '🎭 ' ~ genre, items) }}
+    {{ fullmodal('modal-genre-' ~ genre, '🎭 ' ~ genre, items) }}
     {% endfor %}
 
   {% else %}
@@ -623,56 +598,50 @@
   {% endif %}
 
   <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
-</div><!-- .content -->
+</div>
 
 <script>
-/* scroll row */
-function scrollRow(btn, dir) {
-  const s = btn.closest('.row-scroll-wrap').querySelector('.row-scroll');
-  if (s) s.scrollBy({ left: dir * 620, behavior: 'smooth' });
-}
-
 /* genre tabs */
 document.querySelectorAll('.genre-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const g = tab.dataset.genre;
     document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('.genre-row').forEach(r => r.style.display = r.dataset.genre === g ? '' : 'none');
-    document.querySelectorAll('.genre-see-all').forEach(r => r.style.display = r.dataset.genre === g ? '' : 'none');
+    document.querySelectorAll('.genre-panel').forEach(p => p.style.display = p.dataset.genre === g ? '' : 'none');
   });
 });
 
 /* modals */
 function openModal(id) {
   const m = document.getElementById(id);
-  if (m) { m.classList.add('open'); document.body.style.overflow='hidden'; }
+  if (!m) return;
+  m.classList.add('open');
+  m.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
 }
 function closeModal(id) {
   const m = document.getElementById(id);
-  if (m) { m.classList.remove('open'); document.body.style.overflow=''; }
+  if (!m) return;
+  m.classList.remove('open');
+  document.body.style.overflow = '';
 }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
-});
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
 });
 
-/* populate sidebar genres */
+/* sidebar genres */
 (function(){
-  const map = {};
-  {% for genre in genre_map.keys() %}map['{{ genre }}'] = true;{% endfor %}
+  const genres = [{% for g in all_genres %}'{{ g }}',{% endfor %}];
   const container = document.getElementById('sbGenres');
-  Object.keys(map).forEach(g => {
+  genres.forEach(g => {
     const a = document.createElement('a');
     a.className = 'sb-item';
     a.href = '#';
-    a.innerHTML = `<span class="sb-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="sb-label">${g}</span>`;
+    a.innerHTML = `<span class="sb-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span class="sb-label">${g}</span>`;
     a.addEventListener('click', e => {
       e.preventDefault();
       const tab = [...document.querySelectorAll('.genre-tab')].find(t => t.dataset.genre === g);
-      if (tab) { tab.click(); tab.scrollIntoView({ behavior:'smooth', block:'center' }); }
+      if (tab) { tab.click(); tab.closest('.row-section')?.scrollIntoView({ behavior:'smooth' }); }
     });
     container.appendChild(a);
   });
