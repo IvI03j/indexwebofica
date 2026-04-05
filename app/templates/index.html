@@ -18,6 +18,7 @@
       --muted:#a3a3a3;
       --muted2:#6b7280;
       --yellow:#f5c518;
+      --green:#22c55e;
 
       --sb-collapsed:78px;
       --sb-expanded:220px;
@@ -179,15 +180,16 @@
     .topbar{
       position:fixed;
       top:0;left:var(--sb-collapsed);right:0;
-      height:72px;
+      min-height:72px;
       z-index:500;
       display:flex;
       align-items:center;
       gap:16px;
-      padding:0 34px;
+      padding:12px 34px;
       background:linear-gradient(180deg,rgba(7,7,7,.94) 0%, rgba(7,7,7,.86) 55%, rgba(7,7,7,0) 100%);
       backdrop-filter:blur(14px);
       transition:background .25s ease, box-shadow .25s ease;
+      flex-wrap:wrap;
     }
 
     .topbar-meta{
@@ -205,6 +207,44 @@
       color:#666;
     }
     .spacer{flex:1}
+
+    .topbar-pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .top-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
+      font-size:.82rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .top-pill.green{
+      color:#c9ffd8;
+      border-color:rgba(34,197,94,.25);
+      background:rgba(34,197,94,.08);
+    }
+
+    .top-pill.red{
+      color:#ffcbcf;
+      border-color:rgba(229,9,20,.25);
+      background:rgba(229,9,20,.08);
+    }
+
+    .top-pill.link:hover{
+      background:rgba(255,255,255,.12);
+    }
 
     .search-wrap{position:relative}
     .search-wrap svg{
@@ -236,6 +276,39 @@
       box-shadow:0 0 0 4px rgba(255,255,255,.02);
     }
     .search-input::placeholder{color:#5d5d5d}
+
+    .notice-banner{
+      margin:88px 32px 20px;
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid rgba(229,9,20,.22);
+      background:linear-gradient(180deg,rgba(229,9,20,.1),rgba(229,9,20,.04));
+      color:#ffd4d7;
+    }
+
+    .notice-banner strong{
+      color:#fff;
+    }
+
+    .notice-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .notice-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 16px;
+      border-radius:999px;
+      background:var(--red);
+      color:#fff;
+      font-weight:800;
+      font-size:.85rem;
+    }
+    .notice-btn:hover{background:var(--red2)}
 
     .hero{
       position:relative;
@@ -500,6 +573,14 @@
       transform:scale(1.06);
       filter:brightness(.34);
     }
+
+    .locked-card .card-poster{
+      filter:brightness(.72);
+    }
+    .locked-card:hover .card-poster{
+      filter:brightness(.35);
+    }
+
     .card-no-poster{
       width:100%;
       height:100%;
@@ -515,7 +596,8 @@
     .np-title{font-size:.76rem;color:#d1d5db;font-weight:700;line-height:1.35}
 
     .card-badge,
-    .card-star{
+    .card-star,
+    .card-lock{
       position:absolute;
       top:10px;
       z-index:3;
@@ -538,9 +620,12 @@
       color:var(--yellow);
       border:1px solid rgba(255,255,255,.08);
     }
-    .card:hover .card-badge,
-    .card:hover .card-star{
-      transform:translateY(-1px);
+    .card-lock{
+      right:10px;
+      top:38px;
+      background:rgba(0,0,0,.68);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
     }
 
     .card-hover{
@@ -837,7 +922,7 @@
       }
       .sidebar{display:none}
       .content{margin-left:0}
-      .topbar{left:0;padding:0 16px}
+      .topbar{left:0;padding:12px 16px}
       .hero{min-height:72vh}
       .hero-content{padding:0 18px 34px}
       .hero-title{font-size:2.5rem}
@@ -858,6 +943,7 @@
       }
       .slider-arrow.left{left:18px}
       .slider-arrow.right{right:18px}
+      .notice-banner{margin:100px 16px 18px}
     }
   </style>
 </head>
@@ -910,10 +996,28 @@
   </div>
 
   <div class="sb-footer">
-    <div class="sb-avatar">U</div>
+    <div class="sb-avatar">
+      {% if web_user and web_user.first_name %}
+        {{ web_user.first_name[0] }}
+      {% else %}
+        U
+      {% endif %}
+    </div>
     <div class="sb-user">
-      <div class="sb-user-name">{{ name }}</div>
-      <div class="sb-user-sub">Cuenta activa</div>
+      <div class="sb-user-name">
+        {% if web_user %}
+          {{ web_user.first_name or web_user.username or 'Usuario' }}
+        {% else %}
+          Invitado
+        {% endif %}
+      </div>
+      <div class="sb-user-sub">
+        {% if has_web_access %}
+          Acceso activo
+        {% else %}
+          Sin acceso premium
+        {% endif %}
+      </div>
     </div>
   </div>
 </nav>
@@ -924,7 +1028,28 @@
       <span class="topbar-title">{{ title }}</span>
       <span class="topbar-sub">Biblioteca premium</span>
     </div>
+
     <div class="spacer"></div>
+
+    <div class="topbar-pills">
+      {% if web_user %}
+        <span class="top-pill">💰 {{ coins or 0 }} monedas</span>
+
+        {% if has_web_access %}
+          <span class="top-pill green">✅ Acceso activo</span>
+        {% elif device_limit_reached %}
+          <a href="/devices" class="top-pill red link">📱 Límite de dispositivos</a>
+        {% else %}
+          <a href="/plans" class="top-pill red link">🔒 Activar acceso</a>
+        {% endif %}
+
+        <a href="/devices" class="top-pill link">📱 Dispositivos</a>
+        <a href="/logout" class="top-pill link">🚪 Salir</a>
+      {% else %}
+        <a href="/plans" class="top-pill red link">🔒 Acceder desde Telegram</a>
+      {% endif %}
+    </div>
+
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <form method="GET">
@@ -932,6 +1057,19 @@
       </form>
     </div>
   </header>
+
+  {% if not has_web_access %}
+    <div class="notice-banner">
+      <strong>Modo catálogo activo.</strong>
+      Puedes explorar todo el contenido, pero para abrir películas o series necesitas activar un plan con monedas.
+      <div class="notice-actions">
+        <a href="/plans" class="notice-btn">Activar acceso</a>
+        {% if device_limit_reached %}
+          <a href="/devices" class="notice-btn" style="background:#222;">Ver dispositivos</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
 
   {% set media_items = item_list | selectattr('media') | list %}
 
@@ -1019,8 +1157,8 @@
           {% endif %}
 
           <div class="hero-actions">
-            <a class="btn-main" href="{{ hi.url }}">▶ Reproducir</a>
-            <a class="btn-secondary" href="{{ hi.url }}">ℹ Ver detalles</a>
+            <a class="btn-main" href="{{ hi.url if has_web_access else '/plans' }}">▶ Reproducir</a>
+            <a class="btn-secondary" href="{{ hi.url if has_web_access else '/plans' }}">ℹ Ver detalles</a>
           </div>
         </div>
       </section>
@@ -1028,7 +1166,8 @@
 
     {% macro card(item) %}
       {% set t = item.tmdb if item.get('tmdb') else None %}
-      <a href="{{ item.url }}" class="card"
+      <a href="{{ item.url if has_web_access else '/plans' }}"
+         class="card {% if not has_web_access %}locked-card{% endif %}"
          data-title="{{ (t.title if t else item.insight) | lower }}"
          data-type="{{ 'serie' if (t and t.is_series) else 'pelicula' }}"
          data-year="{{ t.year if t and t.year else '' }}"
@@ -1048,6 +1187,9 @@
           {% if t and t.rating > 0 %}
             <span class="card-star">★ {{ t.rating }}</span>
           {% endif %}
+          {% if not has_web_access %}
+            <span class="card-lock">🔒 Premium</span>
+          {% endif %}
 
           <div class="card-hover">
             <div class="ch-title">{{ t.title if t else item.insight }}</div>
@@ -1065,8 +1207,12 @@
             {% endif %}
 
             <div class="ch-actions">
-              <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
-              <span class="ch-more" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">Detalles</span>
+              <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location='{{ item.url if has_web_access else '/plans' }}'">
+                {{ '▶ Ver' if has_web_access else '🔒 Planes' }}
+              </span>
+              <span class="ch-more" onclick="event.preventDefault();event.stopPropagation();window.location='{{ item.url if has_web_access else '/plans' }}'">
+                {{ 'Detalles' if has_web_access else 'Activar' }}
+              </span>
             </div>
           </div>
         </div>
@@ -1268,7 +1414,7 @@
     </div>
   {% endif %}
 
-  <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
+  <footer>@odysseusmax</footer>
 </div>
 
 <script>
@@ -1629,7 +1775,7 @@
       let visible = true;
 
       if (genre && !cardGenres.includes(genre)) visible = false;
-      if (type && cardType !== type) visible = false;
+      if (type && cardType !=្= type) visible = false;
       if (year && cardYear !== year) visible = false;
       if (rating && cardRating < parseFloat(rating)) visible = false;
 
