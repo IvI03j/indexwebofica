@@ -78,7 +78,7 @@
 
   .hero{
     position:relative;
-    min-height:52vh;
+    min-height:50vh;
     display:flex;
     align-items:flex-end;
     overflow:hidden;
@@ -127,7 +127,7 @@
 
   .hero-title{
     font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(2.7rem,5vw,4.8rem);
+    font-size:clamp(2.6rem,5vw,4.8rem);
     line-height:.94;
     letter-spacing:1px;
     margin-bottom:14px;
@@ -434,14 +434,14 @@
           {% if media.video %}Vídeo{% elif media.audio %}Audio{% elif media.image %}Imagen{% else %}Contenido{% endif %}
         </span>
 
-        <h1 class="hero-title">{{ name }}</h1>
+        <h1 class="hero-title">
+          {{ clean_title if clean_title else name | replace('.mp4','') | replace('.mkv','') | replace('.avi','') | replace('.mov','') }}
+        </h1>
 
         <div class="hero-meta">
-          {% if media.video %}<span class="chip">🎬 Reproducción</span>{% endif %}
-          {% if media.audio %}<span class="chip">🎧 Audio</span>{% endif %}
-          {% if media.image %}<span class="chip">🖼 Imagen</span>{% endif %}
-          {% if rating %}<span class="chip rating">⭐ {{ rating }}</span>{% endif %}
           {% if year %}<span class="chip">{{ year }}</span>{% endif %}
+          {% if rating %}<span class="chip rating">⭐ {{ rating }}</span>{% endif %}
+          {% if media.video %}<span class="chip">Película / Serie</span>{% endif %}
         </div>
 
         <div class="hero-actions">
@@ -547,7 +547,9 @@
         <div class="details-body">
           <div class="details-grid">
             <div class="description-box">
-              {% if caption_html %}
+              {% if overview %}
+                {{ overview }}
+              {% elif caption_html %}
                 {{ caption_html | safe }}
               {% else %}
                 No hay descripción disponible.
@@ -557,7 +559,7 @@
             <div class="meta-list">
               <div class="meta-item">
                 <span class="meta-key">Título</span>
-                <span class="meta-value">{{ name }}</span>
+                <span class="meta-value">{{ clean_title if clean_title else name | replace('.mp4','') | replace('.mkv','') | replace('.avi','') | replace('.mov','') }}</span>
               </div>
 
               {% if year %}
@@ -574,20 +576,10 @@
               </div>
               {% endif %}
 
-              {% if media.video %}
+              {% if content_type %}
               <div class="meta-item">
-                <span class="meta-key">Formato</span>
-                <span class="meta-value">Vídeo</span>
-              </div>
-              {% elif media.audio %}
-              <div class="meta-item">
-                <span class="meta-key">Formato</span>
-                <span class="meta-value">Audio</span>
-              </div>
-              {% elif media.image %}
-              <div class="meta-item">
-                <span class="meta-key">Formato</span>
-                <span class="meta-value">Imagen</span>
+                <span class="meta-key">Tipo</span>
+                <span class="meta-value">{{ content_type }}</span>
               </div>
               {% endif %}
             </div>
