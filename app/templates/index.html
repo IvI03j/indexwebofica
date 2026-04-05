@@ -97,19 +97,6 @@
       border-bottom:1px solid #121212;
     }
 
-    .sb-block-label{
-      padding:0 18px 8px;
-      font-size:.62rem;
-      color:#4b5563;
-      font-weight:800;
-      letter-spacing:1.8px;
-      text-transform:uppercase;
-      opacity:0;
-      transition:opacity .2s ease;
-      white-space:nowrap;
-    }
-    .sidebar:hover .sb-block-label{opacity:1}
-
     .sb-item{
       display:flex;
       align-items:center;
@@ -252,7 +239,6 @@
       align-items:flex-end;
       overflow:hidden;
     }
-
     .hero-bg{
       position:absolute;
       inset:0;
@@ -262,7 +248,6 @@
       transition:transform 8s ease;
     }
     .hero:hover .hero-bg{transform:scale(1)}
-
     .hero-overlay{
       position:absolute;
       inset:0;
@@ -270,7 +255,6 @@
         linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.85) 28%, rgba(7,7,7,.18) 56%, transparent 100%),
         linear-gradient(90deg, rgba(7,7,7,.95) 0%, rgba(7,7,7,.45) 42%, rgba(7,7,7,.08) 65%, transparent 100%);
     }
-
     .hero-content{
       position:relative;
       z-index:2;
@@ -278,7 +262,6 @@
       padding:0 42px 56px;
       max-width:760px;
     }
-
     .hero-kicker{
       display:inline-flex;
       align-items:center;
@@ -293,7 +276,6 @@
       border-radius:999px;
       margin-bottom:16px;
     }
-
     .hero-title{
       font-family:'Bebas Neue',sans-serif;
       font-size:clamp(3rem,6vw,5.8rem);
@@ -302,7 +284,6 @@
       margin-bottom:16px;
       text-shadow:0 8px 40px rgba(0,0,0,.8);
     }
-
     .hero-meta{
       display:flex;
       gap:10px;
@@ -319,7 +300,6 @@
       font-weight:600;
     }
     .meta-chip.rating{color:#f5c518}
-
     .hero-overview{
       color:#d0d0d0;
       font-size:.97rem;
@@ -331,7 +311,6 @@
       -webkit-box-orient:vertical;
       overflow:hidden;
     }
-
     .hero-genres{
       display:flex;
       gap:8px;
@@ -347,7 +326,6 @@
       font-size:.75rem;
       font-weight:600;
     }
-
     .hero-actions{
       display:flex;
       gap:12px;
@@ -380,7 +358,6 @@
     .btn-secondary:hover{background:rgba(109,109,110,.7)}
 
     .main{padding-top:18px}
-
     .row-section{padding:0 0 42px}
     .row-header{
       display:flex;
@@ -410,25 +387,6 @@
       background:linear-gradient(90deg,#292929,transparent);
     }
 
-    .btn-ver-mas{
-      background:transparent;
-      color:#a1a1aa;
-      border:1px solid #313131;
-      border-radius:999px;
-      padding:7px 15px;
-      font-size:.78rem;
-      font-weight:700;
-      cursor:pointer;
-      transition:all .2s ease;
-      white-space:nowrap;
-      font-family:'DM Sans',sans-serif;
-    }
-    .btn-ver-mas:hover{
-      border-color:var(--red);
-      color:#fff;
-      background:rgba(229,9,20,.1);
-    }
-
     .cards-grid{
       display:flex;
       flex-wrap:wrap;
@@ -447,12 +405,10 @@
       transition:transform .3s ease;
       z-index:1;
     }
-
     .card:hover{
-      transform:scale(1.1) translateY(-8px);
+      transform:scale(1.08) translateY(-8px);
       z-index:30;
     }
-
     .card-inner{
       width:100%;
       height:100%;
@@ -462,7 +418,6 @@
       background:#111;
       box-shadow:0 8px 24px rgba(0,0,0,.45);
     }
-
     .card-poster{
       width:100%;
       height:100%;
@@ -475,7 +430,6 @@
       transform:scale(1.04);
       filter:brightness(.35);
     }
-
     .card-no-poster{
       width:100%;
       height:100%;
@@ -530,7 +484,6 @@
       opacity:1;
       pointer-events:auto;
     }
-
     .ch-title{
       font-size:.82rem;
       font-weight:800;
@@ -561,8 +514,7 @@
       display:flex;
       gap:8px;
     }
-    .ch-play,
-    .ch-more{
+    .ch-play,.ch-more{
       flex:1;
       border:none;
       border-radius:8px;
@@ -573,10 +525,7 @@
       cursor:pointer;
       font-family:'DM Sans',sans-serif;
     }
-    .ch-play{
-      background:var(--red);
-      color:#fff;
-    }
+    .ch-play{background:var(--red);color:#fff}
     .ch-play:hover{background:var(--red2)}
     .ch-more{
       background:rgba(255,255,255,.08);
@@ -585,140 +534,43 @@
     }
     .ch-more:hover{background:rgba(255,255,255,.14)}
 
-    .filter-toolbar{
+    .genre-filter-box{
+      padding:0 32px 18px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      padding:0 32px 18px;
     }
-    .filter-toolbar select{
-      background:#141414;
-      color:#ddd;
-      border:1px solid #252525;
-      border-radius:10px;
+    .genre-filter-box details{
+      background:#121212;
+      border:1px solid #242424;
+      border-radius:12px;
       padding:10px 14px;
-      font-size:.82rem;
-      font-family:'DM Sans',sans-serif;
-      outline:none;
+      min-width:180px;
     }
-
-    .modal-overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      z-index:800;
-      background:rgba(7,7,7,.95);
-      backdrop-filter:blur(8px);
-      overflow-y:auto;
-    }
-    .modal-overlay.open{display:block}
-
-    .modal{
-      min-height:100vh;
-      max-width:1600px;
-      margin:0 auto;
-      padding:24px 32px 48px;
-    }
-
-    .modal-topbar{
-      position:sticky;
-      top:0;
-      z-index:30;
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-      padding:16px 0 22px;
-      margin-bottom:20px;
-      background:rgba(7,7,7,.95);
-      backdrop-filter:blur(8px);
-      border-bottom:1px solid #171717;
-    }
-
-    .modal-back{
-      width:42px;height:42px;
-      border:none;
-      border-radius:50%;
-      background:#171717;
-      border:1px solid #292929;
-      color:#bdbdbd;
-      font-size:1.1rem;
+    .genre-filter-box summary{
       cursor:pointer;
-      transition:all .2s ease;
-    }
-    .modal-back:hover{
-      background:var(--red);
-      border-color:var(--red);
-      color:#fff;
-    }
-
-    .modal-title{
-      font-family:'Bebas Neue',sans-serif;
-      font-size:2rem;
-      letter-spacing:1px;
-      color:#fff;
-    }
-    .modal-subtitle{
-      font-size:.82rem;
-      color:#666;
-      margin-left:auto;
-      white-space:nowrap;
-    }
-
-    .modal-search-wrap{position:relative;margin-left:14px}
-    .modal-search-wrap svg{
-      position:absolute;
-      left:11px;top:50%;
-      transform:translateY(-50%);
-      width:14px;height:14px;
-      stroke:#666;
-      fill:none;
-      stroke-width:2.2;
-    }
-    .modal-search{
-      width:220px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:999px;
-      padding:10px 14px 10px 34px;
-      color:#fff;
-      outline:none;
+      list-style:none;
+      font-weight:700;
+      color:#ddd;
       font-size:.84rem;
+    }
+    .genre-filter-box summary::-webkit-details-marker{display:none}
+    .genre-filter-content{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .genre-filter-content select{
+      background:#1a1a1a;
+      border:1px solid #2c2c2c;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:.82rem;
       font-family:'DM Sans',sans-serif;
+      outline:none;
     }
-    .modal-search::placeholder{color:#555}
-
-    .modal-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
-      gap:14px;
-    }
-    .modal-grid .card{
-      width:100%;
-      height:var(--card-h);
-      flex:unset;
-    }
-    .modal-grid .card.hidden{display:none}
-
-    .no-results{
-      display:none;
-      grid-column:1/-1;
-      text-align:center;
-      padding:60px 20px;
-      color:#555;
-      font-size:.95rem;
-    }
-    .no-results.show{display:block}
-
-    footer{
-      text-align:center;
-      padding:28px;
-      border-top:1px solid #111;
-      font-size:.78rem;
-      color:#3a3a3a;
-    }
-    footer a{color:#444}
-    footer a:hover{color:var(--red)}
 
     @media(max-width:768px){
       :root{
@@ -735,10 +587,7 @@
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
       .cards-grid{padding:0 16px}
-      .filter-toolbar{padding:0 16px 16px}
-      .modal{padding:16px 16px 36px}
-      .modal-title{font-size:1.6rem}
-      .modal-search-wrap{display:none}
+      .genre-filter-box{padding:0 16px 16px}
     }
   </style>
 </head>
@@ -754,9 +603,14 @@
   </div>
 
   <div class="sb-block">
-    <div class="sb-block-label">Menú</div>
+    <a class="sb-item active" href="#" onclick="showSection('home');return false;">
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      <span class="sb-label">Home</span>
+    </a>
 
-    <a class="sb-item active" href="#" onclick="showSection('movies');return false;">
+    <a class="sb-item" href="#" onclick="showSection('movies');return false;">
       <span class="sb-icon">
         <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
       </span>
@@ -814,8 +668,10 @@
   {% if media_items %}
     {% set movies = [] %}
     {% set series_list = [] %}
+    {% set all_recent = [] %}
+    {% set animation_best = [] %}
+    {% set horror_best = [] %}
     {% set genre_map = {} %}
-    {% set all_genres = [] %}
     {% set years = [] %}
 
     {% for item in media_items %}
@@ -826,13 +682,24 @@
         {% else %}
           {% if movies.append(item) %}{% endif %}
         {% endif %}
+
+        {% if all_recent.append(item) %}{% endif %}
+
         {% if tmdb.year and tmdb.year not in years %}
           {% if years.append(tmdb.year) %}{% endif %}
         {% endif %}
+
+        {% if 'Animación' in tmdb.genres or 'Animation' in tmdb.genres %}
+          {% if animation_best.append(item) %}{% endif %}
+        {% endif %}
+
+        {% if 'Terror' in tmdb.genres or 'Horror' in tmdb.genres %}
+          {% if horror_best.append(item) %}{% endif %}
+        {% endif %}
+
         {% for g in tmdb.genres %}
           {% if g not in genre_map %}
             {% if genre_map.update({g:[]}) %}{% endif %}
-            {% if all_genres.append(g) %}{% endif %}
           {% endif %}
           {% if genre_map[g].append(item) %}{% endif %}
         {% endfor %}
@@ -929,62 +796,85 @@
       </a>
     {% endmacro %}
 
-    {% macro fullmodal(id, title, items) %}
-      <div class="modal-overlay" id="{{ id }}">
-        <div class="modal">
-          <div class="modal-topbar">
-            <button class="modal-back" onclick="closeModal('{{ id }}')">←</button>
-            <div class="modal-title">{{ title }}</div>
-            <span class="modal-subtitle">{{ items | length }} títulos</span>
-            <div class="modal-search-wrap">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('{{ id }}', this.value)">
-            </div>
+    <main class="main">
+      <section id="section-home" class="content-section">
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🆕 Nuevos lanzamientos</h2>
+            <div class="row-line"></div>
           </div>
-
-          <div class="modal-grid" id="{{ id }}-grid">
-            {% for item in items %}{{ card(item) }}{% endfor %}
-            <div class="no-results" id="{{ id }}-nores">No se encontraron resultados</div>
+          <div class="cards-grid">
+            {% for item in all_recent[:20] %}{{ card(item) }}{% endfor %}
           </div>
         </div>
-      </div>
-    {% endmacro %}
 
-    <main class="main">
-      <section id="section-movies" class="content-section">
-        {% if movies %}
-        <section class="row-section">
+        <div class="row-section">
           <div class="row-header">
-            <h2 class="row-title">🎬 Películas</h2>
-            <span class="row-count">{{ movies | length }}</span>
+            <h2 class="row-title">🎬 Películas más recientes</h2>
             <div class="row-line"></div>
-            {% if movies | length > 20 %}
-              <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas →</button>
-            {% endif %}
           </div>
           <div class="cards-grid">
             {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
           </div>
-        </section>
-        {% endif %}
-      </section>
+        </div>
 
-      <section id="section-series" class="content-section" style="display:none;">
-        {% if series_list %}
-        <section class="row-section">
+        <div class="row-section">
           <div class="row-header">
-            <h2 class="row-title">📺 Series</h2>
-            <span class="row-count">{{ series_list | length }}</span>
+            <h2 class="row-title">📺 Series más recientes</h2>
             <div class="row-line"></div>
-            {% if series_list | length > 20 %}
-              <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas →</button>
-            {% endif %}
           </div>
           <div class="cards-grid">
             {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
           </div>
-        </section>
+        </div>
+
+        {% if animation_best %}
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🎨 Mejores de animación</h2>
+            <div class="row-line"></div>
+          </div>
+          <div class="cards-grid">
+            {% for item in animation_best[:20] %}{{ card(item) }}{% endfor %}
+          </div>
+        </div>
         {% endif %}
+
+        {% if horror_best %}
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">👻 Mejores de terror</h2>
+            <div class="row-line"></div>
+          </div>
+          <div class="cards-grid">
+            {% for item in horror_best[:20] %}{{ card(item) }}{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      <section id="section-movies" class="content-section" style="display:none;">
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🎬 Películas</h2>
+            <div class="row-line"></div>
+          </div>
+          <div class="cards-grid">
+            {% for item in movies[:50] %}{{ card(item) }}{% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section id="section-series" class="content-section" style="display:none;">
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">📺 Series</h2>
+            <div class="row-line"></div>
+          </div>
+          <div class="cards-grid">
+            {% for item in series_list[:50] %}{{ card(item) }}{% endfor %}
+          </div>
+        </div>
       </section>
 
       <section id="section-genres" class="content-section" style="display:none;">
@@ -994,66 +884,43 @@
             <div class="row-line"></div>
           </div>
 
-          <div class="filter-toolbar">
-            <select id="typeFilter" onchange="applyGenreFilters()">
-              <option value="">Todo</option>
-              <option value="pelicula">Películas</option>
-              <option value="serie">Series</option>
-            </select>
+          <div class="genre-filter-box">
+            <details open>
+              <summary>Filtros</summary>
+              <div class="genre-filter-content">
+                <select id="typeFilter" onchange="applyGenreFilters()">
+                  <option value="">Todo</option>
+                  <option value="pelicula">Películas</option>
+                  <option value="serie">Series</option>
+                </select>
 
-            <select id="yearFilter" onchange="applyGenreFilters()">
-              <option value="">Todos los años</option>
-              {% for y in years | sort(reverse=True) %}
-                <option value="{{ y }}">{{ y }}</option>
-              {% endfor %}
-            </select>
+                <select id="yearFilter" onchange="applyGenreFilters()">
+                  <option value="">Todos los años</option>
+                  {% for y in years | sort(reverse=True) %}
+                    <option value="{{ y }}">{{ y }}</option>
+                  {% endfor %}
+                </select>
 
-            <select id="ratingFilter" onchange="applyGenreFilters()">
-              <option value="">Cualquier puntuación</option>
-              <option value="8">8+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-            </select>
+                <select id="ratingFilter" onchange="applyGenreFilters()">
+                  <option value="">Cualquier puntuación</option>
+                  <option value="8">8+ ⭐</option>
+                  <option value="7">7+ ⭐</option>
+                  <option value="6">6+ ⭐</option>
+                </select>
+              </div>
+            </details>
           </div>
 
-          <div class="genre-tabs">
-            {% for genre in genre_map.keys() %}
-              <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
+          <div class="cards-grid" id="genresGrid">
+            {% for genre, items in genre_map.items() %}
+              {% for item in items %}
+                {{ card(item) }}
+              {% endfor %}
             {% endfor %}
           </div>
-
-          {% for genre, items in genre_map.items() %}
-            <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-              <div class="row-header" style="padding-top:4px;">
-                <span style="font-size:.84rem;color:#6b7280">{{ items | length }} títulos</span>
-                <div class="row-line"></div>
-                {% if items | length > 20 %}
-                  <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas →</button>
-                {% endif %}
-              </div>
-              <div class="cards-grid genre-cards">
-                {% for item in items[:50] %}{{ card(item) }}{% endfor %}
-              </div>
-            </div>
-          {% endfor %}
         </div>
       </section>
     </main>
-
-    {{ fullmodal('modal-movies',  '🎬 Todas las películas', movies) }}
-    {{ fullmodal('modal-series',  '📺 Todas las series',    series_list) }}
-    {% for genre, items in genre_map.items() %}
-      {{ fullmodal('modal-genre-' ~ (genre | replace(' ','-') | lower), '🎭 ' ~ genre, items) }}
-    {% endfor %}
-
-  {% else %}
-    <div style="display:flex;align-items:center;justify-content:center;min-height:85vh;color:#555;text-align:center;padding:40px;">
-      <div>
-        <div style="font-size:5rem;margin-bottom:14px;">🎬</div>
-        <p style="font-size:1.1rem;color:#ddd;margin-bottom:8px;">No hay contenido disponible</p>
-        <p style="font-size:.9rem;color:#5d5d5d;">Prueba con otra búsqueda o vuelve más tarde.</p>
-      </div>
-    </div>
   {% endif %}
 
   <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
@@ -1067,9 +934,10 @@
 
     document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
     const map = {
-      movies: 0,
-      series: 1,
-      genres: 3
+      home: 0,
+      movies: 1,
+      series: 2,
+      genres: 4
     };
     const items = document.querySelectorAll('.sb-item');
     if (items[map[section]]) items[map[section]].classList.add('active');
@@ -1080,27 +948,12 @@
     if (input) input.focus();
   }
 
-  document.querySelectorAll('.genre-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const g = tab.dataset.genre;
-      document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.genre-panel').forEach(p => {
-        p.style.display = p.dataset.genre === g ? '' : 'none';
-      });
-      applyGenreFilters();
-    });
-  });
-
   function applyGenreFilters() {
     const type = document.getElementById('typeFilter')?.value || '';
     const year = document.getElementById('yearFilter')?.value || '';
     const rating = document.getElementById('ratingFilter')?.value || '';
 
-    const visiblePanel = document.querySelector('.genre-panel:not([style*="display: none"])') || document.querySelector('.genre-panel');
-    if (!visiblePanel) return;
-
-    visiblePanel.querySelectorAll('.card').forEach(card => {
+    document.querySelectorAll('#genresGrid .card').forEach(card => {
       const cardType = card.dataset.type || '';
       const cardYear = card.dataset.year || '';
       const cardRating = parseFloat(card.dataset.rating || '0');
@@ -1113,56 +966,6 @@
 
       card.style.display = visible ? '' : 'none';
     });
-  }
-
-  function openModal(id) {
-    const m = document.getElementById(id);
-    if (!m) return;
-    const inp = m.querySelector('.modal-search');
-    if (inp) {
-      inp.value = '';
-      filterModal(id, '');
-    }
-    m.classList.add('open');
-    m.scrollTop = 0;
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal(id) {
-    const m = document.getElementById(id);
-    if (!m) return;
-    m.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-    }
-  });
-
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) closeModal(overlay.id);
-    });
-  });
-
-  function filterModal(id, query) {
-    const grid = document.getElementById(id + '-grid');
-    const nores = document.getElementById(id + '-nores');
-    if (!grid) return;
-
-    const q = query.toLowerCase().trim();
-    let visible = 0;
-
-    grid.querySelectorAll('.card').forEach(card => {
-      const title = card.dataset.title || '';
-      const match = !q || title.includes(q);
-      card.classList.toggle('hidden', !match);
-      if (match) visible++;
-    });
-
-    if (nores) nores.classList.toggle('show', visible === 0);
   }
 
   window.addEventListener('scroll', () => {
