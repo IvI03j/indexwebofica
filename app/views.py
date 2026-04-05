@@ -29,6 +29,10 @@ from .supabase_client import supabase
 
 log = logging.getLogger(__name__)
 
+ALLOWED_EXTERNAL_ORIGINS = [
+    "botneflixtelegram.fly.dev",
+]
+
 
 def _has_media(m):
     if not m.media:
@@ -124,9 +128,14 @@ class Views:
     def _is_telegram_webapp_request(self, req):
         ua = (req.headers.get("User-Agent") or "").lower()
         referer = (req.headers.get("Referer") or "").lower()
+        origin = (req.headers.get("Origin") or "").lower()
         x_requested_with = (req.headers.get("X-Requested-With") or "").lower()
 
         if "telegram" in ua:
+            return True
+        if "telegram" in referer:
+            return True
+        if "telegram" in origin:
             return True
         if "t.me" in referer:
             return True
@@ -137,17 +146,22 @@ class Views:
 
     def _is_official_app_request(self, req):
         ua = (req.headers.get("User-Agent") or "").lower()
+        return "oficaofficialapp" in ua
 
-        if "oficaofficialapp" in ua:
-            return True
+    def _is_allowed_external_origin(self, req):
+        referer = (req.headers.get("Referer") or "").lower()
+        origin = (req.headers.get("Origin") or "").lower()
+
+        for allowed in ALLOWED_EXTERNAL_ORIGINS:
+            allowed = allowed.lower()
+            if allowed in referer or allowed in origin:
+                return True
 
         return False
 
     def _is_allowed_session(self, req):
         session_source = self._get_session_source(req)
-        if session_source in ("telegram_webapp", "official_app"):
-            return True
-        return False
+        return session_source in ("telegram_webapp", "official_app")
 
     def _ensure_telegram_or_session(self, req):
         user = self._get_current_user(req)
@@ -158,6 +172,9 @@ class Views:
             return None
 
         if self._is_official_app_request(req):
+            return None
+
+        if self._is_allowed_external_origin(req):
             return None
 
         raise web.HTTPFound("/blocked")
