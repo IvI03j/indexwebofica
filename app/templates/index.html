@@ -10,6 +10,7 @@
       --red:#e50914;
       --red2:#b20710;
       --bg:#070707;
+      --bg2:#0b0b0b;
       --panel:#111;
       --panel2:#181818;
       --line:#232323;
@@ -24,13 +25,13 @@
       --card-w:185px;
       --card-h:278px;
       --radius:14px;
-      --gap:12px;
+      --gap:14px;
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{
-      background:var(--bg);
+      background:linear-gradient(180deg,#050505 0%, #070707 35%, #090909 100%);
       color:var(--text);
       font-family:'DM Sans',sans-serif;
       min-height:100vh;
@@ -38,12 +39,13 @@
       display:flex;
     }
     a{text-decoration:none;color:inherit}
+    button{font-family:'DM Sans',sans-serif}
 
     .sidebar{
       position:fixed;
       top:0;left:0;bottom:0;
       width:var(--sb-collapsed);
-      background:linear-gradient(180deg,#0d0d0d 0%, #0a0a0a 100%);
+      background:linear-gradient(180deg,#0d0d0d 0%, #090909 100%);
       border-right:1px solid #141414;
       z-index:700;
       display:flex;
@@ -72,6 +74,7 @@
       color:#fff;
       flex-shrink:0;
       letter-spacing:-1px;
+      box-shadow:0 8px 20px rgba(229,9,20,.35);
     }
     .sb-brand-text{
       opacity:0;
@@ -182,8 +185,9 @@
       align-items:center;
       gap:16px;
       padding:0 34px;
-      background:linear-gradient(180deg,rgba(7,7,7,.96) 60%, rgba(7,7,7,0) 100%);
-      backdrop-filter:blur(10px);
+      background:linear-gradient(180deg,rgba(7,7,7,.94) 0%, rgba(7,7,7,.86) 55%, rgba(7,7,7,0) 100%);
+      backdrop-filter:blur(14px);
+      transition:background .25s ease, box-shadow .25s ease;
     }
 
     .topbar-meta{
@@ -193,12 +197,12 @@
     }
     .topbar-title{
       font-size:.86rem;
-      color:#c9c9c9;
+      color:#d8d8d8;
       font-weight:700;
     }
     .topbar-sub{
       font-size:.72rem;
-      color:#5d5d5d;
+      color:#666;
     }
     .spacer{flex:1}
 
@@ -227,8 +231,9 @@
     }
     .search-input:focus{
       width:300px;
-      background:rgba(255,255,255,.09);
+      background:rgba(255,255,255,.1);
       border-color:rgba(255,255,255,.18);
+      box-shadow:0 0 0 4px rgba(255,255,255,.02);
     }
     .search-input::placeholder{color:#5d5d5d}
 
@@ -244,16 +249,17 @@
       inset:0;
       background-size:cover;
       background-position:center top;
-      transform:scale(1.03);
-      transition:transform 8s ease;
+      transform:scale(1.04);
+      transition:transform 9s ease;
+      filter:saturate(1.05);
     }
     .hero:hover .hero-bg{transform:scale(1)}
     .hero-overlay{
       position:absolute;
       inset:0;
       background:
-        linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.85) 28%, rgba(7,7,7,.18) 56%, transparent 100%),
-        linear-gradient(90deg, rgba(7,7,7,.95) 0%, rgba(7,7,7,.45) 42%, rgba(7,7,7,.08) 65%, transparent 100%);
+        linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.88) 28%, rgba(7,7,7,.16) 58%, transparent 100%),
+        linear-gradient(90deg, rgba(7,7,7,.96) 0%, rgba(7,7,7,.58) 42%, rgba(7,7,7,.12) 68%, transparent 100%);
     }
     .hero-content{
       position:relative;
@@ -261,7 +267,13 @@
       width:100%;
       padding:0 42px 56px;
       max-width:760px;
+      animation:fadeUp .7s ease;
     }
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(16px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
     .hero-kicker{
       display:inline-flex;
       align-items:center;
@@ -275,6 +287,7 @@
       padding:5px 12px;
       border-radius:999px;
       margin-bottom:16px;
+      box-shadow:0 10px 24px rgba(229,9,20,.25);
     }
     .hero-title{
       font-family:'Bebas Neue',sans-serif;
@@ -298,6 +311,7 @@
       border-radius:999px;
       font-size:.78rem;
       font-weight:600;
+      backdrop-filter:blur(8px);
     }
     .meta-chip.rating{color:#f5c518}
     .hero-overview{
@@ -325,6 +339,7 @@
       border-radius:999px;
       font-size:.75rem;
       font-weight:600;
+      backdrop-filter:blur(8px);
     }
     .hero-actions{
       display:flex;
@@ -341,24 +356,41 @@
       border-radius:10px;
       font-weight:800;
       font-size:.95rem;
-      transition:all .2s ease;
+      transition:all .22s ease;
     }
     .btn-main{
       background:#fff;
       color:#000;
       box-shadow:0 10px 24px rgba(0,0,0,.3);
     }
-    .btn-main:hover{background:#e9e9e9}
+    .btn-main:hover{
+      background:#ececec;
+      transform:translateY(-1px);
+    }
     .btn-secondary{
-      background:rgba(109,109,110,.45);
+      background:rgba(109,109,110,.42);
       color:#fff;
       border:1px solid rgba(255,255,255,.08);
-      backdrop-filter:blur(6px);
+      backdrop-filter:blur(8px);
     }
-    .btn-secondary:hover{background:rgba(109,109,110,.7)}
+    .btn-secondary:hover{
+      background:rgba(109,109,110,.68);
+      transform:translateY(-1px);
+    }
 
     .main{padding-top:18px}
-    .row-section{padding:0 0 42px}
+    .content-section{
+      animation:sectionFade .35s ease;
+    }
+    @keyframes sectionFade{
+      from{opacity:.45;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .row-section{
+      padding:0 0 42px;
+      position:relative;
+    }
     .row-header{
       display:flex;
       align-items:center;
@@ -377,9 +409,31 @@
       height:1px;
       background:linear-gradient(90deg,#292929,transparent);
     }
+    .row-header-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-left:auto;
+    }
+    .view-more-btn{
+      border:none;
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.1);
+      padding:9px 14px;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:800;
+      cursor:pointer;
+      transition:all .2s ease;
+      white-space:nowrap;
+    }
+    .view-more-btn:hover{
+      background:rgba(255,255,255,.14);
+      transform:translateY(-1px);
+    }
 
-    /* NUEVO: filas horizontales */
-    .row-slider-wrap{
+    .row-slider-shell{
       position:relative;
       padding:0 32px;
     }
@@ -392,22 +446,16 @@
       overflow-y:visible;
       scroll-behavior:smooth;
       scroll-snap-type:x proximity;
-      padding:8px 2px 12px;
-      scrollbar-width:thin;
-      scrollbar-color:#444 transparent;
+      padding:8px 2px 14px;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+      cursor:grab;
+      user-select:none;
     }
-    .cards-grid::-webkit-scrollbar{
-      height:8px;
-    }
-    .cards-grid::-webkit-scrollbar-track{
-      background:transparent;
-    }
-    .cards-grid::-webkit-scrollbar-thumb{
-      background:#343434;
-      border-radius:999px;
-    }
-    .cards-grid::-webkit-scrollbar-thumb:hover{
-      background:#4a4a4a;
+    .cards-grid::-webkit-scrollbar{display:none}
+    .cards-grid.dragging{
+      cursor:grabbing;
+      scroll-behavior:auto;
     }
 
     .card{
@@ -418,9 +466,10 @@
       overflow:visible;
       border-radius:var(--radius);
       cursor:pointer;
-      transition:transform .3s ease;
+      transition:transform .3s cubic-bezier(.2,.7,.2,1), filter .3s ease;
       z-index:1;
       scroll-snap-align:start;
+      user-select:none;
     }
     .card:hover{
       transform:scale(1.08) translateY(-8px);
@@ -433,7 +482,11 @@
       overflow:hidden;
       border-radius:var(--radius);
       background:#111;
-      box-shadow:0 8px 24px rgba(0,0,0,.45);
+      box-shadow:0 10px 28px rgba(0,0,0,.42);
+      transition:box-shadow .3s ease;
+    }
+    .card:hover .card-inner{
+      box-shadow:0 18px 36px rgba(0,0,0,.58);
     }
     .card-poster{
       width:100%;
@@ -441,11 +494,11 @@
       object-fit:cover;
       object-position:center top;
       display:block;
-      transition:transform .35s ease, filter .35s ease;
+      transition:transform .42s ease, filter .42s ease;
     }
     .card:hover .card-poster{
-      transform:scale(1.04);
-      filter:brightness(.35);
+      transform:scale(1.06);
+      filter:brightness(.34);
     }
     .card-no-poster{
       width:100%;
@@ -470,18 +523,24 @@
       padding:4px 8px;
       font-size:.62rem;
       font-weight:800;
-      backdrop-filter:blur(6px);
+      backdrop-filter:blur(8px);
+      transition:transform .25s ease;
     }
     .card-badge{
       left:10px;
       background:rgba(229,9,20,.95);
       color:#fff;
+      box-shadow:0 8px 20px rgba(229,9,20,.22);
     }
     .card-star{
       right:10px;
       background:rgba(0,0,0,.68);
       color:var(--yellow);
       border:1px solid rgba(255,255,255,.08);
+    }
+    .card:hover .card-badge,
+    .card:hover .card-star{
+      transform:translateY(-1px);
     }
 
     .card-hover{
@@ -493,8 +552,8 @@
       justify-content:flex-end;
       padding:14px 12px 12px;
       opacity:0;
-      transition:opacity .25s ease;
-      background:linear-gradient(0deg,rgba(0,0,0,.96) 0%,rgba(0,0,0,.55) 55%,transparent 100%);
+      transition:opacity .28s ease;
+      background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.65) 54%,transparent 100%);
       pointer-events:none;
     }
     .card:hover .card-hover{
@@ -541,6 +600,7 @@
       font-size:.72rem;
       cursor:pointer;
       font-family:'DM Sans',sans-serif;
+      transition:.2s ease;
     }
     .ch-play{background:var(--red);color:#fff}
     .ch-play:hover{background:var(--red2)}
@@ -551,70 +611,122 @@
     }
     .ch-more:hover{background:rgba(255,255,255,.14)}
 
-    /* NUEVO: filtros horizontales */
-    .genre-filter-box{
-      padding:0 32px 18px;
-      overflow-x:auto;
-    }
-    .genre-filter-bar{
+    .slider-arrow{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:42px;
+      height:96px;
+      border:none;
+      border-radius:12px;
+      z-index:40;
+      background:linear-gradient(180deg,rgba(20,20,20,.7),rgba(10,10,10,.86));
+      color:#fff;
+      cursor:pointer;
       display:flex;
       align-items:center;
-      gap:12px;
-      min-width:max-content;
-      padding:4px 0;
+      justify-content:center;
+      opacity:0;
+      transition:opacity .22s ease, transform .22s ease, background .22s ease;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 24px rgba(0,0,0,.3);
     }
-    .filter-group{
+    .row-slider-shell:hover .slider-arrow{
+      opacity:1;
+    }
+    .slider-arrow:hover{
+      background:linear-gradient(180deg,rgba(38,38,38,.9),rgba(18,18,18,.96));
+      transform:translateY(-50%) scale(1.02);
+    }
+    .slider-arrow.left{left:36px}
+    .slider-arrow.right{right:36px}
+    .slider-arrow.hidden{
+      opacity:0 !important;
+      pointer-events:none;
+    }
+    .slider-arrow svg{
+      width:18px;height:18px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2.5;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .genre-filter-box{
+      padding:0 32px 18px;
       display:flex;
       flex-direction:column;
-      gap:6px;
+      gap:16px;
     }
-    .filter-label{
-      font-size:.72rem;
+    .chip-group-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .chip-group-title{
+      font-size:.76rem;
       color:#8f8f8f;
-      font-weight:700;
+      font-weight:800;
       text-transform:uppercase;
-      letter-spacing:.6px;
+      letter-spacing:.8px;
     }
-    .filter-select{
-      min-width:170px;
-      background:#121212;
+    .chip-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      padding-bottom:4px;
+      scrollbar-width:none;
+    }
+    .chip-row::-webkit-scrollbar{display:none}
+
+    .filter-chip{
+      border:none;
+      background:#181818;
+      color:#d4d4d4;
       border:1px solid #2a2a2a;
-      color:#fff;
-      padding:11px 14px;
-      border-radius:12px;
+      padding:10px 15px;
+      border-radius:999px;
       font-size:.84rem;
-      font-family:'DM Sans',sans-serif;
-      outline:none;
+      font-weight:700;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:all .2s ease;
+      flex:0 0 auto;
+    }
+    .filter-chip:hover{
+      background:#222;
+      color:#fff;
+      border-color:#3a3a3a;
+      transform:translateY(-1px);
+    }
+    .filter-chip.active{
+      background:linear-gradient(135deg,var(--red),#ff4d57);
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 10px 20px rgba(229,9,20,.22);
+    }
+
+    .filters-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .clear-filters-btn{
+      border:none;
+      background:#151515;
+      color:#fff;
+      border:1px solid #292929;
+      padding:10px 16px;
+      border-radius:999px;
+      font-weight:800;
+      cursor:pointer;
       transition:.2s ease;
     }
-    .filter-select:focus{
-      border-color:#4a4a4a;
-      background:#161616;
-    }
-    .filter-actions{
-      display:flex;
-      align-items:flex-end;
-      gap:10px;
-      padding-top:20px;
-    }
-    .filter-btn{
-      border:none;
-      background:var(--red);
-      color:#fff;
-      font-weight:800;
-      padding:11px 16px;
-      border-radius:12px;
-      cursor:pointer;
-      font-family:'DM Sans',sans-serif;
-    }
-    .filter-btn:hover{background:var(--red2)}
-    .filter-btn.secondary{
-      background:#1a1a1a;
-      border:1px solid #2d2d2d;
-      color:#fff;
-    }
-    .filter-btn.secondary:hover{
-      background:#242424;
+    .clear-filters-btn:hover{
+      background:#222;
     }
 
     .empty-filter-message{
@@ -622,6 +734,38 @@
       padding:0 32px;
       color:#8f8f8f;
       font-size:.95rem;
+    }
+
+    .expanded-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:0 32px 20px;
+      flex-wrap:wrap;
+    }
+    .expanded-back-btn{
+      border:none;
+      background:#161616;
+      color:#fff;
+      border:1px solid #2a2a2a;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    .expanded-back-btn:hover{
+      background:#222;
+    }
+    .expanded-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
+      gap:var(--gap);
+      padding:0 32px 24px;
+    }
+    .expanded-grid .card{
+      width:100%;
+      height:var(--card-h);
     }
 
     footer{
@@ -635,6 +779,7 @@
         --sb-collapsed:0px;
         --card-w:128px;
         --card-h:190px;
+        --gap:10px;
       }
       .sidebar{display:none}
       .content{margin-left:0}
@@ -644,12 +789,20 @@
       .hero-title{font-size:2.5rem}
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
-      .row-slider-wrap{padding:0 16px}
+      .row-slider-shell{padding:0 16px}
       .genre-filter-box{padding:0 16px 16px}
       .empty-filter-message{padding:0 16px}
+      .expanded-header{padding:0 16px 16px}
+      .expanded-grid{padding:0 16px 24px}
       footer{padding:22px 16px 28px}
       .search-input{width:180px}
       .search-input:focus{width:220px}
+      .slider-arrow{
+        width:36px;
+        height:80px;
+      }
+      .slider-arrow.left{left:18px}
+      .slider-arrow.right{right:18px}
     }
   </style>
 </head>
@@ -730,10 +883,10 @@
   {% if media_items %}
     {% set movies = [] %}
     {% set series_list = [] %}
-    {% set all_recent = [] %}
+    {% set newest_releases = [] %}
+    {% set recently_added = [] %}
     {% set animation_best = [] %}
     {% set horror_best = [] %}
-    {% set genre_map = {} %}
     {% set years = [] %}
     {% set all_genres = [] %}
 
@@ -746,7 +899,8 @@
           {% if movies.append(item) %}{% endif %}
         {% endif %}
 
-        {% if all_recent.append(item) %}{% endif %}
+        {% if newest_releases.append(item) %}{% endif %}
+        {% if recently_added.append(item) %}{% endif %}
 
         {% if tmdb.year and tmdb.year not in years %}
           {% if years.append(tmdb.year) %}{% endif %}
@@ -761,11 +915,6 @@
         {% endif %}
 
         {% for g in tmdb.genres %}
-          {% if g not in genre_map %}
-            {% if genre_map.update({g:[]}) %}{% endif %}
-          {% endif %}
-          {% if genre_map[g].append(item) %}{% endif %}
-
           {% if g not in all_genres %}
             {% if all_genres.append(g) %}{% endif %}
           {% endif %}
@@ -773,8 +922,16 @@
       {% endif %}
     {% endfor %}
 
+    {# Nuevos lanzamientos: por fecha/año TMDB #}
+    {% set newest_releases = newest_releases | sort(attribute='tmdb.year', reverse=True) %}
+
+    {# Añadido recientemente: por created_at si existe, si no mantiene el orden original #}
+    {% if recently_added and recently_added[0].get('created_at') %}
+      {% set recently_added = recently_added | sort(attribute='created_at', reverse=True) %}
+    {% endif %}
+
     {% set hero = namespace(item=None) %}
-    {% for item in media_items %}
+    {% for item in newest_releases %}
       {% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}
         {% set hero.item = item %}
       {% endif %}
@@ -864,99 +1021,59 @@
       </a>
     {% endmacro %}
 
+    {% macro slider_row(title, items, row_id, expand_key='') %}
+      <div class="row-section">
+        <div class="row-header">
+          <h2 class="row-title">{{ title }}</h2>
+          <div class="row-line"></div>
+          <div class="row-header-actions">
+            {% if expand_key %}
+              <button class="view-more-btn" type="button" onclick="openExpandedSection('{{ expand_key }}', '{{ title|e }}')">Ver más</button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="row-slider-shell">
+          <button class="slider-arrow left hidden" data-target="{{ row_id }}" aria-label="Desplazar a la izquierda">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="cards-grid slider-track" id="{{ row_id }}">
+            {% for item in items %}
+              {{ card(item) }}
+            {% endfor %}
+          </div>
+
+          <button class="slider-arrow right" data-target="{{ row_id }}" aria-label="Desplazar a la derecha">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    {% endmacro %}
+
     <main class="main">
       <section id="section-home" class="content-section">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🆕 Nuevos lanzamientos</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in all_recent[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
-
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🎬 Películas más recientes</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
-
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">📺 Series más recientes</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
+        {{ slider_row('🆕 Nuevos lanzamientos', newest_releases[:20], 'slider-home-releases', 'newest_releases') }}
+        {{ slider_row('🎬 Películas más recientes', movies[:20], 'slider-home-movies', 'movies') }}
+        {{ slider_row('📺 Series más recientes', series_list[:20], 'slider-home-series', 'series') }}
 
         {% if animation_best %}
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🎨 Mejores de animación</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in animation_best[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
+          {{ slider_row('🎨 Mejores de animación', animation_best[:20], 'slider-home-animation', 'animation') }}
         {% endif %}
 
         {% if horror_best %}
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">👻 Mejores de terror</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in horror_best[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
+          {{ slider_row('👻 Mejores de terror', horror_best[:20], 'slider-home-horror', 'horror') }}
         {% endif %}
+
+        {{ slider_row('🕒 Añadido recientemente', recently_added[:20], 'slider-home-added', 'recently_added') }}
       </section>
 
       <section id="section-movies" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🎬 Películas</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in movies[:50] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
+        {{ slider_row('🎬 Películas', movies[:50], 'slider-movies', 'movies') }}
       </section>
 
       <section id="section-series" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">📺 Series</h2>
-            <div class="row-line"></div>
-          </div>
-          <div class="row-slider-wrap">
-            <div class="cards-grid">
-              {% for item in series_list[:50] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        </div>
+        {{ slider_row('📺 Series', series_list[:50], 'slider-series', 'series') }}
       </section>
 
       <section id="section-genres" class="content-section" style="display:none;">
@@ -964,53 +1081,54 @@
           <div class="row-header">
             <h2 class="row-title">🎭 Géneros</h2>
             <div class="row-line"></div>
+            <div class="row-header-actions">
+              <button class="view-more-btn" type="button" onclick="openExpandedSection('all_genres_items', '🎭 Géneros')">Ver más</button>
+            </div>
           </div>
 
           <div class="genre-filter-box">
-            <div class="genre-filter-bar">
-              <div class="filter-group">
-                <label class="filter-label" for="genreFilter">Género</label>
-                <select id="genreFilter" class="filter-select" onchange="applyGenreFilters()">
-                  <option value="">Todos los géneros</option>
-                  {% for g in all_genres | sort %}
-                    <option value="{{ g | lower }}">{{ g }}</option>
-                  {% endfor %}
-                </select>
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Tipo</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-filter-group="type" data-value="">Todo</button>
+                <button class="filter-chip" data-filter-group="type" data-value="pelicula">Películas</button>
+                <button class="filter-chip" data-filter-group="type" data-value="serie">Series</button>
               </div>
+            </div>
 
-              <div class="filter-group">
-                <label class="filter-label" for="typeFilter">Tipo</label>
-                <select id="typeFilter" class="filter-select" onchange="applyGenreFilters()">
-                  <option value="">Todo</option>
-                  <option value="pelicula">Películas</option>
-                  <option value="serie">Series</option>
-                </select>
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Puntuación</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-filter-group="rating" data-value="">Cualquiera</button>
+                <button class="filter-chip" data-filter-group="rating" data-value="8">8+ ⭐</button>
+                <button class="filter-chip" data-filter-group="rating" data-value="7">7+ ⭐</button>
+                <button class="filter-chip" data-filter-group="rating" data-value="6">6+ ⭐</button>
+                <button class="filter-chip" data-filter-group="rating" data-value="5">5+ ⭐</button>
               </div>
+            </div>
 
-              <div class="filter-group">
-                <label class="filter-label" for="yearFilter">Fecha</label>
-                <select id="yearFilter" class="filter-select" onchange="applyGenreFilters()">
-                  <option value="">Todos los años</option>
-                  {% for y in years | sort(reverse=True) %}
-                    <option value="{{ y }}">{{ y }}</option>
-                  {% endfor %}
-                </select>
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Año</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-filter-group="year" data-value="">Todos</button>
+                {% for y in years | sort(reverse=True) %}
+                  <button class="filter-chip" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
+                {% endfor %}
               </div>
+            </div>
 
-              <div class="filter-group">
-                <label class="filter-label" for="ratingFilter">Puntuación</label>
-                <select id="ratingFilter" class="filter-select" onchange="applyGenreFilters()">
-                  <option value="">Cualquier puntuación</option>
-                  <option value="8">8+ ⭐</option>
-                  <option value="7">7+ ⭐</option>
-                  <option value="6">6+ ⭐</option>
-                  <option value="5">5+ ⭐</option>
-                </select>
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Género</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-filter-group="genre" data-value="">Todos</button>
+                {% for g in all_genres | sort %}
+                  <button class="filter-chip" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
+                {% endfor %}
               </div>
+            </div>
 
-              <div class="filter-actions">
-                <button class="filter-btn secondary" type="button" onclick="resetGenreFilters()">Limpiar</button>
-              </div>
+            <div class="filters-actions">
+              <button class="clear-filters-btn" type="button" onclick="resetGenreFilters()">Limpiar filtros</button>
             </div>
           </div>
 
@@ -1018,24 +1136,78 @@
             No se encontraron resultados con los filtros seleccionados.
           </div>
 
-          <div class="row-slider-wrap">
-            <div class="cards-grid" id="genresGrid">
+          <div class="row-slider-shell">
+            <button class="slider-arrow left hidden" data-target="genresGrid" aria-label="Desplazar a la izquierda">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+
+            <div class="cards-grid slider-track" id="genresGrid">
               {% for item in media_items %}
                 {% if item.get('tmdb') %}
                   {{ card(item) }}
                 {% endif %}
               {% endfor %}
             </div>
+
+            <button class="slider-arrow right" data-target="genresGrid" aria-label="Desplazar a la derecha">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
           </div>
         </div>
       </section>
+
+      <section id="section-expanded" class="content-section" style="display:none;">
+        <div class="row-section">
+          <div class="expanded-header">
+            <button class="expanded-back-btn" type="button" onclick="closeExpandedSection()">← Volver</button>
+            <h2 class="row-title" id="expandedTitle">Sección</h2>
+            <div class="row-line"></div>
+          </div>
+          <div class="expanded-grid" id="expandedGrid"></div>
+        </div>
+      </section>
     </main>
+
+    <div id="hidden-expanded-sources" style="display:none;">
+      <div data-expand-source="newest_releases">
+        {% for item in newest_releases %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="recently_added">
+        {% for item in recently_added %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="movies">
+        {% for item in movies %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="series">
+        {% for item in series_list %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="animation">
+        {% for item in animation_best %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="horror">
+        {% for item in horror_best %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="all_genres_items">
+        {% for item in media_items %}
+          {% if item.get('tmdb') %}{{ card(item) }}{% endif %}
+        {% endfor %}
+      </div>
+    </div>
   {% endif %}
 
   <footer><a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a></footer>
 </div>
 
 <script>
+  const activeGenreFilters = {
+    genre: '',
+    type: '',
+    year: '',
+    rating: ''
+  };
+
+  let previousSectionBeforeExpanded = 'home';
+
   function showSection(section) {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
     const target = document.getElementById('section-' + section);
@@ -1045,6 +1217,9 @@
     const map = { home: 0, movies: 1, series: 2, genres: 4 };
     const items = document.querySelectorAll('.sb-item');
     if (items[map[section]]) items[map[section]].classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => refreshAllSliderArrows(), 80);
   }
 
   function focusSearch() {
@@ -1052,11 +1227,43 @@
     if (input) input.focus();
   }
 
+  function openExpandedSection(key, title) {
+    const expandedSection = document.getElementById('section-expanded');
+    const expandedGrid = document.getElementById('expandedGrid');
+    const expandedTitle = document.getElementById('expandedTitle');
+    const source = document.querySelector(`[data-expand-source="${key}"]`);
+
+    if (!expandedSection || !expandedGrid || !expandedTitle || !source) return;
+
+    const activeSection = [...document.querySelectorAll('.content-section')]
+      .find(sec => sec.style.display !== 'none' && sec.id !== 'section-expanded');
+
+    if (activeSection) {
+      previousSectionBeforeExpanded = activeSection.id.replace('section-', '');
+    }
+
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+
+    expandedTitle.textContent = title;
+    expandedGrid.innerHTML = source.innerHTML;
+    expandedSection.style.display = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeExpandedSection() {
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    const target = document.getElementById('section-' + previousSectionBeforeExpanded);
+    if (target) target.style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => refreshAllSliderArrows(), 80);
+  }
+
   function applyGenreFilters() {
-    const genre = document.getElementById('genreFilter')?.value || '';
-    const type = document.getElementById('typeFilter')?.value || '';
-    const year = document.getElementById('yearFilter')?.value || '';
-    const rating = document.getElementById('ratingFilter')?.value || '';
+    const genre = activeGenreFilters.genre || '';
+    const type = activeGenreFilters.type || '';
+    const year = activeGenreFilters.year || '';
+    const rating = activeGenreFilters.rating || '';
 
     let visibleCount = 0;
 
@@ -1064,11 +1271,11 @@
       const cardType = card.dataset.type || '';
       const cardYear = card.dataset.year || '';
       const cardRating = parseFloat(card.dataset.rating || '0');
-      const cardGenres = (card.dataset.genres || '').toLowerCase();
+      const cardGenres = (card.dataset.genres || '').toLowerCase().split('|').filter(Boolean);
 
       let visible = true;
 
-      if (genre && !cardGenres.split('|').includes(genre)) visible = false;
+      if (genre && !cardGenres.includes(genre)) visible = false;
       if (type && cardType !== type) visible = false;
       if (year && cardYear !== year) visible = false;
       if (rating && cardRating < parseFloat(rating)) visible = false;
@@ -1081,22 +1288,164 @@
     if (emptyMsg) {
       emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
     }
+
+    setTimeout(() => refreshSliderArrows(document.getElementById('genresGrid')), 60);
   }
 
   function resetGenreFilters() {
-    const ids = ['genreFilter', 'typeFilter', 'yearFilter', 'ratingFilter'];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
+    activeGenreFilters.genre = '';
+    activeGenreFilters.type = '';
+    activeGenreFilters.year = '';
+    activeGenreFilters.rating = '';
+
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      const value = chip.dataset.value ?? '';
+      chip.classList.toggle('active', value === '');
     });
+
     applyGenreFilters();
+  }
+
+  function setupFilterChips() {
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const group = chip.dataset.filterGroup;
+        const value = chip.dataset.value ?? '';
+
+        document.querySelectorAll(`.filter-chip[data-filter-group="${group}"]`).forEach(c => {
+          c.classList.remove('active');
+        });
+
+        chip.classList.add('active');
+        activeGenreFilters[group] = value;
+        applyGenreFilters();
+      });
+    });
+  }
+
+  function scrollSlider(track, direction = 1) {
+    if (!track) return;
+    const amount = Math.max(track.clientWidth * 0.85, 260);
+    track.scrollBy({ left: amount * direction, behavior: 'smooth' });
+  }
+
+  function refreshSliderArrows(track) {
+    if (!track) return;
+    const shell = track.closest('.row-slider-shell');
+    if (!shell) return;
+
+    const left = shell.querySelector('.slider-arrow.left');
+    const right = shell.querySelector('.slider-arrow.right');
+
+    const maxScrollLeft = track.scrollWidth - track.clientWidth;
+    const atStart = track.scrollLeft <= 6;
+    const atEnd = track.scrollLeft >= maxScrollLeft - 6 || maxScrollLeft <= 0;
+
+    if (left) left.classList.toggle('hidden', atStart);
+    if (right) right.classList.toggle('hidden', atEnd);
+  }
+
+  function refreshAllSliderArrows() {
+    document.querySelectorAll('.slider-track').forEach(track => refreshSliderArrows(track));
+  }
+
+  function setupSliderButtons() {
+    document.querySelectorAll('.slider-arrow').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const track = document.getElementById(targetId);
+        if (!track) return;
+        const direction = btn.classList.contains('left') ? -1 : 1;
+        scrollSlider(track, direction);
+      });
+    });
+  }
+
+  function setupSliderScrollWatch() {
+    document.querySelectorAll('.slider-track').forEach(track => {
+      track.addEventListener('scroll', () => refreshSliderArrows(track));
+      refreshSliderArrows(track);
+    });
+  }
+
+  function setupSliderDrag() {
+    document.querySelectorAll('.slider-track').forEach(track => {
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let moved = false;
+
+      track.addEventListener('mousedown', (e) => {
+        isDown = true;
+        moved = false;
+        track.classList.add('dragging');
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+      });
+
+      track.addEventListener('mouseleave', () => {
+        isDown = false;
+        track.classList.remove('dragging');
+      });
+
+      track.addEventListener('mouseup', () => {
+        isDown = false;
+        track.classList.remove('dragging');
+      });
+
+      track.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 1.25;
+        if (Math.abs(walk) > 4) moved = true;
+        track.scrollLeft = scrollLeft - walk;
+      });
+
+      track.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (moved) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      });
+    });
+  }
+
+  function setupWheelHorizontal() {
+    document.querySelectorAll('.slider-track').forEach(track => {
+      track.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          track.scrollLeft += e.deltaY;
+        }
+      }, { passive:false });
+    });
   }
 
   window.addEventListener('scroll', () => {
     const h = document.getElementById('topbar');
     if (h) {
-      h.style.background = window.scrollY > 60 ? 'rgba(7,7,7,.98)' : '';
+      if (window.scrollY > 60) {
+        h.style.background = 'rgba(7,7,7,.96)';
+        h.style.boxShadow = '0 10px 30px rgba(0,0,0,.22)';
+      } else {
+        h.style.background = 'linear-gradient(180deg,rgba(7,7,7,.94) 0%, rgba(7,7,7,.86) 55%, rgba(7,7,7,0) 100%)';
+        h.style.boxShadow = 'none';
+      }
     }
+  });
+
+  window.addEventListener('resize', refreshAllSliderArrows);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupFilterChips();
+    setupSliderButtons();
+    setupSliderScrollWatch();
+    setupSliderDrag();
+    setupWheelHorizontal();
+    refreshAllSliderArrows();
   });
 </script>
 </body>
