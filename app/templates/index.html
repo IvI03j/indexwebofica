@@ -10,9 +10,8 @@
       --red:#e50914;
       --red2:#b20710;
       --bg:#070707;
-      --panel:#111111;
-      --panel2:#171717;
-      --soft:#1f1f1f;
+      --panel:#111;
+      --panel2:#181818;
       --line:#232323;
       --text:#f5f5f5;
       --muted:#a3a3a3;
@@ -20,10 +19,10 @@
       --yellow:#f5c518;
 
       --sb-collapsed:78px;
-      --sb-expanded:240px;
+      --sb-expanded:220px;
 
-      --card-w:180px;
-      --card-h:270px;
+      --card-w:185px;
+      --card-h:278px;
       --radius:14px;
       --gap:12px;
     }
@@ -40,12 +39,11 @@
     }
     a{text-decoration:none;color:inherit}
 
-    /* ───────────────── SIDEBAR ───────────────── */
     .sidebar{
       position:fixed;
       top:0;left:0;bottom:0;
       width:var(--sb-collapsed);
-      background:linear-gradient(180deg,#0d0d0d 0%, #0b0b0b 100%);
+      background:linear-gradient(180deg,#0d0d0d 0%, #0a0a0a 100%);
       border-right:1px solid #141414;
       z-index:700;
       display:flex;
@@ -122,6 +120,7 @@
       border-left:3px solid transparent;
       transition:all .2s ease;
       white-space:nowrap;
+      cursor:pointer;
     }
     .sb-item:hover{
       background:rgba(255,255,255,.04);
@@ -156,14 +155,8 @@
     }
     .sidebar:hover .sb-label{opacity:1}
 
-    .sb-genres{
-      overflow-y:auto;
-      flex:1;
-      scrollbar-width:none;
-    }
-    .sb-genres::-webkit-scrollbar{display:none}
-
     .sb-footer{
+      margin-top:auto;
       padding:14px 16px;
       border-top:1px solid #141414;
       display:flex;
@@ -187,7 +180,6 @@
     .sb-user-name{font-size:.82rem;font-weight:700;color:#f0f0f0}
     .sb-user-sub{font-size:.72rem;color:#606060}
 
-    /* ───────────────── CONTENT ───────────────── */
     .content{
       margin-left:var(--sb-collapsed);
       flex:1;
@@ -235,7 +227,7 @@
       pointer-events:none;
     }
     .search-input{
-      width:220px;
+      width:230px;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.08);
       color:#fff;
@@ -247,16 +239,15 @@
       font-family:'DM Sans',sans-serif;
     }
     .search-input:focus{
-      width:280px;
+      width:300px;
       background:rgba(255,255,255,.09);
       border-color:rgba(255,255,255,.18);
     }
     .search-input::placeholder{color:#5d5d5d}
 
-    /* ───────────────── HERO ───────────────── */
     .hero{
       position:relative;
-      min-height:88vh;
+      min-height:84vh;
       display:flex;
       align-items:flex-end;
       overflow:hidden;
@@ -267,7 +258,7 @@
       inset:0;
       background-size:cover;
       background-position:center top;
-      transform:scale(1.04);
+      transform:scale(1.03);
       transition:transform 8s ease;
     }
     .hero:hover .hero-bg{transform:scale(1)}
@@ -276,7 +267,7 @@
       position:absolute;
       inset:0;
       background:
-        linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.85) 25%, rgba(7,7,7,.18) 56%, transparent 100%),
+        linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.85) 28%, rgba(7,7,7,.18) 56%, transparent 100%),
         linear-gradient(90deg, rgba(7,7,7,.95) 0%, rgba(7,7,7,.45) 42%, rgba(7,7,7,.08) 65%, transparent 100%);
     }
 
@@ -285,12 +276,9 @@
       z-index:2;
       width:100%;
       padding:0 42px 56px;
-      display:grid;
-      grid-template-columns:minmax(0, 620px) 1fr;
-      gap:20px;
+      max-width:760px;
     }
 
-    .hero-left{max-width:620px}
     .hero-kicker{
       display:inline-flex;
       align-items:center;
@@ -337,7 +325,7 @@
       font-size:.97rem;
       line-height:1.7;
       margin-bottom:18px;
-      max-width:560px;
+      max-width:620px;
       display:-webkit-box;
       -webkit-line-clamp:4;
       -webkit-box-orient:vertical;
@@ -391,42 +379,6 @@
     }
     .btn-secondary:hover{background:rgba(109,109,110,.7)}
 
-    .hero-right{
-      display:flex;
-      align-items:flex-end;
-      justify-content:flex-end;
-    }
-    .hero-info-card{
-      width:320px;
-      max-width:100%;
-      background:linear-gradient(180deg, rgba(18,18,18,.88), rgba(10,10,10,.82));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:20px;
-      padding:20px;
-      backdrop-filter:blur(10px);
-      box-shadow:0 15px 40px rgba(0,0,0,.45);
-    }
-    .hero-info-title{
-      font-size:.8rem;
-      color:#6b7280;
-      text-transform:uppercase;
-      letter-spacing:1.4px;
-      margin-bottom:12px;
-      font-weight:800;
-    }
-    .hero-info-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:10px 0;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      font-size:.85rem;
-    }
-    .hero-info-row:last-child{border-bottom:none}
-    .hero-info-row strong{color:#fff}
-    .hero-info-row span{color:#9ca3af}
-
-    /* ───────────────── MAIN ───────────────── */
     .main{padding-top:18px}
 
     .row-section{padding:0 0 42px}
@@ -484,7 +436,6 @@
       padding:0 32px;
     }
 
-    /* ───────────────── CARD ───────────────── */
     .card{
       flex:0 0 var(--card-w);
       width:var(--card-w);
@@ -634,41 +585,23 @@
     }
     .ch-more:hover{background:rgba(255,255,255,.14)}
 
-    /* ───────────────── GENRE TABS ───────────────── */
-    .genre-tabs{
+    .filter-toolbar{
       display:flex;
       gap:10px;
-      overflow-x:auto;
+      flex-wrap:wrap;
       padding:0 32px 18px;
-      scrollbar-width:none;
     }
-    .genre-tabs::-webkit-scrollbar{display:none}
-
-    .genre-tab{
-      flex:0 0 auto;
-      padding:8px 16px;
-      border-radius:999px;
+    .filter-toolbar select{
       background:#141414;
-      border:1px solid #232323;
-      color:#8f8f8f;
-      font-size:.8rem;
-      font-weight:700;
-      cursor:pointer;
-      transition:all .2s ease;
-      white-space:nowrap;
+      color:#ddd;
+      border:1px solid #252525;
+      border-radius:10px;
+      padding:10px 14px;
+      font-size:.82rem;
       font-family:'DM Sans',sans-serif;
-    }
-    .genre-tab:hover{
-      color:#fff;
-      background:#1f1f1f;
-    }
-    .genre-tab.active{
-      background:var(--red);
-      border-color:var(--red);
-      color:#fff;
+      outline:none;
     }
 
-    /* ───────────────── MODAL FULLSCREEN ───────────────── */
     .modal-overlay{
       display:none;
       position:fixed;
@@ -787,28 +720,12 @@
     footer a{color:#444}
     footer a:hover{color:var(--red)}
 
-    /* ───────────────── RESPONSIVE ───────────────── */
-    @media(max-width:1000px){
-      :root{
-        --card-w:155px;
-        --card-h:235px;
-      }
-      .hero-content{
-        grid-template-columns:1fr;
-      }
-      .hero-right{
-        justify-content:flex-start;
-      }
-    }
-
     @media(max-width:768px){
       :root{
         --sb-collapsed:0px;
         --card-w:128px;
         --card-h:190px;
-        --gap:8px;
       }
-
       .sidebar{display:none}
       .content{margin-left:0}
       .topbar{left:0;padding:0 16px}
@@ -818,26 +735,10 @@
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
       .cards-grid{padding:0 16px}
-      .genre-tabs{padding:0 16px 14px}
+      .filter-toolbar{padding:0 16px 16px}
       .modal{padding:16px 16px 36px}
       .modal-title{font-size:1.6rem}
       .modal-search-wrap{display:none}
-      .hero-info-card{width:100%}
-    }
-
-    @media(max-width:480px){
-      :root{
-        --card-w:108px;
-        --card-h:160px;
-      }
-      .search-input{width:150px}
-      .search-input:focus{width:170px}
-      .hero-title{font-size:2rem}
-      .hero-actions{width:100%}
-      .btn-main,.btn-secondary{
-        width:100%;
-        justify-content:center;
-      }
     }
   </style>
 </head>
@@ -853,32 +754,35 @@
   </div>
 
   <div class="sb-block">
-    <div class="sb-block-label">Navegación</div>
+    <div class="sb-block-label">Menú</div>
 
-    <a class="sb-item active" href="/">
+    <a class="sb-item active" href="#" onclick="showSection('movies');return false;">
       <span class="sb-icon">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
       </span>
-      <span class="sb-label">Inicio</span>
+      <span class="sb-label">Películas</span>
     </a>
 
-    <a class="sb-item" href="/otg">
+    <a class="sb-item" href="#" onclick="showSection('series');return false;">
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </span>
+      <span class="sb-label">Series</span>
+    </a>
+
+    <a class="sb-item" href="#" onclick="focusSearch();return false;">
       <span class="sb-icon">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </span>
-      <span class="sb-label">Explorar</span>
+      <span class="sb-label">Buscar</span>
     </a>
 
-    <a class="sb-item" href="/pc">
+    <a class="sb-item" href="#" onclick="showSection('genres');return false;">
       <span class="sb-icon">
-        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
       </span>
-      <span class="sb-label">Playlist</span>
+      <span class="sb-label">Géneros</span>
     </a>
-  </div>
-
-  <div class="sb-block sb-genres" id="sbGenres">
-    <div class="sb-block-label">Géneros</div>
   </div>
 
   <div class="sb-footer">
@@ -900,7 +804,7 @@
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <form method="GET">
-        <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar películas o series...">
+        <input id="mainSearch" class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar películas o series...">
       </form>
     </div>
   </header>
@@ -908,13 +812,11 @@
   {% set media_items = item_list | selectattr('media') | list %}
 
   {% if media_items %}
-
-    {% set movies      = [] %}
+    {% set movies = [] %}
     {% set series_list = [] %}
-    {% set top_rated   = [] %}
-    {% set newest      = [] %}
-    {% set genre_map   = {} %}
-    {% set all_genres  = [] %}
+    {% set genre_map = {} %}
+    {% set all_genres = [] %}
+    {% set years = [] %}
 
     {% for item in media_items %}
       {% set tmdb = item.tmdb if item.get('tmdb') else None %}
@@ -924,11 +826,8 @@
         {% else %}
           {% if movies.append(item) %}{% endif %}
         {% endif %}
-        {% if tmdb.rating and tmdb.rating >= 7.0 %}
-          {% if top_rated.append(item) %}{% endif %}
-        {% endif %}
-        {% if tmdb.year and tmdb.year >= '2024' %}
-          {% if newest.append(item) %}{% endif %}
+        {% if tmdb.year and tmdb.year not in years %}
+          {% if years.append(tmdb.year) %}{% endif %}
         {% endif %}
         {% for g in tmdb.genres %}
           {% if g not in genre_map %}
@@ -937,8 +836,6 @@
           {% endif %}
           {% if genre_map[g].append(item) %}{% endif %}
         {% endfor %}
-      {% else %}
-        {% if movies.append(item) %}{% endif %}
       {% endif %}
     {% endfor %}
 
@@ -957,65 +854,30 @@
         <div class="hero-overlay"></div>
 
         <div class="hero-content">
-          <div class="hero-left">
-            <span class="hero-kicker">{{ 'Serie' if ht.is_series else 'Película' }} destacada</span>
-            <h1 class="hero-title">{{ ht.title }}</h1>
+          <span class="hero-kicker">{{ 'Serie' if ht.is_series else 'Película' }} destacada</span>
+          <h1 class="hero-title">{{ ht.title }}</h1>
 
-            <div class="hero-meta">
-              {% if ht.year %}<span class="meta-chip">{{ ht.year }}</span>{% endif %}
-              {% if ht.rating > 0 %}<span class="meta-chip rating">⭐ {{ ht.rating }}</span>{% endif %}
-              {% if hi.human_size %}<span class="meta-chip">{{ hi.human_size }}</span>{% endif %}
-              <span class="meta-chip">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-            </div>
-
-            {% if ht.overview %}
-              <p class="hero-overview">{{ ht.overview }}</p>
-            {% endif %}
-
-            {% if ht.genres %}
-              <div class="hero-genres">
-                {% for g in ht.genres[:5] %}
-                  <span class="hero-genre">{{ g }}</span>
-                {% endfor %}
-              </div>
-            {% endif %}
-
-            <div class="hero-actions">
-              <a class="btn-main" href="{{ hi.url }}">▶ Reproducir</a>
-              <a class="btn-secondary" href="{{ hi.url }}">ℹ Ver detalles</a>
-            </div>
+          <div class="hero-meta">
+            {% if ht.year %}<span class="meta-chip">{{ ht.year }}</span>{% endif %}
+            {% if ht.rating > 0 %}<span class="meta-chip rating">⭐ {{ ht.rating }}</span>{% endif %}
+            <span class="meta-chip">{{ 'Serie' if ht.is_series else 'Película' }}</span>
           </div>
 
-          <div class="hero-right">
-            <div class="hero-info-card">
-              <div class="hero-info-title">Información rápida</div>
-              <div class="hero-info-row">
-                <span>Título</span>
-                <strong>{{ ht.title }}</strong>
-              </div>
-              <div class="hero-info-row">
-                <span>Tipo</span>
-                <strong>{{ 'Serie' if ht.is_series else 'Película' }}</strong>
-              </div>
-              {% if ht.year %}
-              <div class="hero-info-row">
-                <span>Año</span>
-                <strong>{{ ht.year }}</strong>
-              </div>
-              {% endif %}
-              {% if ht.rating > 0 %}
-              <div class="hero-info-row">
-                <span>Rating</span>
-                <strong>⭐ {{ ht.rating }}</strong>
-              </div>
-              {% endif %}
-              {% if hi.human_size %}
-              <div class="hero-info-row">
-                <span>Tamaño</span>
-                <strong>{{ hi.human_size }}</strong>
-              </div>
-              {% endif %}
+          {% if ht.overview %}
+            <p class="hero-overview">{{ ht.overview }}</p>
+          {% endif %}
+
+          {% if ht.genres %}
+            <div class="hero-genres">
+              {% for g in ht.genres[:5] %}
+                <span class="hero-genre">{{ g }}</span>
+              {% endfor %}
             </div>
+          {% endif %}
+
+          <div class="hero-actions">
+            <a class="btn-main" href="{{ hi.url }}">▶ Reproducir</a>
+            <a class="btn-secondary" href="{{ hi.url }}">ℹ Ver detalles</a>
           </div>
         </div>
       </section>
@@ -1023,7 +885,11 @@
 
     {% macro card(item) %}
       {% set t = item.tmdb if item.get('tmdb') else None %}
-      <a href="{{ item.url }}" class="card" data-title="{{ (t.title if t else item.insight) | lower }}">
+      <a href="{{ item.url }}" class="card"
+         data-title="{{ (t.title if t else item.insight) | lower }}"
+         data-type="{{ 'serie' if (t and t.is_series) else 'pelicula' }}"
+         data-year="{{ t.year if t and t.year else '' }}"
+         data-rating="{{ t.rating if t and t.rating else 0 }}">
         <div class="card-inner">
           {% if t and t.poster %}
             <img class="card-poster" src="{{ t.poster }}" alt="{{ t.title }}" loading="lazy">
@@ -1085,106 +951,97 @@
     {% endmacro %}
 
     <main class="main">
-
-      {% if movies %}
-      <section class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🎬 Películas</h2>
-          <span class="row-count">{{ movies | length }}</span>
-          <div class="row-line"></div>
-          {% if movies | length > 20 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
-        </div>
+      <section id="section-movies" class="content-section">
+        {% if movies %}
+        <section class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🎬 Películas</h2>
+            <span class="row-count">{{ movies | length }}</span>
+            <div class="row-line"></div>
+            {% if movies | length > 20 %}
+              <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas →</button>
+            {% endif %}
+          </div>
+          <div class="cards-grid">
+            {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
+          </div>
+        </section>
+        {% endif %}
       </section>
-      {% endif %}
 
-      {% if series_list %}
-      <section class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">📺 Series</h2>
-          <span class="row-count">{{ series_list | length }}</span>
-          <div class="row-line"></div>
-          {% if series_list | length > 20 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
-        </div>
+      <section id="section-series" class="content-section" style="display:none;">
+        {% if series_list %}
+        <section class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">📺 Series</h2>
+            <span class="row-count">{{ series_list | length }}</span>
+            <div class="row-line"></div>
+            {% if series_list | length > 20 %}
+              <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas →</button>
+            {% endif %}
+          </div>
+          <div class="cards-grid">
+            {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
+          </div>
+        </section>
+        {% endif %}
       </section>
-      {% endif %}
 
-      {% if top_rated %}
-      <section class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">⭐ Mejor valoradas</h2>
-          <span class="row-count">{{ top_rated | length }}</span>
-          <div class="row-line"></div>
-          {% if top_rated | length > 20 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver todas →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in top_rated[:20] %}{{ card(item) }}{% endfor %}
-        </div>
-      </section>
-      {% endif %}
+      <section id="section-genres" class="content-section" style="display:none;">
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🎭 Géneros</h2>
+            <div class="row-line"></div>
+          </div>
 
-      {% if newest %}
-      <section class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🆕 Estrenos recientes</h2>
-          <span class="row-count">{{ newest | length }}</span>
-          <div class="row-line"></div>
-          {% if newest | length > 20 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver todas →</button>
-          {% endif %}
-        </div>
-        <div class="cards-grid">
-          {% for item in newest[:20] %}{{ card(item) }}{% endfor %}
-        </div>
-      </section>
-      {% endif %}
+          <div class="filter-toolbar">
+            <select id="typeFilter" onchange="applyGenreFilters()">
+              <option value="">Todo</option>
+              <option value="pelicula">Películas</option>
+              <option value="serie">Series</option>
+            </select>
 
-      {% if genre_map %}
-      <section class="row-section">
-        <div class="row-header">
-          <h2 class="row-title">🎭 Explorar por género</h2>
-          <div class="row-line"></div>
-        </div>
+            <select id="yearFilter" onchange="applyGenreFilters()">
+              <option value="">Todos los años</option>
+              {% for y in years | sort(reverse=True) %}
+                <option value="{{ y }}">{{ y }}</option>
+              {% endfor %}
+            </select>
 
-        <div class="genre-tabs">
-          {% for genre in genre_map.keys() %}
-            <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
+            <select id="ratingFilter" onchange="applyGenreFilters()">
+              <option value="">Cualquier puntuación</option>
+              <option value="8">8+ ⭐</option>
+              <option value="7">7+ ⭐</option>
+              <option value="6">6+ ⭐</option>
+            </select>
+          </div>
+
+          <div class="genre-tabs">
+            {% for genre in genre_map.keys() %}
+              <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
+            {% endfor %}
+          </div>
+
+          {% for genre, items in genre_map.items() %}
+            <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+              <div class="row-header" style="padding-top:4px;">
+                <span style="font-size:.84rem;color:#6b7280">{{ items | length }} títulos</span>
+                <div class="row-line"></div>
+                {% if items | length > 20 %}
+                  <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas →</button>
+                {% endif %}
+              </div>
+              <div class="cards-grid genre-cards">
+                {% for item in items[:50] %}{{ card(item) }}{% endfor %}
+              </div>
+            </div>
           {% endfor %}
         </div>
-
-        {% for genre, items in genre_map.items() %}
-          <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-            <div class="row-header" style="padding-top:4px;">
-              <span style="font-size:.84rem;color:#6b7280">{{ items | length }} títulos</span>
-              <div class="row-line"></div>
-              {% if items | length > 20 %}
-                <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas →</button>
-              {% endif %}
-            </div>
-            <div class="cards-grid">
-              {% for item in items[:20] %}{{ card(item) }}{% endfor %}
-            </div>
-          </div>
-        {% endfor %}
       </section>
-      {% endif %}
     </main>
 
     {{ fullmodal('modal-movies',  '🎬 Todas las películas', movies) }}
     {{ fullmodal('modal-series',  '📺 Todas las series',    series_list) }}
-    {{ fullmodal('modal-top',     '⭐ Mejor valoradas',     top_rated) }}
-    {{ fullmodal('modal-newest',  '🆕 Estrenos recientes', newest) }}
     {% for genre, items in genre_map.items() %}
       {{ fullmodal('modal-genre-' ~ (genre | replace(' ','-') | lower), '🎭 ' ~ genre, items) }}
     {% endfor %}
@@ -1203,6 +1060,26 @@
 </div>
 
 <script>
+  function showSection(section) {
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    const target = document.getElementById('section-' + section);
+    if (target) target.style.display = '';
+
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    const map = {
+      movies: 0,
+      series: 1,
+      genres: 3
+    };
+    const items = document.querySelectorAll('.sb-item');
+    if (items[map[section]]) items[map[section]].classList.add('active');
+  }
+
+  function focusSearch() {
+    const input = document.getElementById('mainSearch');
+    if (input) input.focus();
+  }
+
   document.querySelectorAll('.genre-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const g = tab.dataset.genre;
@@ -1211,8 +1088,32 @@
       document.querySelectorAll('.genre-panel').forEach(p => {
         p.style.display = p.dataset.genre === g ? '' : 'none';
       });
+      applyGenreFilters();
     });
   });
+
+  function applyGenreFilters() {
+    const type = document.getElementById('typeFilter')?.value || '';
+    const year = document.getElementById('yearFilter')?.value || '';
+    const rating = document.getElementById('ratingFilter')?.value || '';
+
+    const visiblePanel = document.querySelector('.genre-panel:not([style*="display: none"])') || document.querySelector('.genre-panel');
+    if (!visiblePanel) return;
+
+    visiblePanel.querySelectorAll('.card').forEach(card => {
+      const cardType = card.dataset.type || '';
+      const cardYear = card.dataset.year || '';
+      const cardRating = parseFloat(card.dataset.rating || '0');
+
+      let visible = true;
+
+      if (type && cardType !== type) visible = false;
+      if (year && cardYear !== year) visible = false;
+      if (rating && cardRating < parseFloat(rating)) visible = false;
+
+      card.style.display = visible ? '' : 'none';
+    });
+  }
 
   function openModal(id) {
     const m = document.getElementById(id);
@@ -1264,40 +1165,10 @@
     if (nores) nores.classList.toggle('show', visible === 0);
   }
 
-  (function () {
-    const genres = [{% for g in all_genres %}'{{ g }}',{% endfor %}];
-    const container = document.getElementById('sbGenres');
-
-    genres.forEach(g => {
-      const a = document.createElement('a');
-      a.className = 'sb-item';
-      a.href = '#';
-      a.innerHTML = `
-        <span class="sb-icon">
-          <svg viewBox="0 0 24 24">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-        </span>
-        <span class="sb-label">${g}</span>
-      `;
-      a.addEventListener('click', e => {
-        e.preventDefault();
-        const tab = [...document.querySelectorAll('.genre-tab')].find(t => t.dataset.genre === g);
-        if (tab) {
-          tab.click();
-          tab.closest('.row-section')?.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-      container.appendChild(a);
-    });
-  })();
-
   window.addEventListener('scroll', () => {
     const h = document.getElementById('topbar');
     if (h) {
-      h.style.background = window.scrollY > 60
-        ? 'rgba(7,7,7,.98)'
-        : '';
+      h.style.background = window.scrollY > 60 ? 'rgba(7,7,7,.98)' : '';
     }
   });
 </script>
