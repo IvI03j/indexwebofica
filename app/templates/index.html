@@ -4,383 +4,903 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --red: #e50914; --red2: #b2070f; --dark: #080808;
-      --sb-w: 70px; --sb-expanded: 220px;
-      --card-w: 160px; --card-h: 240px;
-      --radius: 8px; --gap: 8px;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body { background:var(--dark); color:#e5e5e5; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; display:flex; }
-    a { text-decoration:none; color:inherit; }
+    :root{
+      --red:#e50914;
+      --red2:#b20710;
+      --bg:#070707;
+      --panel:#111111;
+      --panel2:#171717;
+      --soft:#1f1f1f;
+      --line:#232323;
+      --text:#f5f5f5;
+      --muted:#a3a3a3;
+      --muted2:#6b7280;
+      --yellow:#f5c518;
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      position:fixed; top:0; left:0; bottom:0;
-      width:var(--sb-w); z-index:500;
-      background:#0d0d0d; border-right:1px solid #111;
-      display:flex; flex-direction:column; overflow:hidden;
-      transition:width .35s cubic-bezier(.4,0,.2,1);
-      box-shadow:4px 0 24px rgba(0,0,0,.6);
-    }
-    .sidebar:hover { width:var(--sb-expanded); }
+      --sb-collapsed:78px;
+      --sb-expanded:240px;
 
-    .sb-logo {
-      display:flex; align-items:center; gap:12px;
-      padding:22px 18px 20px; border-bottom:1px solid #161616;
-      flex-shrink:0; overflow:hidden; white-space:nowrap;
+      --card-w:180px;
+      --card-h:270px;
+      --radius:14px;
+      --gap:12px;
     }
-    .sb-logo-mark {
-      width:34px; height:34px; flex-shrink:0;
-      background:var(--red); border-radius:8px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.1rem; font-weight:900; color:#fff;
-      font-family:'Bebas Neue',sans-serif; letter-spacing:-1px;
-    }
-    .sb-logo-text {
-      font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
-      color:#fff; letter-spacing:2px; opacity:0; transition:opacity .2s .1s;
-    }
-    .sidebar:hover .sb-logo-text { opacity:1; }
 
-    .sb-group { padding:10px 0; border-bottom:1px solid #111; }
-    .sb-group-label {
-      font-size:0.58rem; font-weight:700; color:#444; letter-spacing:2px;
-      text-transform:uppercase; padding:4px 18px 6px;
-      opacity:0; transition:opacity .2s; white-space:nowrap;
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:'DM Sans',sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
+      display:flex;
     }
-    .sidebar:hover .sb-group-label { opacity:1; }
+    a{text-decoration:none;color:inherit}
 
-    .sb-item {
-      display:flex; align-items:center; gap:14px;
-      height:46px; padding:0 18px; cursor:pointer; color:#666;
-      transition:color .2s, background .2s;
-      white-space:nowrap; overflow:hidden;
-      border-left:3px solid transparent; text-decoration:none;
+    /* ───────────────── SIDEBAR ───────────────── */
+    .sidebar{
+      position:fixed;
+      top:0;left:0;bottom:0;
+      width:var(--sb-collapsed);
+      background:linear-gradient(180deg,#0d0d0d 0%, #0b0b0b 100%);
+      border-right:1px solid #141414;
+      z-index:700;
+      display:flex;
+      flex-direction:column;
+      transition:width .3s ease;
+      overflow:hidden;
+      box-shadow:8px 0 30px rgba(0,0,0,.45);
     }
-    .sb-item:hover { color:#fff; background:rgba(255,255,255,.05); }
-    .sb-item.active { color:#fff; border-left-color:var(--red); background:rgba(229,9,20,.1); }
+    .sidebar:hover{width:var(--sb-expanded)}
 
-    .sb-icon { width:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
-    .sb-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-    .sb-label { font-size:0.88rem; font-weight:500; opacity:0; transition:opacity .15s; }
-    .sidebar:hover .sb-label { opacity:1; }
-
-    .sb-genres { padding:8px 0; flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
-    .sb-genres::-webkit-scrollbar { display:none; }
-
-    .sb-bottom {
-      padding:14px 18px; border-top:1px solid #111; flex-shrink:0;
-      display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;
+    .sb-top{
+      padding:18px 16px;
+      border-bottom:1px solid #151515;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-height:78px;
+      white-space:nowrap;
     }
-    .sb-avatar {
-      width:32px; height:32px; flex-shrink:0;
-      background:linear-gradient(135deg,var(--red),#ff6b6b);
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-size:0.85rem; font-weight:700; color:#fff;
-    }
-    .sb-user-info { opacity:0; transition:opacity .2s; }
-    .sidebar:hover .sb-user-info { opacity:1; }
-    .sb-user-name { font-size:0.82rem; font-weight:600; color:#ddd; }
-    .sb-user-sub { font-size:0.7rem; color:#555; }
-
-    /* ── CONTENT ── */
-    .content { margin-left:var(--sb-w); flex:1; min-width:0; }
-
-    .topbar {
-      position:fixed; top:0; left:var(--sb-w); right:0; z-index:300; height:64px;
-      display:flex; align-items:center; gap:16px; padding:0 32px;
-      background:linear-gradient(180deg,rgba(8,8,8,.98) 60%,transparent 100%);
-      backdrop-filter:blur(6px);
-    }
-    .topbar-name { color:#555; font-size:0.85rem; font-style:italic; }
-    .spacer { flex:1; }
-    .search-wrap { position:relative; }
-    .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
-    .search-input {
-      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
-      border-radius:24px; padding:9px 16px 9px 36px;
-      color:#fff; font-size:0.85rem; width:210px; outline:none;
-      transition:all .3s; font-family:'DM Sans',sans-serif;
-    }
-    .search-input:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:260px; }
-    .search-input::placeholder { color:#444; }
-
-    /* ── HERO ── */
-    .hero {
-      position:relative; width:100%; height:88vh; min-height:500px;
-      display:flex; align-items:flex-end; overflow:hidden;
-    }
-    .hero-bg {
-      position:absolute; inset:0; background-size:cover; background-position:center top;
-      transform:scale(1.04); transition:transform 9s ease;
-    }
-    .hero:hover .hero-bg { transform:scale(1); }
-    .hero-vignette {
-      position:absolute; inset:0;
-      background:linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,.72) 28%,rgba(8,8,8,.1) 55%,transparent 100%),
-                linear-gradient(90deg,rgba(8,8,8,.9) 0%,rgba(8,8,8,.3) 55%,transparent 100%);
-    }
-    .hero-content { position:relative; z-index:2; padding:0 52px 60px; max-width:560px; }
-    .hero-badge {
-      display:inline-block; background:var(--red); color:#fff;
-      font-size:0.6rem; font-weight:800; padding:3px 10px; border-radius:3px;
-      letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;
-    }
-    .hero-title {
+    .sb-brand-mark{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--red),#ff4d57);
       font-family:'Bebas Neue',sans-serif;
-      font-size:clamp(2.8rem,5.5vw,5rem); line-height:.95;
-      letter-spacing:1px; margin-bottom:14px;
-      text-shadow:0 2px 40px rgba(0,0,0,.9);
+      font-size:1.35rem;
+      color:#fff;
+      flex-shrink:0;
+      letter-spacing:-1px;
     }
-    .hero-meta { display:flex; gap:14px; align-items:center; font-size:0.87rem; color:#bbb; margin-bottom:12px; flex-wrap:wrap; }
-    .hero-rating { color:#f5c518; font-weight:800; }
-    .hero-overview { font-size:0.92rem; color:#ccc; line-height:1.65; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-    .hero-genres { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px; }
-    .hero-genre { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); color:#ccc; font-size:0.72rem; padding:4px 12px; border-radius:4px; }
-    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
-    .btn-play { display:inline-flex; align-items:center; gap:8px; background:#fff; color:#000; padding:13px 34px; border-radius:6px; font-size:1rem; font-weight:800; transition:background .2s; }
-    .btn-play:hover { background:#e0e0e0; }
-    .btn-info { display:inline-flex; align-items:center; gap:8px; background:rgba(120,120,120,.5); color:#fff; padding:13px 26px; border-radius:6px; font-size:1rem; font-weight:700; transition:background .2s; backdrop-filter:blur(4px); }
-    .btn-info:hover { background:rgba(120,120,120,.8); }
+    .sb-brand-text{
+      opacity:0;
+      transition:opacity .2s ease;
+      overflow:hidden;
+    }
+    .sidebar:hover .sb-brand-text{opacity:1}
+    .sb-brand-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:1.55rem;
+      letter-spacing:2px;
+      line-height:1;
+      color:#fff;
+    }
+    .sb-brand-sub{
+      margin-top:3px;
+      font-size:.72rem;
+      color:#5f5f5f;
+    }
 
-    /* ── MAIN ── */
-    .main { padding-top:24px; }
+    .sb-block{
+      padding:10px 0;
+      border-bottom:1px solid #121212;
+    }
 
-    /* ── ROW SECTION ── */
-    .row-section { padding:0 0 40px; }
-    .row-header { display:flex; align-items:center; gap:10px; padding:0 32px 14px; flex-wrap:wrap; }
-    .row-title { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; letter-spacing:1px; color:#fff; }
-    .row-count { background:rgba(229,9,20,.2); border:1px solid rgba(229,9,20,.4); color:#ff6b6b; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px; }
-    .row-line { flex:1; height:1px; background:linear-gradient(90deg,#2a2a2a,transparent); }
-    .btn-ver-mas {
-      display:inline-flex; align-items:center; gap:6px;
-      background:transparent; border:1px solid #333; color:#999;
-      padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:600;
-      cursor:pointer; transition:all .2s; white-space:nowrap;
+    .sb-block-label{
+      padding:0 18px 8px;
+      font-size:.62rem;
+      color:#4b5563;
+      font-weight:800;
+      letter-spacing:1.8px;
+      text-transform:uppercase;
+      opacity:0;
+      transition:opacity .2s ease;
+      white-space:nowrap;
+    }
+    .sidebar:hover .sb-block-label{opacity:1}
+
+    .sb-item{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      height:46px;
+      padding:0 18px;
+      color:#7a7a7a;
+      border-left:3px solid transparent;
+      transition:all .2s ease;
+      white-space:nowrap;
+    }
+    .sb-item:hover{
+      background:rgba(255,255,255,.04);
+      color:#fff;
+    }
+    .sb-item.active{
+      color:#fff;
+      border-left-color:var(--red);
+      background:rgba(229,9,20,.08);
+    }
+
+    .sb-icon{
+      width:22px;
+      display:flex;
+      justify-content:center;
+      flex-shrink:0;
+      font-size:1.05rem;
+    }
+    .sb-icon svg{
+      width:18px;height:18px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .sb-label{
+      font-size:.9rem;
+      font-weight:500;
+      opacity:0;
+      transition:opacity .2s ease;
+    }
+    .sidebar:hover .sb-label{opacity:1}
+
+    .sb-genres{
+      overflow-y:auto;
+      flex:1;
+      scrollbar-width:none;
+    }
+    .sb-genres::-webkit-scrollbar{display:none}
+
+    .sb-footer{
+      padding:14px 16px;
+      border-top:1px solid #141414;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      white-space:nowrap;
+    }
+    .sb-avatar{
+      width:36px;height:36px;border-radius:50%;
+      background:linear-gradient(135deg,var(--red),#ff6b6b);
+      color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;
+      flex-shrink:0;
+    }
+    .sb-user{
+      opacity:0;
+      transition:opacity .2s ease;
+    }
+    .sidebar:hover .sb-user{opacity:1}
+    .sb-user-name{font-size:.82rem;font-weight:700;color:#f0f0f0}
+    .sb-user-sub{font-size:.72rem;color:#606060}
+
+    /* ───────────────── CONTENT ───────────────── */
+    .content{
+      margin-left:var(--sb-collapsed);
+      flex:1;
+      min-width:0;
+    }
+
+    .topbar{
+      position:fixed;
+      top:0;left:var(--sb-collapsed);right:0;
+      height:72px;
+      z-index:500;
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:0 34px;
+      background:linear-gradient(180deg,rgba(7,7,7,.96) 60%, rgba(7,7,7,0) 100%);
+      backdrop-filter:blur(10px);
+    }
+
+    .topbar-meta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .topbar-title{
+      font-size:.86rem;
+      color:#c9c9c9;
+      font-weight:700;
+    }
+    .topbar-sub{
+      font-size:.72rem;
+      color:#5d5d5d;
+    }
+    .spacer{flex:1}
+
+    .search-wrap{position:relative}
+    .search-wrap svg{
+      position:absolute;
+      left:12px;top:50%;
+      transform:translateY(-50%);
+      width:15px;height:15px;
+      stroke:#6b7280;
+      fill:none;
+      stroke-width:2.2;
+      pointer-events:none;
+    }
+    .search-input{
+      width:220px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
+      border-radius:999px;
+      padding:11px 16px 11px 38px;
+      outline:none;
+      transition:all .25s ease;
+      font-size:.88rem;
       font-family:'DM Sans',sans-serif;
     }
-    .btn-ver-mas:hover { border-color:var(--red); color:#fff; background:rgba(229,9,20,.12); }
+    .search-input:focus{
+      width:280px;
+      background:rgba(255,255,255,.09);
+      border-color:rgba(255,255,255,.18);
+    }
+    .search-input::placeholder{color:#5d5d5d}
 
-    .cards-grid {
-      display:flex; flex-wrap:wrap; gap:var(--gap);
+    /* ───────────────── HERO ───────────────── */
+    .hero{
+      position:relative;
+      min-height:88vh;
+      display:flex;
+      align-items:flex-end;
+      overflow:hidden;
+    }
+
+    .hero-bg{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center top;
+      transform:scale(1.04);
+      transition:transform 8s ease;
+    }
+    .hero:hover .hero-bg{transform:scale(1)}
+
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.85) 25%, rgba(7,7,7,.18) 56%, transparent 100%),
+        linear-gradient(90deg, rgba(7,7,7,.95) 0%, rgba(7,7,7,.45) 42%, rgba(7,7,7,.08) 65%, transparent 100%);
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:2;
+      width:100%;
+      padding:0 42px 56px;
+      display:grid;
+      grid-template-columns:minmax(0, 620px) 1fr;
+      gap:20px;
+    }
+
+    .hero-left{max-width:620px}
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:.7rem;
+      font-weight:800;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:#fff;
+      background:rgba(229,9,20,.95);
+      padding:5px 12px;
+      border-radius:999px;
+      margin-bottom:16px;
+    }
+
+    .hero-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(3rem,6vw,5.8rem);
+      line-height:.92;
+      letter-spacing:1px;
+      margin-bottom:16px;
+      text-shadow:0 8px 40px rgba(0,0,0,.8);
+    }
+
+    .hero-meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .meta-chip{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color:#ddd;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:600;
+    }
+    .meta-chip.rating{color:#f5c518}
+
+    .hero-overview{
+      color:#d0d0d0;
+      font-size:.97rem;
+      line-height:1.7;
+      margin-bottom:18px;
+      max-width:560px;
+      display:-webkit-box;
+      -webkit-line-clamp:4;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .hero-genres{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:24px;
+    }
+    .hero-genre{
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      color:#e0e0e0;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:.75rem;
+      font-weight:600;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .btn-main,
+    .btn-secondary{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:13px 24px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:.95rem;
+      transition:all .2s ease;
+    }
+    .btn-main{
+      background:#fff;
+      color:#000;
+      box-shadow:0 10px 24px rgba(0,0,0,.3);
+    }
+    .btn-main:hover{background:#e9e9e9}
+    .btn-secondary{
+      background:rgba(109,109,110,.45);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(6px);
+    }
+    .btn-secondary:hover{background:rgba(109,109,110,.7)}
+
+    .hero-right{
+      display:flex;
+      align-items:flex-end;
+      justify-content:flex-end;
+    }
+    .hero-info-card{
+      width:320px;
+      max-width:100%;
+      background:linear-gradient(180deg, rgba(18,18,18,.88), rgba(10,10,10,.82));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      padding:20px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 15px 40px rgba(0,0,0,.45);
+    }
+    .hero-info-title{
+      font-size:.8rem;
+      color:#6b7280;
+      text-transform:uppercase;
+      letter-spacing:1.4px;
+      margin-bottom:12px;
+      font-weight:800;
+    }
+    .hero-info-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:.85rem;
+    }
+    .hero-info-row:last-child{border-bottom:none}
+    .hero-info-row strong{color:#fff}
+    .hero-info-row span{color:#9ca3af}
+
+    /* ───────────────── MAIN ───────────────── */
+    .main{padding-top:18px}
+
+    .row-section{padding:0 0 42px}
+    .row-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:0 32px 16px;
+      flex-wrap:wrap;
+    }
+    .row-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:1.55rem;
+      letter-spacing:1px;
+      color:#fff;
+    }
+    .row-count{
+      background:rgba(229,9,20,.14);
+      color:#ff7b83;
+      border:1px solid rgba(229,9,20,.28);
+      border-radius:999px;
+      padding:3px 10px;
+      font-size:.68rem;
+      font-weight:800;
+    }
+    .row-line{
+      flex:1;
+      height:1px;
+      background:linear-gradient(90deg,#292929,transparent);
+    }
+
+    .btn-ver-mas{
+      background:transparent;
+      color:#a1a1aa;
+      border:1px solid #313131;
+      border-radius:999px;
+      padding:7px 15px;
+      font-size:.78rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .2s ease;
+      white-space:nowrap;
+      font-family:'DM Sans',sans-serif;
+    }
+    .btn-ver-mas:hover{
+      border-color:var(--red);
+      color:#fff;
+      background:rgba(229,9,20,.1);
+    }
+
+    .cards-grid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:var(--gap);
       padding:0 32px;
     }
 
-    /* ── CARD ── */
-    .card {
-      flex:0 0 var(--card-w); width:var(--card-w); height:var(--card-h);
-      position:relative; border-radius:var(--radius);
-      cursor:pointer; overflow:visible;
-      transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s .32s;
+    /* ───────────────── CARD ───────────────── */
+    .card{
+      flex:0 0 var(--card-w);
+      width:var(--card-w);
+      height:var(--card-h);
+      position:relative;
+      overflow:visible;
+      border-radius:var(--radius);
+      cursor:pointer;
+      transition:transform .3s ease;
       z-index:1;
     }
-    .card:hover {
-      transform:scale(1.12) translateY(-6px); z-index:50;
-      transition:transform .32s cubic-bezier(.4,0,.2,1), z-index 0s;
-    }
-    .card-inner {
-      width:var(--card-w); height:var(--card-h);
-      border-radius:var(--radius); overflow:hidden; position:relative;
-      box-shadow:0 4px 24px rgba(0,0,0,.55); transition:box-shadow .32s;
-    }
-    .card:hover .card-inner { box-shadow:0 20px 60px rgba(0,0,0,.9); }
-    .card-poster {
-      display:block; width:100%; height:100%;
-      object-fit:cover; object-position:center top;
-      pointer-events:none; transition:filter .32s;
-    }
-    .card:hover .card-poster { filter:brightness(.38); }
-    .card-no-poster {
-      width:100%; height:100%;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding:16px; text-align:center;
-      background:linear-gradient(160deg,#1a1a2e,#16213e,#0f3460);
-    }
-    .card-no-poster .np-icon { font-size:2.4rem; margin-bottom:10px; }
-    .card-no-poster .np-title { font-size:0.72rem; font-weight:600; color:#ccc; line-height:1.3; }
 
-    .card-badge {
-      position:absolute; top:8px; left:8px; z-index:2;
-      background:var(--red); color:#fff;
-      font-size:0.52rem; font-weight:900; padding:2px 7px; border-radius:3px;
-      letter-spacing:1px; text-transform:uppercase; pointer-events:none;
+    .card:hover{
+      transform:scale(1.1) translateY(-8px);
+      z-index:30;
     }
-    .card-star {
-      position:absolute; top:8px; right:8px; z-index:2;
-      background:rgba(0,0,0,.75); color:#f5c518;
-      font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:3px;
+
+    .card-inner{
+      width:100%;
+      height:100%;
+      position:relative;
+      overflow:hidden;
+      border-radius:var(--radius);
+      background:#111;
+      box-shadow:0 8px 24px rgba(0,0,0,.45);
+    }
+
+    .card-poster{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center top;
+      display:block;
+      transition:transform .35s ease, filter .35s ease;
+    }
+    .card:hover .card-poster{
+      transform:scale(1.04);
+      filter:brightness(.35);
+    }
+
+    .card-no-poster{
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:16px;
+      background:linear-gradient(135deg,#161616,#202020,#101820);
+    }
+    .np-icon{font-size:2.2rem;margin-bottom:10px}
+    .np-title{font-size:.76rem;color:#d1d5db;font-weight:700;line-height:1.35}
+
+    .card-badge,
+    .card-star{
+      position:absolute;
+      top:10px;
+      z-index:3;
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:.62rem;
+      font-weight:800;
+      backdrop-filter:blur(6px);
+    }
+    .card-badge{
+      left:10px;
+      background:rgba(229,9,20,.95);
+      color:#fff;
+    }
+    .card-star{
+      right:10px;
+      background:rgba(0,0,0,.68);
+      color:var(--yellow);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .card-hover{
+      position:absolute;
+      inset:0;
+      z-index:4;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      padding:14px 12px 12px;
+      opacity:0;
+      transition:opacity .25s ease;
+      background:linear-gradient(0deg,rgba(0,0,0,.96) 0%,rgba(0,0,0,.55) 55%,transparent 100%);
       pointer-events:none;
     }
-    .card-hover {
-      position:absolute; inset:0; z-index:3;
-      padding:12px 10px 10px;
-      display:flex; flex-direction:column; justify-content:flex-end;
-      opacity:0; transition:opacity .28s; pointer-events:none;
-      background:linear-gradient(0deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
+    .card:hover .card-hover{
+      opacity:1;
+      pointer-events:auto;
     }
-    .card:hover .card-hover { opacity:1; pointer-events:auto; }
-    .ch-title { font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.2; pointer-events:none; }
-    .ch-meta { font-size:0.63rem; color:#999; margin-bottom:6px; pointer-events:none; }
-    .ch-genres { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px; pointer-events:none; }
-    .ch-genre { background:rgba(229,9,20,.22); border:1px solid rgba(229,9,20,.38); color:#ff8888; font-size:0.52rem; padding:1px 5px; border-radius:2px; }
-    .ch-play {
-      width:100%; background:var(--red); color:#fff; border:none;
-      padding:7px 0; border-radius:5px; font-size:0.75rem; font-weight:700;
-      cursor:pointer; text-align:center; transition:background .2s; font-family:'DM Sans',sans-serif;
-    }
-    .ch-play:hover { background:var(--red2); }
 
-    /* ── GENRE TABS ── */
-    .genre-tabs { display:flex; gap:8px; overflow-x:auto; padding:0 32px 16px; scrollbar-width:none; }
-    .genre-tabs::-webkit-scrollbar { display:none; }
-    .genre-tab {
-      flex:0 0 auto; background:#161616; border:1px solid #222;
-      color:#888; padding:7px 18px; border-radius:20px;
-      font-size:0.8rem; font-weight:500; cursor:pointer;
-      transition:all .2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
+    .ch-title{
+      font-size:.82rem;
+      font-weight:800;
+      color:#fff;
+      line-height:1.25;
+      margin-bottom:4px;
     }
-    .genre-tab:hover { background:#222; color:#fff; }
-    .genre-tab.active { background:var(--red); border-color:var(--red); color:#fff; }
+    .ch-meta{
+      font-size:.64rem;
+      color:#9ca3af;
+      margin-bottom:7px;
+    }
+    .ch-genres{
+      display:flex;
+      gap:4px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .ch-genre{
+      font-size:.54rem;
+      padding:2px 7px;
+      border-radius:999px;
+      background:rgba(229,9,20,.16);
+      color:#ff8c92;
+      border:1px solid rgba(229,9,20,.24);
+    }
+    .ch-actions{
+      display:flex;
+      gap:8px;
+    }
+    .ch-play,
+    .ch-more{
+      flex:1;
+      border:none;
+      border-radius:8px;
+      padding:8px 0;
+      text-align:center;
+      font-weight:700;
+      font-size:.72rem;
+      cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+    }
+    .ch-play{
+      background:var(--red);
+      color:#fff;
+    }
+    .ch-play:hover{background:var(--red2)}
+    .ch-more{
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .ch-more:hover{background:rgba(255,255,255,.14)}
 
-    /* ── FULLSCREEN MODAL ── */
-    .modal-overlay {
-      display:none; position:fixed; inset:0; z-index:600;
-      background:rgba(8,8,8,.97); backdrop-filter:blur(8px);
+    /* ───────────────── GENRE TABS ───────────────── */
+    .genre-tabs{
+      display:flex;
+      gap:10px;
+      overflow-x:auto;
+      padding:0 32px 18px;
+      scrollbar-width:none;
+    }
+    .genre-tabs::-webkit-scrollbar{display:none}
+
+    .genre-tab{
+      flex:0 0 auto;
+      padding:8px 16px;
+      border-radius:999px;
+      background:#141414;
+      border:1px solid #232323;
+      color:#8f8f8f;
+      font-size:.8rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .2s ease;
+      white-space:nowrap;
+      font-family:'DM Sans',sans-serif;
+    }
+    .genre-tab:hover{
+      color:#fff;
+      background:#1f1f1f;
+    }
+    .genre-tab.active{
+      background:var(--red);
+      border-color:var(--red);
+      color:#fff;
+    }
+
+    /* ───────────────── MODAL FULLSCREEN ───────────────── */
+    .modal-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:800;
+      background:rgba(7,7,7,.95);
+      backdrop-filter:blur(8px);
       overflow-y:auto;
     }
-    .modal-overlay.open { display:block; }
+    .modal-overlay.open{display:block}
 
-    .modal {
-      min-height:100vh; padding:24px 32px 48px;
-      max-width:1600px; margin:0 auto;
+    .modal{
+      min-height:100vh;
+      max-width:1600px;
+      margin:0 auto;
+      padding:24px 32px 48px;
     }
-    .modal-topbar {
-      display:flex; align-items:center; gap:14px;
-      padding:16px 0 24px;
-      position:sticky; top:0; z-index:10;
-      background:rgba(8,8,8,.97); backdrop-filter:blur(8px);
-      border-bottom:1px solid #1a1a1a; margin-bottom:28px;
-    }
-    .modal-back {
-      background:#1a1a1a; border:1px solid #2a2a2a; color:#aaa;
-      width:40px; height:40px; border-radius:50%; font-size:1.2rem;
-      cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:all .2s; flex-shrink:0;
-    }
-    .modal-back:hover { background:var(--red); border-color:var(--red); color:#fff; }
-    .modal-title { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#fff; letter-spacing:1px; }
-    .modal-subtitle { color:#555; font-size:0.85rem; margin-left:auto; white-space:nowrap; }
 
-    .modal-search-wrap { position:relative; margin-left:16px; }
-    .modal-search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:#555; width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; }
-    .modal-search {
-      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
-      border-radius:24px; padding:8px 16px 8px 34px;
-      color:#fff; font-size:0.82rem; width:200px; outline:none;
-      transition:all .3s; font-family:'DM Sans',sans-serif;
+    .modal-topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      padding:16px 0 22px;
+      margin-bottom:20px;
+      background:rgba(7,7,7,.95);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid #171717;
     }
-    .modal-search:focus { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.28); width:240px; }
-    .modal-search::placeholder { color:#444; }
 
-    .modal-grid {
+    .modal-back{
+      width:42px;height:42px;
+      border:none;
+      border-radius:50%;
+      background:#171717;
+      border:1px solid #292929;
+      color:#bdbdbd;
+      font-size:1.1rem;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .modal-back:hover{
+      background:var(--red);
+      border-color:var(--red);
+      color:#fff;
+    }
+
+    .modal-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:2rem;
+      letter-spacing:1px;
+      color:#fff;
+    }
+    .modal-subtitle{
+      font-size:.82rem;
+      color:#666;
+      margin-left:auto;
+      white-space:nowrap;
+    }
+
+    .modal-search-wrap{position:relative;margin-left:14px}
+    .modal-search-wrap svg{
+      position:absolute;
+      left:11px;top:50%;
+      transform:translateY(-50%);
+      width:14px;height:14px;
+      stroke:#666;
+      fill:none;
+      stroke-width:2.2;
+    }
+    .modal-search{
+      width:220px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:999px;
+      padding:10px 14px 10px 34px;
+      color:#fff;
+      outline:none;
+      font-size:.84rem;
+      font-family:'DM Sans',sans-serif;
+    }
+    .modal-search::placeholder{color:#555}
+
+    .modal-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(var(--card-w), 1fr));
+      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
       gap:14px;
     }
-    .modal-grid .card { flex:unset; width:100%; height:var(--card-h); }
-    .modal-grid .card-inner { width:100%; height:100%; }
-    .modal-grid .card.hidden { display:none; }
-
-    .no-results {
-      display:none; grid-column:1/-1;
-      text-align:center; padding:60px 20px;
-      color:#444; font-size:0.95rem;
+    .modal-grid .card{
+      width:100%;
+      height:var(--card-h);
+      flex:unset;
     }
-    .no-results.show { display:block; }
+    .modal-grid .card.hidden{display:none}
 
-    /* ── FOOTER ── */
-    footer { text-align:center; padding:28px; color:#2a2a2a; font-size:0.75rem; border-top:1px solid #111; }
-    footer a { color:#333; }
-    footer a:hover { color:var(--red); }
-
-    /* ── RESPONSIVE ── */
-    @media(max-width:900px){
-      :root { --card-w:140px; --card-h:210px; }
+    .no-results{
+      display:none;
+      grid-column:1/-1;
+      text-align:center;
+      padding:60px 20px;
+      color:#555;
+      font-size:.95rem;
     }
+    .no-results.show{display:block}
+
+    footer{
+      text-align:center;
+      padding:28px;
+      border-top:1px solid #111;
+      font-size:.78rem;
+      color:#3a3a3a;
+    }
+    footer a{color:#444}
+    footer a:hover{color:var(--red)}
+
+    /* ───────────────── RESPONSIVE ───────────────── */
+    @media(max-width:1000px){
+      :root{
+        --card-w:155px;
+        --card-h:235px;
+      }
+      .hero-content{
+        grid-template-columns:1fr;
+      }
+      .hero-right{
+        justify-content:flex-start;
+      }
+    }
+
     @media(max-width:768px){
-      :root { --sb-w:0px; --card-w:120px; --card-h:180px; --gap:6px; }
-      .sidebar { display:none; }
-      .content { margin-left:0; }
-      .topbar { left:0; padding:0 16px; }
-      .hero-content { padding:0 18px 40px; }
-      .hero-title { font-size:2rem; }
-      .hero-overview { -webkit-line-clamp:2; }
-      .row-header { padding:0 16px 10px; }
-      .cards-grid { padding:0 16px; }
-      .genre-tabs { padding:0 16px 12px; }
-      .btn-play, .btn-info { padding:10px 20px; font-size:0.9rem; }
-      .modal { padding:16px 16px 40px; }
-      .modal-topbar { padding:12px 0 16px; margin-bottom:20px; flex-wrap:wrap; }
-      .modal-title { font-size:1.5rem; }
-      .modal-search { width:160px; }
-      .modal-search:focus { width:160px; }
+      :root{
+        --sb-collapsed:0px;
+        --card-w:128px;
+        --card-h:190px;
+        --gap:8px;
+      }
+
+      .sidebar{display:none}
+      .content{margin-left:0}
+      .topbar{left:0;padding:0 16px}
+      .hero{min-height:72vh}
+      .hero-content{padding:0 18px 34px}
+      .hero-title{font-size:2.5rem}
+      .hero-overview{-webkit-line-clamp:3}
+      .row-header{padding:0 16px 12px}
+      .cards-grid{padding:0 16px}
+      .genre-tabs{padding:0 16px 14px}
+      .modal{padding:16px 16px 36px}
+      .modal-title{font-size:1.6rem}
+      .modal-search-wrap{display:none}
+      .hero-info-card{width:100%}
     }
+
     @media(max-width:480px){
-      :root { --card-w:100px; --card-h:150px; }
-      .hero { height:70vh; }
-      .modal-grid { gap:8px; }
-      .modal-search-wrap { display:none; }
+      :root{
+        --card-w:108px;
+        --card-h:160px;
+      }
+      .search-input{width:150px}
+      .search-input:focus{width:170px}
+      .hero-title{font-size:2rem}
+      .hero-actions{width:100%}
+      .btn-main,.btn-secondary{
+        width:100%;
+        justify-content:center;
+      }
     }
   </style>
 </head>
 <body>
 
-<!-- ════════════ SIDEBAR ════════════ -->
 <nav class="sidebar">
-  <div class="sb-logo">
-    <div class="sb-logo-mark">TG</div>
-    <span class="sb-logo-text">TGINDEX</span>
+  <div class="sb-top">
+    <div class="sb-brand-mark">TG</div>
+    <div class="sb-brand-text">
+      <div class="sb-brand-title">TGINDEX</div>
+      <div class="sb-brand-sub">Streaming Telegram</div>
+    </div>
   </div>
-  <div class="sb-group">
-    <div class="sb-group-label">Menú</div>
+
+  <div class="sb-block">
+    <div class="sb-block-label">Navegación</div>
+
     <a class="sb-item active" href="/">
-      <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
       <span class="sb-label">Inicio</span>
     </a>
+
     <a class="sb-item" href="/otg">
-      <span class="sb-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <span class="sb-label">OTG Indexing</span>
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <span class="sb-label">Explorar</span>
     </a>
+
     <a class="sb-item" href="/pc">
-      <span class="sb-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+      <span class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </span>
       <span class="sb-label">Playlist</span>
     </a>
   </div>
-  <div class="sb-group sb-genres" id="sbGenres">
-    <div class="sb-group-label">Géneros</div>
+
+  <div class="sb-block sb-genres" id="sbGenres">
+    <div class="sb-block-label">Géneros</div>
   </div>
-  <div class="sb-bottom">
+
+  <div class="sb-footer">
     <div class="sb-avatar">U</div>
-    <div class="sb-user-info">
+    <div class="sb-user">
       <div class="sb-user-name">{{ name }}</div>
-      <div class="sb-user-sub">TgIndex Pro</div>
+      <div class="sb-user-sub">Cuenta activa</div>
     </div>
   </div>
 </nav>
 
-<!-- ════════════ MAIN CONTENT ════════════ -->
 <div class="content">
   <header class="topbar" id="topbar">
-    <span class="topbar-name">{{ name }}</span>
+    <div class="topbar-meta">
+      <span class="topbar-title">{{ title }}</span>
+      <span class="topbar-sub">Biblioteca premium</span>
+    </div>
     <div class="spacer"></div>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <form method="GET">
-        <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar título...">
+        <input class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar películas o series...">
       </form>
     </div>
   </header>
@@ -389,7 +909,6 @@
 
   {% if media_items %}
 
-    {# ── Clasificación de items ── #}
     {% set movies      = [] %}
     {% set series_list = [] %}
     {% set top_rated   = [] %}
@@ -423,7 +942,6 @@
       {% endif %}
     {% endfor %}
 
-    {# ── HERO ── #}
     {% set hero = namespace(item=None) %}
     {% for item in media_items %}
       {% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}
@@ -434,32 +952,75 @@
     {% if hero.item %}
       {% set hi = hero.item %}
       {% set ht = hi.tmdb %}
-      <div class="hero">
+      <section class="hero">
         <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
-        <div class="hero-vignette"></div>
+        <div class="hero-overlay"></div>
+
         <div class="hero-content">
-          <span class="hero-badge">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-          <h1 class="hero-title">{{ ht.title }}</h1>
-          <div class="hero-meta">
-            {% if ht.year %}<span>{{ ht.year }}</span>{% endif %}
-            {% if ht.rating > 0 %}<span class="hero-rating">⭐ {{ ht.rating }}</span>{% endif %}
-            {% if hi.human_size %}<span>{{ hi.human_size }}</span>{% endif %}
-          </div>
-          {% if ht.overview %}<p class="hero-overview">{{ ht.overview }}</p>{% endif %}
-          {% if ht.genres %}
-            <div class="hero-genres">
-              {% for g in ht.genres[:4] %}<span class="hero-genre">{{ g }}</span>{% endfor %}
+          <div class="hero-left">
+            <span class="hero-kicker">{{ 'Serie' if ht.is_series else 'Película' }} destacada</span>
+            <h1 class="hero-title">{{ ht.title }}</h1>
+
+            <div class="hero-meta">
+              {% if ht.year %}<span class="meta-chip">{{ ht.year }}</span>{% endif %}
+              {% if ht.rating > 0 %}<span class="meta-chip rating">⭐ {{ ht.rating }}</span>{% endif %}
+              {% if hi.human_size %}<span class="meta-chip">{{ hi.human_size }}</span>{% endif %}
+              <span class="meta-chip">{{ 'Serie' if ht.is_series else 'Película' }}</span>
             </div>
-          {% endif %}
-          <div class="hero-actions">
-            <a class="btn-play" href="{{ hi.url }}">▶ Ver ahora</a>
-            <a class="btn-info" href="{{ hi.url }}">ℹ Más info</a>
+
+            {% if ht.overview %}
+              <p class="hero-overview">{{ ht.overview }}</p>
+            {% endif %}
+
+            {% if ht.genres %}
+              <div class="hero-genres">
+                {% for g in ht.genres[:5] %}
+                  <span class="hero-genre">{{ g }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="hero-actions">
+              <a class="btn-main" href="{{ hi.url }}">▶ Reproducir</a>
+              <a class="btn-secondary" href="{{ hi.url }}">ℹ Ver detalles</a>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="hero-info-card">
+              <div class="hero-info-title">Información rápida</div>
+              <div class="hero-info-row">
+                <span>Título</span>
+                <strong>{{ ht.title }}</strong>
+              </div>
+              <div class="hero-info-row">
+                <span>Tipo</span>
+                <strong>{{ 'Serie' if ht.is_series else 'Película' }}</strong>
+              </div>
+              {% if ht.year %}
+              <div class="hero-info-row">
+                <span>Año</span>
+                <strong>{{ ht.year }}</strong>
+              </div>
+              {% endif %}
+              {% if ht.rating > 0 %}
+              <div class="hero-info-row">
+                <span>Rating</span>
+                <strong>⭐ {{ ht.rating }}</strong>
+              </div>
+              {% endif %}
+              {% if hi.human_size %}
+              <div class="hero-info-row">
+                <span>Tamaño</span>
+                <strong>{{ hi.human_size }}</strong>
+              </div>
+              {% endif %}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     {% endif %}
 
-    {# ══════════ CARD MACRO ══════════ #}
     {% macro card(item) %}
       {% set t = item.tmdb if item.get('tmdb') else None %}
       <a href="{{ item.url }}" class="card" data-title="{{ (t.title if t else item.insight) | lower }}">
@@ -469,24 +1030,39 @@
           {% else %}
             <div class="card-no-poster">
               <div class="np-icon">{{ '📺' if (t and t.is_series) else '🎬' }}</div>
-              <div class="np-title">{{ item.insight }}</div>
+              <div class="np-title">{{ t.title if t else item.insight }}</div>
             </div>
           {% endif %}
-          <span class="card-badge">{{ 'Serie' if (t and t.is_series) else 'Pel' }}</span>
-          {% if t and t.rating > 0 %}<span class="card-star">★ {{ t.rating }}</span>{% endif %}
+
+          <span class="card-badge">{{ 'Serie' if (t and t.is_series) else 'Película' }}</span>
+          {% if t and t.rating > 0 %}
+            <span class="card-star">★ {{ t.rating }}</span>
+          {% endif %}
+
           <div class="card-hover">
             <div class="ch-title">{{ t.title if t else item.insight }}</div>
-            <div class="ch-meta">{{ t.year if t else '' }}{% if t and t.rating > 0 %} · ⭐ {{ t.rating }}{% endif %}</div>
+            <div class="ch-meta">
+              {{ t.year if t else '' }}
+              {% if t and t.rating > 0 %} · ⭐ {{ t.rating }}{% endif %}
+            </div>
+
             {% if t and t.genres %}
-              <div class="ch-genres">{% for g in t.genres[:2] %}<span class="ch-genre">{{ g }}</span>{% endfor %}</div>
+              <div class="ch-genres">
+                {% for g in t.genres[:2] %}
+                  <span class="ch-genre">{{ g }}</span>
+                {% endfor %}
+              </div>
             {% endif %}
-            <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
+
+            <div class="ch-actions">
+              <span class="ch-play" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">▶ Ver</span>
+              <span class="ch-more" onclick="event.preventDefault();event.stopPropagation();window.location=this.closest('a').href">Detalles</span>
+            </div>
           </div>
         </div>
       </a>
     {% endmacro %}
 
-    {# ══════════ FULLSCREEN MODAL MACRO ══════════ #}
     {% macro fullmodal(id, title, items) %}
       <div class="modal-overlay" id="{{ id }}">
         <div class="modal">
@@ -499,8 +1075,8 @@
               <input class="modal-search" type="text" placeholder="Filtrar..." oninput="filterModal('{{ id }}', this.value)">
             </div>
           </div>
+
           <div class="modal-grid" id="{{ id }}-grid">
-            {# ✅ FIX: eliminado [:15] — se muestran TODOS los items en el modal #}
             {% for item in items %}{{ card(item) }}{% endfor %}
             <div class="no-results" id="{{ id }}-nores">No se encontraron resultados</div>
           </div>
@@ -508,126 +1084,118 @@
       </div>
     {% endmacro %}
 
-    <div class="main">
+    <main class="main">
 
-      {# ── PELÍCULAS ── #}
       {% if movies %}
-      <div class="row-section">
+      <section class="row-section">
         <div class="row-header">
           <h2 class="row-title">🎬 Películas</h2>
           <span class="row-count">{{ movies | length }}</span>
           <div class="row-line"></div>
-          {# ✅ FIX: el botón "Ver todas" aparece si hay más de 20, antes era > 15 #}
           {% if movies | length > 20 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas ({{ movies | length }}) →</button>
+            <button class="btn-ver-mas" onclick="openModal('modal-movies')">Ver todas →</button>
           {% endif %}
         </div>
-        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
           {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
         </div>
-      </div>
+      </section>
       {% endif %}
 
-      {# ── SERIES ── #}
       {% if series_list %}
-      <div class="row-section">
+      <section class="row-section">
         <div class="row-header">
           <h2 class="row-title">📺 Series</h2>
           <span class="row-count">{{ series_list | length }}</span>
           <div class="row-line"></div>
           {% if series_list | length > 20 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas ({{ series_list | length }}) →</button>
+            <button class="btn-ver-mas" onclick="openModal('modal-series')">Ver todas →</button>
           {% endif %}
         </div>
-        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
           {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
         </div>
-      </div>
+      </section>
       {% endif %}
 
-      {# ── MEJOR VALORADAS ── #}
       {% if top_rated %}
-      <div class="row-section">
+      <section class="row-section">
         <div class="row-header">
           <h2 class="row-title">⭐ Mejor valoradas</h2>
           <span class="row-count">{{ top_rated | length }}</span>
           <div class="row-line"></div>
           {% if top_rated | length > 20 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver todas ({{ top_rated | length }}) →</button>
+            <button class="btn-ver-mas" onclick="openModal('modal-top')">Ver todas →</button>
           {% endif %}
         </div>
-        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
           {% for item in top_rated[:20] %}{{ card(item) }}{% endfor %}
         </div>
-      </div>
+      </section>
       {% endif %}
 
-      {# ── LO MÁS NUEVO ── #}
       {% if newest %}
-      <div class="row-section">
+      <section class="row-section">
         <div class="row-header">
-          <h2 class="row-title">🆕 Lo más nuevo</h2>
+          <h2 class="row-title">🆕 Estrenos recientes</h2>
           <span class="row-count">{{ newest | length }}</span>
           <div class="row-line"></div>
           {% if newest | length > 20 %}
-          <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver todas ({{ newest | length }}) →</button>
+            <button class="btn-ver-mas" onclick="openModal('modal-newest')">Ver todas →</button>
           {% endif %}
         </div>
-        {# ✅ FIX: se muestran hasta 20 en la fila principal (era [:15]) #}
         <div class="cards-grid">
           {% for item in newest[:20] %}{{ card(item) }}{% endfor %}
         </div>
-      </div>
+      </section>
       {% endif %}
 
-      {# ── POR GÉNERO ── #}
       {% if genre_map %}
-      <div class="row-section">
+      <section class="row-section">
         <div class="row-header">
-          <h2 class="row-title">🎭 Por género</h2>
+          <h2 class="row-title">🎭 Explorar por género</h2>
           <div class="row-line"></div>
         </div>
+
         <div class="genre-tabs">
           {% for genre in genre_map.keys() %}
-          <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
+            <button class="genre-tab{% if loop.first %} active{% endif %}" data-genre="{{ genre }}">{{ genre }}</button>
           {% endfor %}
         </div>
+
         {% for genre, items in genre_map.items() %}
-        <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
-          <div class="row-header" style="padding-top:8px;">
-            <span style="color:#555;font-size:0.85rem;">{{ items | length }} títulos</span>
-            <div class="row-line"></div>
-            {% if items | length > 20 %}
-            <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas ({{ items | length }}) →</button>
-            {% endif %}
+          <div class="genre-panel" data-genre="{{ genre }}" {% if not loop.first %}style="display:none"{% endif %}>
+            <div class="row-header" style="padding-top:4px;">
+              <span style="font-size:.84rem;color:#6b7280">{{ items | length }} títulos</span>
+              <div class="row-line"></div>
+              {% if items | length > 20 %}
+                <button class="btn-ver-mas" onclick="openModal('modal-genre-{{ genre | replace(' ','-') | lower }}')">Ver todas →</button>
+              {% endif %}
+            </div>
+            <div class="cards-grid">
+              {% for item in items[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
-          {# ✅ FIX: se muestran hasta 20 por género en la fila principal (era [:15]) #}
-          <div class="cards-grid">
-            {% for item in items[:20] %}{{ card(item) }}{% endfor %}
-          </div>
-        </div>
         {% endfor %}
-      </div>
+      </section>
       {% endif %}
+    </main>
 
-    </div><!-- /.main -->
-
-    {# ══════════ MODALES FULLSCREEN ══════════ #}
     {{ fullmodal('modal-movies',  '🎬 Todas las películas', movies) }}
     {{ fullmodal('modal-series',  '📺 Todas las series',    series_list) }}
     {{ fullmodal('modal-top',     '⭐ Mejor valoradas',     top_rated) }}
-    {{ fullmodal('modal-newest',  '🆕 Lo más nuevo',        newest) }}
+    {{ fullmodal('modal-newest',  '🆕 Estrenos recientes', newest) }}
     {% for genre, items in genre_map.items() %}
       {{ fullmodal('modal-genre-' ~ (genre | replace(' ','-') | lower), '🎭 ' ~ genre, items) }}
     {% endfor %}
 
   {% else %}
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#444;gap:16px;">
-      <div style="font-size:5rem;">🎬</div>
-      <p style="font-size:1.1rem;">No hay contenido disponible</p>
+    <div style="display:flex;align-items:center;justify-content:center;min-height:85vh;color:#555;text-align:center;padding:40px;">
+      <div>
+        <div style="font-size:5rem;margin-bottom:14px;">🎬</div>
+        <p style="font-size:1.1rem;color:#ddd;margin-bottom:8px;">No hay contenido disponible</p>
+        <p style="font-size:.9rem;color:#5d5d5d;">Prueba con otra búsqueda o vuelve más tarde.</p>
+      </div>
     </div>
   {% endif %}
 
@@ -635,7 +1203,6 @@
 </div>
 
 <script>
-  /* ── Genre tabs ── */
   document.querySelectorAll('.genre-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const g = tab.dataset.genre;
@@ -647,12 +1214,14 @@
     });
   });
 
-  /* ── Modals ── */
   function openModal(id) {
     const m = document.getElementById(id);
     if (!m) return;
     const inp = m.querySelector('.modal-search');
-    if (inp) { inp.value = ''; filterModal(id, ''); }
+    if (inp) {
+      inp.value = '';
+      filterModal(id, '');
+    }
     m.classList.add('open');
     m.scrollTop = 0;
     document.body.style.overflow = 'hidden';
@@ -665,45 +1234,52 @@
     document.body.style.overflow = '';
   }
 
-  /* Cerrar con Escape */
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     }
   });
 
-  /* Cerrar al hacer click en el fondo del overlay */
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', e => {
       if (e.target === overlay) closeModal(overlay.id);
     });
   });
 
-  /* ── Filtro en modal ── */
   function filterModal(id, query) {
     const grid = document.getElementById(id + '-grid');
     const nores = document.getElementById(id + '-nores');
     if (!grid) return;
+
     const q = query.toLowerCase().trim();
     let visible = 0;
+
     grid.querySelectorAll('.card').forEach(card => {
       const title = card.dataset.title || '';
       const match = !q || title.includes(q);
       card.classList.toggle('hidden', !match);
       if (match) visible++;
     });
+
     if (nores) nores.classList.toggle('show', visible === 0);
   }
 
-  /* ── Sidebar géneros ── */
-  (function(){
+  (function () {
     const genres = [{% for g in all_genres %}'{{ g }}',{% endfor %}];
     const container = document.getElementById('sbGenres');
+
     genres.forEach(g => {
       const a = document.createElement('a');
       a.className = 'sb-item';
       a.href = '#';
-      a.innerHTML = `<span class="sb-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span class="sb-label">${g}</span>`;
+      a.innerHTML = `
+        <span class="sb-icon">
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </span>
+        <span class="sb-label">${g}</span>
+      `;
       a.addEventListener('click', e => {
         e.preventDefault();
         const tab = [...document.querySelectorAll('.genre-tab')].find(t => t.dataset.genre === g);
@@ -716,12 +1292,14 @@
     });
   })();
 
-  /* ── Sticky topbar ── */
   window.addEventListener('scroll', () => {
     const h = document.getElementById('topbar');
-    if (h) h.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.98)' : '';
+    if (h) {
+      h.style.background = window.scrollY > 60
+        ? 'rgba(7,7,7,.98)'
+        : '';
+    }
   });
 </script>
-
 </body>
 </html>
