@@ -378,11 +378,36 @@
       background:linear-gradient(90deg,#292929,transparent);
     }
 
+    /* NUEVO: filas horizontales */
+    .row-slider-wrap{
+      position:relative;
+      padding:0 32px;
+    }
+
     .cards-grid{
       display:flex;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       gap:var(--gap);
-      padding:0 32px;
+      overflow-x:auto;
+      overflow-y:visible;
+      scroll-behavior:smooth;
+      scroll-snap-type:x proximity;
+      padding:8px 2px 12px;
+      scrollbar-width:thin;
+      scrollbar-color:#444 transparent;
+    }
+    .cards-grid::-webkit-scrollbar{
+      height:8px;
+    }
+    .cards-grid::-webkit-scrollbar-track{
+      background:transparent;
+    }
+    .cards-grid::-webkit-scrollbar-thumb{
+      background:#343434;
+      border-radius:999px;
+    }
+    .cards-grid::-webkit-scrollbar-thumb:hover{
+      background:#4a4a4a;
     }
 
     .card{
@@ -395,6 +420,7 @@
       cursor:pointer;
       transition:transform .3s ease;
       z-index:1;
+      scroll-snap-align:start;
     }
     .card:hover{
       transform:scale(1.08) translateY(-8px);
@@ -525,42 +551,83 @@
     }
     .ch-more:hover{background:rgba(255,255,255,.14)}
 
+    /* NUEVO: filtros horizontales */
     .genre-filter-box{
       padding:0 32px 18px;
+      overflow-x:auto;
+    }
+    .genre-filter-bar{
       display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+      align-items:center;
+      gap:12px;
+      min-width:max-content;
+      padding:4px 0;
     }
-    .genre-filter-box details{
-      background:#121212;
-      border:1px solid #242424;
-      border-radius:12px;
-      padding:10px 14px;
-      min-width:180px;
-    }
-    .genre-filter-box summary{
-      cursor:pointer;
-      list-style:none;
-      font-weight:700;
-      color:#ddd;
-      font-size:.84rem;
-    }
-    .genre-filter-box summary::-webkit-details-marker{display:none}
-    .genre-filter-content{
-      margin-top:10px;
+    .filter-group{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:6px;
     }
-    .genre-filter-content select{
-      background:#1a1a1a;
-      border:1px solid #2c2c2c;
+    .filter-label{
+      font-size:.72rem;
+      color:#8f8f8f;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+    }
+    .filter-select{
+      min-width:170px;
+      background:#121212;
+      border:1px solid #2a2a2a;
       color:#fff;
-      padding:10px 12px;
-      border-radius:10px;
-      font-size:.82rem;
+      padding:11px 14px;
+      border-radius:12px;
+      font-size:.84rem;
       font-family:'DM Sans',sans-serif;
       outline:none;
+      transition:.2s ease;
+    }
+    .filter-select:focus{
+      border-color:#4a4a4a;
+      background:#161616;
+    }
+    .filter-actions{
+      display:flex;
+      align-items:flex-end;
+      gap:10px;
+      padding-top:20px;
+    }
+    .filter-btn{
+      border:none;
+      background:var(--red);
+      color:#fff;
+      font-weight:800;
+      padding:11px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+    }
+    .filter-btn:hover{background:var(--red2)}
+    .filter-btn.secondary{
+      background:#1a1a1a;
+      border:1px solid #2d2d2d;
+      color:#fff;
+    }
+    .filter-btn.secondary:hover{
+      background:#242424;
+    }
+
+    .empty-filter-message{
+      display:none;
+      padding:0 32px;
+      color:#8f8f8f;
+      font-size:.95rem;
+    }
+
+    footer{
+      padding:24px 32px 30px;
+      color:#777;
+      font-size:.85rem;
     }
 
     @media(max-width:768px){
@@ -577,8 +644,12 @@
       .hero-title{font-size:2.5rem}
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
-      .cards-grid{padding:0 16px}
+      .row-slider-wrap{padding:0 16px}
       .genre-filter-box{padding:0 16px 16px}
+      .empty-filter-message{padding:0 16px}
+      footer{padding:22px 16px 28px}
+      .search-input{width:180px}
+      .search-input:focus{width:220px}
     }
   </style>
 </head>
@@ -664,6 +735,7 @@
     {% set horror_best = [] %}
     {% set genre_map = {} %}
     {% set years = [] %}
+    {% set all_genres = [] %}
 
     {% for item in media_items %}
       {% set tmdb = item.tmdb if item.get('tmdb') else None %}
@@ -693,6 +765,10 @@
             {% if genre_map.update({g:[]}) %}{% endif %}
           {% endif %}
           {% if genre_map[g].append(item) %}{% endif %}
+
+          {% if g not in all_genres %}
+            {% if all_genres.append(g) %}{% endif %}
+          {% endif %}
         {% endfor %}
       {% endif %}
     {% endfor %}
@@ -747,7 +823,8 @@
          data-title="{{ (t.title if t else item.insight) | lower }}"
          data-type="{{ 'serie' if (t and t.is_series) else 'pelicula' }}"
          data-year="{{ t.year if t and t.year else '' }}"
-         data-rating="{{ t.rating if t and t.rating else 0 }}">
+         data-rating="{{ t.rating if t and t.rating else 0 }}"
+         data-genres="{{ (t.genres | join('|') | lower) if t and t.genres else '' }}">
         <div class="card-inner">
           {% if t and t.poster %}
             <img class="card-poster" src="{{ t.poster }}" alt="{{ t.title }}" loading="lazy">
@@ -794,8 +871,10 @@
             <h2 class="row-title">🆕 Nuevos lanzamientos</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in all_recent[:20] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in all_recent[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
 
@@ -804,8 +883,10 @@
             <h2 class="row-title">🎬 Películas más recientes</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in movies[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
 
@@ -814,8 +895,10 @@
             <h2 class="row-title">📺 Series más recientes</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in series_list[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
 
@@ -825,8 +908,10 @@
             <h2 class="row-title">🎨 Mejores de animación</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in animation_best[:20] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in animation_best[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
         {% endif %}
@@ -837,8 +922,10 @@
             <h2 class="row-title">👻 Mejores de terror</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in horror_best[:20] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in horror_best[:20] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
         {% endif %}
@@ -850,8 +937,10 @@
             <h2 class="row-title">🎬 Películas</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in movies[:50] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in movies[:50] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
       </section>
@@ -862,8 +951,10 @@
             <h2 class="row-title">📺 Series</h2>
             <div class="row-line"></div>
           </div>
-          <div class="cards-grid">
-            {% for item in series_list[:50] %}{{ card(item) }}{% endfor %}
+          <div class="row-slider-wrap">
+            <div class="cards-grid">
+              {% for item in series_list[:50] %}{{ card(item) }}{% endfor %}
+            </div>
           </div>
         </div>
       </section>
@@ -876,38 +967,65 @@
           </div>
 
           <div class="genre-filter-box">
-            <details open>
-              <summary>Filtros</summary>
-              <div class="genre-filter-content">
-                <select id="typeFilter" onchange="applyGenreFilters()">
+            <div class="genre-filter-bar">
+              <div class="filter-group">
+                <label class="filter-label" for="genreFilter">Género</label>
+                <select id="genreFilter" class="filter-select" onchange="applyGenreFilters()">
+                  <option value="">Todos los géneros</option>
+                  {% for g in all_genres | sort %}
+                    <option value="{{ g | lower }}">{{ g }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label" for="typeFilter">Tipo</label>
+                <select id="typeFilter" class="filter-select" onchange="applyGenreFilters()">
                   <option value="">Todo</option>
                   <option value="pelicula">Películas</option>
                   <option value="serie">Series</option>
                 </select>
+              </div>
 
-                <select id="yearFilter" onchange="applyGenreFilters()">
+              <div class="filter-group">
+                <label class="filter-label" for="yearFilter">Fecha</label>
+                <select id="yearFilter" class="filter-select" onchange="applyGenreFilters()">
                   <option value="">Todos los años</option>
                   {% for y in years | sort(reverse=True) %}
                     <option value="{{ y }}">{{ y }}</option>
                   {% endfor %}
                 </select>
+              </div>
 
-                <select id="ratingFilter" onchange="applyGenreFilters()">
+              <div class="filter-group">
+                <label class="filter-label" for="ratingFilter">Puntuación</label>
+                <select id="ratingFilter" class="filter-select" onchange="applyGenreFilters()">
                   <option value="">Cualquier puntuación</option>
                   <option value="8">8+ ⭐</option>
                   <option value="7">7+ ⭐</option>
                   <option value="6">6+ ⭐</option>
+                  <option value="5">5+ ⭐</option>
                 </select>
               </div>
-            </details>
+
+              <div class="filter-actions">
+                <button class="filter-btn secondary" type="button" onclick="resetGenreFilters()">Limpiar</button>
+              </div>
+            </div>
           </div>
 
-          <div class="cards-grid" id="genresGrid">
-            {% for genre, items in genre_map.items() %}
-              {% for item in items %}
-                {{ card(item) }}
+          <div class="empty-filter-message" id="emptyFilterMessage">
+            No se encontraron resultados con los filtros seleccionados.
+          </div>
+
+          <div class="row-slider-wrap">
+            <div class="cards-grid" id="genresGrid">
+              {% for item in media_items %}
+                {% if item.get('tmdb') %}
+                  {{ card(item) }}
+                {% endif %}
               {% endfor %}
-            {% endfor %}
+            </div>
           </div>
         </div>
       </section>
@@ -924,12 +1042,7 @@
     if (target) target.style.display = '';
 
     document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-    const map = {
-      home: 0,
-      movies: 1,
-      series: 2,
-      genres: 4
-    };
+    const map = { home: 0, movies: 1, series: 2, genres: 4 };
     const items = document.querySelectorAll('.sb-item');
     if (items[map[section]]) items[map[section]].classList.add('active');
   }
@@ -940,23 +1053,43 @@
   }
 
   function applyGenreFilters() {
+    const genre = document.getElementById('genreFilter')?.value || '';
     const type = document.getElementById('typeFilter')?.value || '';
     const year = document.getElementById('yearFilter')?.value || '';
     const rating = document.getElementById('ratingFilter')?.value || '';
+
+    let visibleCount = 0;
 
     document.querySelectorAll('#genresGrid .card').forEach(card => {
       const cardType = card.dataset.type || '';
       const cardYear = card.dataset.year || '';
       const cardRating = parseFloat(card.dataset.rating || '0');
+      const cardGenres = (card.dataset.genres || '').toLowerCase();
 
       let visible = true;
 
+      if (genre && !cardGenres.split('|').includes(genre)) visible = false;
       if (type && cardType !== type) visible = false;
       if (year && cardYear !== year) visible = false;
       if (rating && cardRating < parseFloat(rating)) visible = false;
 
       card.style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
     });
+
+    const emptyMsg = document.getElementById('emptyFilterMessage');
+    if (emptyMsg) {
+      emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  }
+
+  function resetGenreFilters() {
+    const ids = ['genreFilter', 'typeFilter', 'yearFilter', 'ratingFilter'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    applyGenreFilters();
   }
 
   window.addEventListener('scroll', () => {
