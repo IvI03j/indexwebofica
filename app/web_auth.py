@@ -1,4 +1,3 @@
-import secrets
 from datetime import datetime, timedelta, timezone
 from itsdangerous import URLSafeSerializer
 from .config import WEB_SESSION_SECRET, WEB_PLANS
@@ -13,9 +12,12 @@ def get_serializer():
     return URLSafeSerializer(WEB_SESSION_SECRET, salt="indexwebofica-session")
 
 
-def make_session_cookie(user_id: int):
+def make_session_cookie(user_id: int, session_source: str = "telegram_webapp"):
     serializer = get_serializer()
-    return serializer.dumps({"user_id": user_id})
+    return serializer.dumps({
+        "user_id": user_id,
+        "session_source": session_source
+    })
 
 
 def read_session_cookie(cookie_value: str):
