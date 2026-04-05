@@ -653,7 +653,8 @@
       stroke-linejoin:round;
     }
 
-    .genre-filter-box{
+    .genre-filter-box,
+    .section-filter-box{
       padding:0 32px 18px;
       display:flex;
       flex-direction:column;
@@ -681,7 +682,8 @@
     }
     .chip-row::-webkit-scrollbar{display:none}
 
-    .filter-chip{
+    .filter-chip,
+    .section-filter-chip{
       border:none;
       background:#181818;
       color:#d4d4d4;
@@ -695,13 +697,15 @@
       transition:all .2s ease;
       flex:0 0 auto;
     }
-    .filter-chip:hover{
+    .filter-chip:hover,
+    .section-filter-chip:hover{
       background:#222;
       color:#fff;
       border-color:#3a3a3a;
       transform:translateY(-1px);
     }
-    .filter-chip.active{
+    .filter-chip.active,
+    .section-filter-chip.active{
       background:linear-gradient(135deg,var(--red),#ff4d57);
       color:#fff;
       border-color:transparent;
@@ -714,7 +718,8 @@
       align-items:center;
       flex-wrap:wrap;
     }
-    .clear-filters-btn{
+    .clear-filters-btn,
+    .clear-section-filters-btn{
       border:none;
       background:#151515;
       color:#fff;
@@ -725,25 +730,84 @@
       cursor:pointer;
       transition:.2s ease;
     }
-    .clear-filters-btn:hover{
+    .clear-filters-btn:hover,
+    .clear-section-filters-btn:hover{
       background:#222;
     }
 
-    .empty-filter-message{
+    .empty-filter-message,
+    .empty-section-message{
       display:none;
       padding:0 32px;
       color:#8f8f8f;
       font-size:.95rem;
     }
 
-    .expanded-header{
+    .genres-vertical-wrap,
+    .full-section-grid-wrap{
+      padding:0 32px 8px;
+    }
+    .genres-grid,
+    .full-section-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(170px, 1fr));
+      gap:var(--gap);
+    }
+    .genres-grid .card,
+    .full-section-grid .card{
+      width:100%;
+      height:var(--card-h);
+    }
+
+    .pagination,
+    .section-pagination{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:18px 32px 8px;
+    }
+    .page-btn,
+    .section-page-btn{
+      min-width:42px;
+      height:42px;
+      border:none;
+      border-radius:999px;
+      background:#151515;
+      color:#fff;
+      border:1px solid #2a2a2a;
+      padding:0 14px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    .page-btn:hover,
+    .section-page-btn:hover{
+      background:#222;
+      transform:translateY(-1px);
+    }
+    .page-btn.active,
+    .section-page-btn.active{
+      background:linear-gradient(135deg,var(--red),#ff4d57);
+      border-color:transparent;
+      box-shadow:0 10px 20px rgba(229,9,20,.22);
+    }
+    .page-btn:disabled,
+    .section-page-btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .full-section-header{
       display:flex;
       align-items:center;
       gap:12px;
       padding:0 32px 20px;
       flex-wrap:wrap;
     }
-    .expanded-back-btn{
+    .back-to-main-btn{
       border:none;
       background:#161616;
       color:#fff;
@@ -754,18 +818,8 @@
       cursor:pointer;
       transition:.2s ease;
     }
-    .expanded-back-btn:hover{
+    .back-to-main-btn:hover{
       background:#222;
-    }
-    .expanded-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
-      gap:var(--gap);
-      padding:0 32px 24px;
-    }
-    .expanded-grid .card{
-      width:100%;
-      height:var(--card-h);
     }
 
     footer{
@@ -790,10 +844,11 @@
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
       .row-slider-shell{padding:0 16px}
-      .genre-filter-box{padding:0 16px 16px}
-      .empty-filter-message{padding:0 16px}
-      .expanded-header{padding:0 16px 16px}
-      .expanded-grid{padding:0 16px 24px}
+      .genre-filter-box,.section-filter-box{padding:0 16px 16px}
+      .genres-vertical-wrap,.full-section-grid-wrap{padding:0 16px 8px}
+      .pagination,.section-pagination{padding:18px 16px 8px}
+      .empty-filter-message,.empty-section-message{padding:0 16px}
+      .full-section-header{padding:0 16px 16px}
       footer{padding:22px 16px 28px}
       .search-input{width:180px}
       .search-input:focus{width:220px}
@@ -922,10 +977,7 @@
       {% endif %}
     {% endfor %}
 
-    {# Nuevos lanzamientos: por fecha/año TMDB #}
     {% set newest_releases = newest_releases | sort(attribute='tmdb.year', reverse=True) %}
-
-    {# Añadido recientemente: por created_at si existe, si no mantiene el orden original #}
     {% if recently_added and recently_added[0].get('created_at') %}
       {% set recently_added = recently_added | sort(attribute='created_at', reverse=True) %}
     {% endif %}
@@ -1028,7 +1080,7 @@
           <div class="row-line"></div>
           <div class="row-header-actions">
             {% if expand_key %}
-              <button class="view-more-btn" type="button" onclick="openExpandedSection('{{ expand_key }}', '{{ title|e }}')">Ver más</button>
+              <button class="view-more-btn" type="button" onclick="openFullSection('{{ expand_key }}', '{{ title|e }}')">Ver más</button>
             {% endif %}
           </div>
         </div>
@@ -1081,9 +1133,6 @@
           <div class="row-header">
             <h2 class="row-title">🎭 Géneros</h2>
             <div class="row-line"></div>
-            <div class="row-header-actions">
-              <button class="view-more-btn" type="button" onclick="openExpandedSection('all_genres_items', '🎭 Géneros')">Ver más</button>
-            </div>
           </div>
 
           <div class="genre-filter-box">
@@ -1136,34 +1185,63 @@
             No se encontraron resultados con los filtros seleccionados.
           </div>
 
-          <div class="row-slider-shell">
-            <button class="slider-arrow left hidden" data-target="genresGrid" aria-label="Desplazar a la izquierda">
-              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-
-            <div class="cards-grid slider-track" id="genresGrid">
+          <div class="genres-vertical-wrap">
+            <div class="full-section-grid" id="genresGrid">
               {% for item in media_items %}
                 {% if item.get('tmdb') %}
                   {{ card(item) }}
                 {% endif %}
               {% endfor %}
             </div>
-
-            <button class="slider-arrow right" data-target="genresGrid" aria-label="Desplazar a la derecha">
-              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
           </div>
+
+          <div class="pagination" id="genresPagination"></div>
         </div>
       </section>
 
-      <section id="section-expanded" class="content-section" style="display:none;">
+      <section id="section-fullview" class="content-section" style="display:none;">
         <div class="row-section">
-          <div class="expanded-header">
-            <button class="expanded-back-btn" type="button" onclick="closeExpandedSection()">← Volver</button>
-            <h2 class="row-title" id="expandedTitle">Sección</h2>
+          <div class="full-section-header">
+            <button class="back-to-main-btn" type="button" onclick="closeFullSection()">← Volver</button>
+            <h2 class="row-title" id="fullSectionTitle">Sección</h2>
             <div class="row-line"></div>
           </div>
-          <div class="expanded-grid" id="expandedGrid"></div>
+
+          <div class="section-filter-box">
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Tipo</div>
+              <div class="chip-row" id="fullFilterType"></div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Puntuación</div>
+              <div class="chip-row" id="fullFilterRating"></div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Año</div>
+              <div class="chip-row" id="fullFilterYear"></div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Género</div>
+              <div class="chip-row" id="fullFilterGenre"></div>
+            </div>
+
+            <div class="filters-actions">
+              <button class="clear-section-filters-btn" type="button" onclick="resetFullSectionFilters()">Limpiar filtros</button>
+            </div>
+          </div>
+
+          <div class="empty-section-message" id="emptyFullSectionMessage">
+            No se encontraron resultados en esta sección con los filtros seleccionados.
+          </div>
+
+          <div class="full-section-grid-wrap">
+            <div class="full-section-grid" id="fullSectionGrid"></div>
+          </div>
+
+          <div class="section-pagination" id="fullSectionPagination"></div>
         </div>
       </section>
     </main>
@@ -1187,11 +1265,6 @@
       <div data-expand-source="horror">
         {% for item in horror_best %}{{ card(item) }}{% endfor %}
       </div>
-      <div data-expand-source="all_genres_items">
-        {% for item in media_items %}
-          {% if item.get('tmdb') %}{{ card(item) }}{% endif %}
-        {% endfor %}
-      </div>
     </div>
   {% endif %}
 
@@ -1199,14 +1272,15 @@
 </div>
 
 <script>
-  const activeGenreFilters = {
-    genre: '',
-    type: '',
-    year: '',
-    rating: ''
-  };
+  const activeGenreFilters = { genre:'', type:'', year:'', rating:'' };
+  const fullSectionFilters = { genre:'', type:'', year:'', rating:'' };
 
-  let previousSectionBeforeExpanded = 'home';
+  let genresCurrentPage = 1;
+  let previousMainSection = 'home';
+  const genresPerPage = 24;
+
+  let fullSectionCurrentPage = 1;
+  const fullSectionPerPage = 24;
 
   function showSection(section) {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
@@ -1218,8 +1292,13 @@
     const items = document.querySelectorAll('.sb-item');
     if (items[map[section]]) items[map[section]].classList.add('active');
 
+    if (section === 'genres') {
+      setTimeout(() => applyGenreFilters(), 50);
+    } else {
+      setTimeout(() => refreshAllSliderArrows(), 80);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => refreshAllSliderArrows(), 80);
   }
 
   function focusSearch() {
@@ -1227,39 +1306,74 @@
     if (input) input.focus();
   }
 
-  function openExpandedSection(key, title) {
-    const expandedSection = document.getElementById('section-expanded');
-    const expandedGrid = document.getElementById('expandedGrid');
-    const expandedTitle = document.getElementById('expandedTitle');
-    const source = document.querySelector(`[data-expand-source="${key}"]`);
+  function getVisibleGenreCards() {
+    return [...document.querySelectorAll('#genresGrid .card')].filter(card => card.dataset.filteredVisible === 'true');
+  }
 
-    if (!expandedSection || !expandedGrid || !expandedTitle || !source) return;
+  function renderGenresPagination() {
+    const pagination = document.getElementById('genresPagination');
+    const cards = getVisibleGenreCards();
+    if (!pagination) return;
 
-    const activeSection = [...document.querySelectorAll('.content-section')]
-      .find(sec => sec.style.display !== 'none' && sec.id !== 'section-expanded');
+    const totalPages = Math.max(1, Math.ceil(cards.length / genresPerPage));
+    if (genresCurrentPage > totalPages) genresCurrentPage = totalPages;
 
-    if (activeSection) {
-      previousSectionBeforeExpanded = activeSection.id.replace('section-', '');
+    pagination.innerHTML = '';
+
+    const prev = document.createElement('button');
+    prev.className = 'page-btn';
+    prev.textContent = '‹';
+    prev.disabled = genresCurrentPage === 1;
+    prev.onclick = () => {
+      if (genresCurrentPage > 1) {
+        genresCurrentPage--;
+        updateGenresPage();
+      }
+    };
+    pagination.appendChild(prev);
+
+    const startPage = Math.max(1, genresCurrentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (i === genresCurrentPage ? ' active' : '');
+      btn.textContent = i;
+      btn.onclick = () => {
+        genresCurrentPage = i;
+        updateGenresPage();
+      };
+      pagination.appendChild(btn);
     }
 
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    const next = document.createElement('button');
+    next.className = 'page-btn';
+    next.textContent = '›';
+    next.disabled = genresCurrentPage === totalPages;
+    next.onclick = () => {
+      if (genresCurrentPage < totalPages) {
+        genresCurrentPage++;
+        updateGenresPage();
+      }
+    };
+    pagination.appendChild(next);
 
-    expandedTitle.textContent = title;
-    expandedGrid.innerHTML = source.innerHTML;
-    expandedSection.style.display = '';
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    pagination.style.display = cards.length > 0 ? 'flex' : 'none';
   }
 
-  function closeExpandedSection() {
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    const target = document.getElementById('section-' + previousSectionBeforeExpanded);
-    if (target) target.style.display = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => refreshAllSliderArrows(), 80);
+  function updateGenresPage() {
+    const cards = getVisibleGenreCards();
+    const start = (genresCurrentPage - 1) * genresPerPage;
+    const end = start + genresPerPage;
+
+    cards.forEach((card, index) => {
+      card.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    renderGenresPagination();
   }
 
-  function applyGenreFilters() {
+  function applyGenreFilters(resetPage = true) {
     const genre = activeGenreFilters.genre || '';
     const type = activeGenreFilters.type || '';
     const year = activeGenreFilters.year || '';
@@ -1280,16 +1394,20 @@
       if (year && cardYear !== year) visible = false;
       if (rating && cardRating < parseFloat(rating)) visible = false;
 
-      card.style.display = visible ? '' : 'none';
+      card.dataset.filteredVisible = visible ? 'true' : 'false';
+      card.style.display = 'none';
+
       if (visible) visibleCount++;
     });
 
     const emptyMsg = document.getElementById('emptyFilterMessage');
-    if (emptyMsg) {
-      emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
-    }
+    const pagination = document.getElementById('genresPagination');
 
-    setTimeout(() => refreshSliderArrows(document.getElementById('genresGrid')), 60);
+    if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    if (pagination) pagination.style.display = visibleCount === 0 ? 'none' : 'flex';
+
+    if (resetPage) genresCurrentPage = 1;
+    if (visibleCount > 0) updateGenresPage();
   }
 
   function resetGenreFilters() {
@@ -1303,7 +1421,7 @@
       chip.classList.toggle('active', value === '');
     });
 
-    applyGenreFilters();
+    applyGenreFilters(true);
   }
 
   function setupFilterChips() {
@@ -1312,15 +1430,223 @@
         const group = chip.dataset.filterGroup;
         const value = chip.dataset.value ?? '';
 
-        document.querySelectorAll(`.filter-chip[data-filter-group="${group}"]`).forEach(c => {
-          c.classList.remove('active');
-        });
-
+        document.querySelectorAll(`.filter-chip[data-filter-group="${group}"]`).forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         activeGenreFilters[group] = value;
-        applyGenreFilters();
+        applyGenreFilters(true);
       });
     });
+  }
+
+  function openFullSection(key, title) {
+    const source = document.querySelector(`[data-expand-source="${key}"]`);
+    const grid = document.getElementById('fullSectionGrid');
+    const section = document.getElementById('section-fullview');
+    const titleEl = document.getElementById('fullSectionTitle');
+
+    if (!source || !grid || !section || !titleEl) return;
+
+    const activeSection = [...document.querySelectorAll('.content-section')]
+      .find(sec => sec.style.display !== 'none' && sec.id !== 'section-fullview');
+
+    if (activeSection) {
+      previousMainSection = activeSection.id.replace('section-', '');
+    }
+
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    titleEl.textContent = title;
+    grid.innerHTML = source.innerHTML;
+    section.style.display = '';
+
+    resetFullSectionFilters(true);
+    buildFullSectionFilters();
+    applyFullSectionFilters(true);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeFullSection() {
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    const target = document.getElementById('section-' + previousMainSection);
+    if (target) target.style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (previousMainSection === 'genres') {
+      setTimeout(() => applyGenreFilters(), 50);
+    } else {
+      setTimeout(() => refreshAllSliderArrows(), 80);
+    }
+  }
+
+  function buildChipList(containerId, values, groupName, defaultLabel) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const defaultChip = document.createElement('button');
+    defaultChip.className = 'section-filter-chip active';
+    defaultChip.dataset.filterGroup = groupName;
+    defaultChip.dataset.value = '';
+    defaultChip.textContent = defaultLabel;
+    container.appendChild(defaultChip);
+
+    values.forEach(value => {
+      const chip = document.createElement('button');
+      chip.className = 'section-filter-chip';
+      chip.dataset.filterGroup = groupName;
+      chip.dataset.value = value;
+      chip.textContent = value;
+      container.appendChild(chip);
+    });
+  }
+
+  function buildFullSectionFilters() {
+    const cards = [...document.querySelectorAll('#fullSectionGrid .card')];
+
+    const years = [...new Set(cards.map(c => c.dataset.year).filter(Boolean))].sort((a,b) => Number(b)-Number(a));
+    const genresSet = new Set();
+    cards.forEach(c => {
+      (c.dataset.genres || '').split('|').filter(Boolean).forEach(g => genresSet.add(g));
+    });
+    const genres = [...genresSet].sort((a,b) => a.localeCompare(b));
+
+    buildChipList('fullFilterType', ['pelicula', 'serie'], 'type', 'Todo');
+    buildChipList('fullFilterRating', ['8', '7', '6', '5'], 'rating', 'Cualquiera');
+    buildChipList('fullFilterYear', years, 'year', 'Todos');
+    buildChipList('fullFilterGenre', genres, 'genre', 'Todos');
+
+    document.querySelectorAll('.section-filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const group = chip.dataset.filterGroup;
+        const value = chip.dataset.value ?? '';
+
+        document.querySelectorAll(`.section-filter-chip[data-filter-group="${group}"]`).forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        fullSectionFilters[group] = value;
+        applyFullSectionFilters(true);
+      });
+    });
+  }
+
+  function resetFullSectionFilters(skipRender = false) {
+    fullSectionFilters.genre = '';
+    fullSectionFilters.type = '';
+    fullSectionFilters.year = '';
+    fullSectionFilters.rating = '';
+    fullSectionCurrentPage = 1;
+
+    if (!skipRender) {
+      document.querySelectorAll('.section-filter-chip').forEach(chip => {
+        const value = chip.dataset.value ?? '';
+        chip.classList.toggle('active', value === '');
+      });
+      applyFullSectionFilters(true);
+    }
+  }
+
+  function getVisibleFullSectionCards() {
+    return [...document.querySelectorAll('#fullSectionGrid .card')].filter(card => card.dataset.fullVisible === 'true');
+  }
+
+  function renderFullSectionPagination() {
+    const pagination = document.getElementById('fullSectionPagination');
+    const cards = getVisibleFullSectionCards();
+    if (!pagination) return;
+
+    const totalPages = Math.max(1, Math.ceil(cards.length / fullSectionPerPage));
+    if (fullSectionCurrentPage > totalPages) fullSectionCurrentPage = totalPages;
+
+    pagination.innerHTML = '';
+
+    const prev = document.createElement('button');
+    prev.className = 'section-page-btn';
+    prev.textContent = '‹';
+    prev.disabled = fullSectionCurrentPage === 1;
+    prev.onclick = () => {
+      if (fullSectionCurrentPage > 1) {
+        fullSectionCurrentPage--;
+        updateFullSectionPage();
+      }
+    };
+    pagination.appendChild(prev);
+
+    const startPage = Math.max(1, fullSectionCurrentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'section-page-btn' + (i === fullSectionCurrentPage ? ' active' : '');
+      btn.textContent = i;
+      btn.onclick = () => {
+        fullSectionCurrentPage = i;
+        updateFullSectionPage();
+      };
+      pagination.appendChild(btn);
+    }
+
+    const next = document.createElement('button');
+    next.className = 'section-page-btn';
+    next.textContent = '›';
+    next.disabled = fullSectionCurrentPage === totalPages;
+    next.onclick = () => {
+      if (fullSectionCurrentPage < totalPages) {
+        fullSectionCurrentPage++;
+        updateFullSectionPage();
+      }
+    };
+    pagination.appendChild(next);
+
+    pagination.style.display = cards.length > 0 ? 'flex' : 'none';
+  }
+
+  function updateFullSectionPage() {
+    const cards = getVisibleFullSectionCards();
+    const start = (fullSectionCurrentPage - 1) * fullSectionPerPage;
+    const end = start + fullSectionPerPage;
+
+    cards.forEach((card, index) => {
+      card.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    renderFullSectionPagination();
+  }
+
+  function applyFullSectionFilters(resetPage = true) {
+    const genre = fullSectionFilters.genre || '';
+    const type = fullSectionFilters.type || '';
+    const year = fullSectionFilters.year || '';
+    const rating = fullSectionFilters.rating || '';
+
+    let visibleCount = 0;
+
+    document.querySelectorAll('#fullSectionGrid .card').forEach(card => {
+      const cardType = card.dataset.type || '';
+      const cardYear = card.dataset.year || '';
+      const cardRating = parseFloat(card.dataset.rating || '0');
+      const cardGenres = (card.dataset.genres || '').toLowerCase().split('|').filter(Boolean);
+
+      let visible = true;
+
+      if (genre && !cardGenres.includes(genre)) visible = false;
+      if (type && cardType !== type) visible = false;
+      if (year && cardYear !== year) visible = false;
+      if (rating && cardRating < parseFloat(rating)) visible = false;
+
+      card.dataset.fullVisible = visible ? 'true' : 'false';
+      card.style.display = 'none';
+
+      if (visible) visibleCount++;
+    });
+
+    const emptyMsg = document.getElementById('emptyFullSectionMessage');
+    const pagination = document.getElementById('fullSectionPagination');
+
+    if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    if (pagination) pagination.style.display = visibleCount === 0 ? 'none' : 'flex';
+
+    if (resetPage) fullSectionCurrentPage = 1;
+    if (visibleCount > 0) updateFullSectionPage();
   }
 
   function scrollSlider(track, direction = 1) {
@@ -1446,6 +1772,7 @@
     setupSliderDrag();
     setupWheelHorizontal();
     refreshAllSliderArrows();
+    applyGenreFilters(true);
   });
 </script>
 </body>
