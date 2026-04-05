@@ -36,6 +36,7 @@ def register_routes(app, handler):
 
         web.get("/auth", h.web_auth),
         web.get("/auth/telegram-webapp", h.telegram_webapp_auth),
+        web.get("/blocked", h.blocked_view),
         web.get("/plans", h.plans_view),
         web.post("/activate-pass", h.activate_pass),
         web.get("/devices", h.devices_view),
