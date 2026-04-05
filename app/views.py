@@ -135,6 +135,14 @@ class Views:
 
         return False
 
+    def _is_official_app_request(self, req):
+        ua = (req.headers.get("User-Agent") or "").lower()
+
+        if "oficaofficialapp" in ua:
+            return True
+
+        return False
+
     def _is_allowed_session(self, req):
         session_source = self._get_session_source(req)
         if session_source in ("telegram_webapp", "official_app"):
@@ -147,6 +155,9 @@ class Views:
             return user
 
         if self._is_telegram_webapp_request(req):
+            return None
+
+        if self._is_official_app_request(req):
             return None
 
         raise web.HTTPFound("/blocked")
@@ -199,6 +210,7 @@ class Views:
         username = req.query.get("username")
         first_name = req.query.get("first_name")
         next_url = req.query.get("next", "/")
+        session_source = req.query.get("source", "telegram_webapp")
 
         if not telegram_id:
             raise web.HTTPFound("/blocked")
@@ -207,6 +219,9 @@ class Views:
             telegram_id = int(telegram_id)
         except Exception:
             raise web.HTTPFound("/blocked")
+
+        if session_source not in ("telegram_webapp", "official_app"):
+            session_source = "telegram_webapp"
 
         user = get_user_by_telegram_id(telegram_id)
 
@@ -225,7 +240,7 @@ class Views:
                 raise web.HTTPFound("/blocked")
             user = created.data[0]
 
-        session_value = make_session_cookie(user["id"], "telegram_webapp")
+        session_value = make_session_cookie(user["id"], session_source)
 
         response = web.HTTPFound(next_url or "/")
         response.set_cookie(
