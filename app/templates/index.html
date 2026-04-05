@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }}</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -1418,6 +1419,45 @@
 </div>
 
 <script>
+  async function telegramMiniAppLogin() {
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+        return;
+      }
+
+      tg.ready();
+      try { tg.expand(); } catch(e) {}
+
+      const user = tg.initDataUnsafe.user;
+      const alreadyAuthed = sessionStorage.getItem('tg_webapp_authed');
+      if (alreadyAuthed === String(user.id)) {
+        return;
+      }
+
+      const res = await fetch('/auth/telegram-webapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegram_id: user.id,
+          username: user.username || null,
+          first_name: user.first_name || null
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        sessionStorage.setItem('tg_webapp_authed', String(user.id));
+        window.location.reload();
+      } else {
+        console.warn('Mini app auth error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error autenticando Telegram Mini App:', error);
+    }
+  }
+
   const activeGenreFilters = { genre:'', type:'', year:'', rating:'' };
   const fullSectionFilters = { genre:'', type:'', year:'', rating:'' };
 
@@ -1775,7 +1815,7 @@
       let visible = true;
 
       if (genre && !cardGenres.includes(genre)) visible = false;
-      if (type && cardType !=្= type) visible = false;
+      if (type && cardType !== type) visible = false;
       if (year && cardYear !== year) visible = false;
       if (rating && cardRating < parseFloat(rating)) visible = false;
 
@@ -1911,7 +1951,8 @@
 
   window.addEventListener('resize', refreshAllSliderArrows);
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await telegramMiniAppLogin();
     setupFilterChips();
     setupSliderButtons();
     setupSliderScrollWatch();
