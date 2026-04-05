@@ -1,8 +1,6 @@
 import traceback
-import json
 import sys
 import os
-
 
 try:
     port = int(os.environ.get("PORT", "8080"))
@@ -22,17 +20,13 @@ except (KeyError, ValueError):
     sys.exit(1)
 
 try:
-    # index_settings_str = os.environ["INDEX_SETTINGS"].strip()
-
-    # index_settings = json.loads(index_settings_str)
-
     index_settings = {
       "index_all": False,
-      "index_private":True,
+      "index_private": True,
       "index_group": True,
       "index_channel": True,
       "exclude_chats": [],
-      "include_chats": [int(os.environ["INDEXING_CHAT"])],#my index chat
+      "include_chats": [int(os.environ["INDEXING_CHAT"])],
       "otg": {
           "enable": True,
           "include_private": True,
@@ -42,7 +36,7 @@ try:
     }
     otg_settings = index_settings['otg']
     enable_otg = otg_settings['enable']
-except:
+except Exception:
     traceback.print_exc()
     print("\n\nPlease set the INDEX_SETTINGS environment variable correctly")
     sys.exit(1)
@@ -54,16 +48,42 @@ except (KeyError, ValueError):
     print("\n\nPlease set the SESSION_STRING environment variable correctly")
     sys.exit(1)
 
-# try:
-#     bot_token = os.environ["BOT_TOKEN"]
-# except (KeyError, ValueError):
-#     traceback.print_exc()
-#     print("\n\nPlease set the BOT_TOKEN environment variable correctly")
-#     sys.exit(1)
-
-
-
 host = os.environ.get("HOST", "0.0.0.0")
 debug = bool(os.environ.get("DEBUG"))
 chat_ids = []
 alias_ids = []
+
+# Supabase
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+
+# URL pública de esta web
+INDEXWEBOFICA_URL = os.environ.get("INDEXWEBOFICA_URL", "")
+
+# Sesión web
+WEB_SESSION_SECRET = os.environ.get("WEB_SESSION_SECRET", "CHANGE_THIS_SECRET_PLEASE")
+
+# Configuración de login web por token
+WEB_LOGIN_TOKEN_TTL_MINUTES = int(os.environ.get("WEB_LOGIN_TOKEN_TTL_MINUTES", "10"))
+
+# Planes web
+WEB_PLANS = {
+    "1d": {
+        "label": "1 día",
+        "days": 1,
+        "coins": 150,
+        "device_limit": 3,
+    },
+    "7d": {
+        "label": "7 días",
+        "days": 7,
+        "coins": 450,
+        "device_limit": 3,
+    },
+    "30d": {
+        "label": "30 días",
+        "days": 30,
+        "coins": 1200,
+        "device_limit": 3,
+    },
+}
