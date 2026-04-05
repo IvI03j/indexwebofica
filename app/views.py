@@ -14,27 +14,29 @@ from telethon.tl.types import User, Chat, Channel
 
 from .tmdb import enrich_entry
 from .util import get_file_name, get_human_size
-from .config import otg_settings, chat_ids, enable_otg, host, WEB_PLANS
+from .config import otg_settings, chat_ids, enable_otg, WEB_PLANS
 from .web_auth import (
     consume_web_login_token,
     make_session_cookie,
     read_session_cookie,
     get_user_by_id,
+    get_user_by_telegram_id,
     build_access_context,
     activate_web_plan,
     get_user_devices,
 )
+from .supabase_client import supabase
 
 log = logging.getLogger(__name__)
 
 
 def _has_media(m):
     if not m.media:
-        return False
+      return False
     if isinstance(m.media, types.MessageMediaWebPage):
-        return False
+      return False
     if not m.file:
-        return False
+      return False
     mime = m.file.mime_type or ""
     return mime.startswith("video/")
 
@@ -135,7 +137,6 @@ class Views:
             samesite="Lax"
         )
 
-        # Si no existe device_id, crea uno simple
         if not req.cookies.get("device_id"):
             import secrets
             response.set_cookie(
@@ -146,6 +147,68 @@ class Views:
             )
 
         raise response
+
+    async def telegram_webapp_auth(self, req):
+        try:
+            data = await req.json()
+        except Exception:
+            return web.json_response({"ok": False, "error": "JSON inválido"}, status=400)
+
+        telegram_id = data.get("telegram_id")
+        username = data.get("username")
+        first_name = data.get("first_name")
+
+        if not telegram_id:
+            return web.json_response({"ok": False, "error": "Falta telegram_id"}, status=400)
+
+        user = get_user_by_telegram_id(int(telegram_id))
+
+        if not user:
+            created = (
+                supabase.table("users")
+                .insert({
+                    "telegram_id": int(telegram_id),
+                    "username": username or None,
+                    "first_name": first_name or None,
+                    "coins": 0
+                })
+                .execute()
+            )
+            if not created.data:
+                return web.json_response({"ok": False, "error": "No se pudo crear el usuario"}, status=500)
+            user = created.data[0]
+
+        session_value = make_session_cookie(user["id"])
+
+        response = web.json_response({
+            "ok": True,
+            "user": {
+                "id": user["id"],
+                "telegram_id": user.get("telegram_id"),
+                "username": user.get("username"),
+                "first_name": user.get("first_name"),
+                "coins": user.get("coins", 0)
+            }
+        })
+
+        response.set_cookie(
+            "web_session",
+            session_value,
+            httponly=True,
+            max_age=60 * 60 * 24 * 30,
+            samesite="Lax"
+        )
+
+        if not req.cookies.get("device_id"):
+            import secrets
+            response.set_cookie(
+                "device_id",
+                secrets.token_hex(16),
+                max_age=60 * 60 * 24 * 365,
+                samesite="Lax"
+            )
+
+        return response
 
     @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
