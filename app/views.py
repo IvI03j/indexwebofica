@@ -104,18 +104,44 @@ class Views:
         if not user_id:
             return None
 
-        user = get_user_by_id(user_id)
-        log.error(f"_get_current_user user_id={user_id} user={user}")
-        return user
+        return get_user_by_id(user_id)
 
     def _get_access_context(self, req):
         user = self._get_current_user(req)
         device_id = self._get_device_id(req)
         user_agent = req.headers.get("User-Agent", "")
         ip_address = req.remote or ""
-        ctx = build_access_context(user, device_id, user_agent, ip_address)
-        log.error(f"_get_access_context coins={ctx.get('coins')} has_web_access={ctx.get('has_web_access')} web_user={ctx.get('web_user')}")
-        return ctx
+        return build_access_context(user, device_id, user_agent, ip_address)
+
+    def _is_telegram_webapp_request(self, req):
+        ua = (req.headers.get("User-Agent") or "").lower()
+        referer = (req.headers.get("Referer") or "").lower()
+        x_requested_with = (req.headers.get("X-Requested-With") or "").lower()
+
+        if "telegram" in ua:
+            return True
+        if "t.me" in referer:
+            return True
+        if "telegram" in x_requested_with:
+            return True
+
+        return False
+
+    def _ensure_telegram_or_session(self, req):
+        user = self._get_current_user(req)
+        if user:
+            return user
+
+        if self._is_telegram_webapp_request(req):
+            return None
+
+        raise web.HTTPFound("/blocked")
+
+    @aiohttp_jinja2.template('blocked.html')
+    async def blocked_view(self, req):
+        return {
+            "title": "Acceso restringido"
+        }
 
     async def wildcard(self, req):
         raise web.HTTPFound('/')
@@ -123,11 +149,11 @@ class Views:
     async def web_auth(self, req):
         token = req.query.get("t", "")
         if not token:
-            raise web.HTTPFound("/plans")
+            raise web.HTTPFound("/blocked")
 
         token_row = consume_web_login_token(token)
         if not token_row:
-            raise web.HTTPFound("/plans")
+            raise web.HTTPFound("/blocked")
 
         user_id = token_row["user_id"]
         session_value = make_session_cookie(user_id)
@@ -161,17 +187,14 @@ class Views:
         next_url = req.query.get("next", "/")
 
         if not telegram_id:
-            raise web.HTTPFound("/plans?e=Falta telegram_id")
+            raise web.HTTPFound("/blocked")
 
         try:
             telegram_id = int(telegram_id)
         except Exception:
-            raise web.HTTPFound("/plans?e=telegram_id inválido")
-
-        log.error(f"MINIAPP AUTH telegram_id={telegram_id} username={username} first_name={first_name}")
+            raise web.HTTPFound("/blocked")
 
         user = get_user_by_telegram_id(telegram_id)
-        log.error(f"MINIAPP AUTH FOUND USER BEFORE CREATE={user}")
 
         if not user:
             created = (
@@ -185,11 +208,8 @@ class Views:
                 .execute()
             )
             if not created.data:
-                raise web.HTTPFound("/plans?e=No se pudo crear el usuario")
+                raise web.HTTPFound("/blocked")
             user = created.data[0]
-            log.error(f"MINIAPP AUTH CREATED USER={user}")
-
-        log.error(f"MINIAPP AUTH FINAL USER={user}")
 
         session_value = make_session_cookie(user["id"])
 
@@ -217,6 +237,7 @@ class Views:
 
     @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
+        self._ensure_telegram_or_session(req)
         access_ctx = self._get_access_context(req)
         return {
             "title": "Planes web",
@@ -226,9 +247,10 @@ class Views:
         }
 
     async def activate_pass(self, req):
+        self._ensure_telegram_or_session(req)
         user = self._get_current_user(req)
         if not user:
-            raise web.HTTPFound("/plans?e=Debes acceder desde Telegram")
+            raise web.HTTPFound("/blocked")
 
         data = await req.post()
         plan_code = data.get("plan_code", "")
@@ -242,9 +264,10 @@ class Views:
 
     @aiohttp_jinja2.template('devices.html')
     async def devices_view(self, req):
+        self._ensure_telegram_or_session(req)
         user = self._get_current_user(req)
         if not user:
-            raise web.HTTPFound("/plans")
+            raise web.HTTPFound("/blocked")
 
         devices = get_user_devices(user["id"])
         access_ctx = self._get_access_context(req)
@@ -256,12 +279,14 @@ class Views:
         }
 
     async def logout(self, req):
-        response = web.HTTPFound("/")
+        response = web.HTTPFound("/blocked")
         response.del_cookie("web_session")
         response.del_cookie("device_id")
         raise response
 
     async def api_catalog(self, req):
+        self._ensure_telegram_or_session(req)
+
         from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
 
         if not chat_ids:
@@ -326,6 +351,7 @@ class Views:
 
     @aiohttp_jinja2.template('home.html')
     async def home(self, req):
+        self._ensure_telegram_or_session(req)
         access_ctx = self._get_access_context(req)
 
         if len(chat_ids) == 1:
@@ -343,6 +369,7 @@ class Views:
 
     @aiohttp_jinja2.template('otg.html')
     async def otg_view(self, req):
+        self._ensure_telegram_or_session(req)
         if not enable_otg:
             raise web.HTTPFound('/')
         return_data = {}
@@ -353,6 +380,7 @@ class Views:
 
     @aiohttp_jinja2.template('playlistCreator.html')
     async def playlist_creator(self, req):
+        self._ensure_telegram_or_session(req)
         return_data = {}
         error = req.query.get('e')
         if error:
@@ -360,6 +388,8 @@ class Views:
         return return_data
 
     async def dynamic_view(self, req):
+        self._ensure_telegram_or_session(req)
+
         if not enable_otg:
             raise web.HTTPFound('/')
         rel_url = req.rel_url
@@ -386,6 +416,8 @@ class Views:
 
     @aiohttp_jinja2.template('index.html')
     async def index(self, req):
+        self._ensure_telegram_or_session(req)
+
         purpose = req.headers.get('Purpose', '') or req.headers.get('Sec-Purpose', '')
         if 'prefetch' in purpose.lower():
             raise web.HTTPNoContent()
@@ -505,6 +537,7 @@ class Views:
 
     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
+        self._ensure_telegram_or_session(req)
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
@@ -655,6 +688,8 @@ class Views:
         return await self.handle_request(req, head=True)
 
     async def thumbnail_get(self, req):
+        self._ensure_telegram_or_session(req)
+
         file_id = int(req.match_info["id"])
         alias_id = req.match_info['chat']
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
@@ -716,6 +751,7 @@ class Views:
         )
 
     async def handle_request(self, req, head=False):
+        self._ensure_telegram_or_session(req)
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
