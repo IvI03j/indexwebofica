@@ -86,4 +86,7 @@ WEB_PLANS = {
         "coins": 1200,
         "device_limit": 3,
     },
+INTERNAL_SERVICE_KEY = os.environ.get("INTERNAL_SERVICE_KEY", "")
+
+
 }
