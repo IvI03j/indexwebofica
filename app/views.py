@@ -91,12 +91,14 @@ class Views:
     def _get_device_id(self, req):
         return req.cookies.get("device_id", "")
 
-    def _get_current_user(self, req):
+    def _get_session_data(self, req):
         session_cookie = req.cookies.get("web_session")
         if not session_cookie:
             return None
+        return read_session_cookie(session_cookie)
 
-        session_data = read_session_cookie(session_cookie)
+    def _get_current_user(self, req):
+        session_data = self._get_session_data(req)
         if not session_data:
             return None
 
@@ -105,6 +107,12 @@ class Views:
             return None
 
         return get_user_by_id(user_id)
+
+    def _get_session_source(self, req):
+        session_data = self._get_session_data(req)
+        if not session_data:
+            return None
+        return session_data.get("session_source")
 
     def _get_access_context(self, req):
         user = self._get_current_user(req)
@@ -127,9 +135,15 @@ class Views:
 
         return False
 
+    def _is_allowed_session(self, req):
+        session_source = self._get_session_source(req)
+        if session_source in ("telegram_webapp", "official_app"):
+            return True
+        return False
+
     def _ensure_telegram_or_session(self, req):
         user = self._get_current_user(req)
-        if user:
+        if user and self._is_allowed_session(req):
             return user
 
         if self._is_telegram_webapp_request(req):
@@ -156,7 +170,7 @@ class Views:
             raise web.HTTPFound("/blocked")
 
         user_id = token_row["user_id"]
-        session_value = make_session_cookie(user_id)
+        session_value = make_session_cookie(user_id, "telegram_webapp")
 
         response = web.HTTPFound("/")
         response.set_cookie(
@@ -211,7 +225,7 @@ class Views:
                 raise web.HTTPFound("/blocked")
             user = created.data[0]
 
-        session_value = make_session_cookie(user["id"])
+        session_value = make_session_cookie(user["id"], "telegram_webapp")
 
         response = web.HTTPFound(next_url or "/")
         response.set_cookie(
