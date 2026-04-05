@@ -8,13 +8,22 @@ from PIL import Image, ImageDraw
 from aiohttp import web
 import aiohttp_jinja2
 from markupsafe import Markup
-from .tmdb import enrich_entry
 from telethon.tl import types
 from telethon.tl.custom import Message
 from telethon.tl.types import User, Chat, Channel
 
+from .tmdb import enrich_entry
 from .util import get_file_name, get_human_size
-from .config import otg_settings, chat_ids, enable_otg, host
+from .config import otg_settings, chat_ids, enable_otg, host, WEB_PLANS
+from .web_auth import (
+    consume_web_login_token,
+    make_session_cookie,
+    read_session_cookie,
+    get_user_by_id,
+    build_access_context,
+    activate_web_plan,
+    get_user_devices,
+)
 
 log = logging.getLogger(__name__)
 
@@ -31,9 +40,8 @@ def _has_media(m):
 
 
 def _group_results(results):
-    """Group episodes of the same series into one card entry."""
     grouped = []
-    seen = {}  # tmdb_id -> index in grouped
+    seen = {}
 
     for entry in results:
         tmdb = entry.get('tmdb')
@@ -75,14 +83,117 @@ class Views:
 
     def __init__(self, client):
         self.client = client
-        self._index_cache = {}  # {cache_key: (timestamp, result)}
-        self._cache_ttl = 30    # segundos
+        self._index_cache = {}
+        self._cache_ttl = 30
+
+    def _get_device_id(self, req):
+        return req.cookies.get("device_id", "")
+
+    def _get_current_user(self, req):
+        session_cookie = req.cookies.get("web_session")
+        if not session_cookie:
+            return None
+
+        session_data = read_session_cookie(session_cookie)
+        if not session_data:
+            return None
+
+        user_id = session_data.get("user_id")
+        if not user_id:
+            return None
+
+        return get_user_by_id(user_id)
+
+    def _get_access_context(self, req):
+        user = self._get_current_user(req)
+        device_id = self._get_device_id(req)
+        user_agent = req.headers.get("User-Agent", "")
+        ip_address = req.remote or ""
+        return build_access_context(user, device_id, user_agent, ip_address)
 
     async def wildcard(self, req):
         raise web.HTTPFound('/')
 
+    async def web_auth(self, req):
+        token = req.query.get("t", "")
+        if not token:
+            raise web.HTTPFound("/plans")
+
+        token_row = consume_web_login_token(token)
+        if not token_row:
+            raise web.HTTPFound("/plans")
+
+        user_id = token_row["user_id"]
+        session_value = make_session_cookie(user_id)
+
+        response = web.HTTPFound("/")
+        response.set_cookie(
+            "web_session",
+            session_value,
+            httponly=True,
+            max_age=60 * 60 * 24 * 30,
+            samesite="Lax"
+        )
+
+        # Si no existe device_id, crea uno simple
+        if not req.cookies.get("device_id"):
+            import secrets
+            response.set_cookie(
+                "device_id",
+                secrets.token_hex(16),
+                max_age=60 * 60 * 24 * 365,
+                samesite="Lax"
+            )
+
+        raise response
+
+    @aiohttp_jinja2.template('plans.html')
+    async def plans_view(self, req):
+        access_ctx = self._get_access_context(req)
+        return {
+            "title": "Planes web",
+            "plans": WEB_PLANS,
+            "request": req,
+            **access_ctx
+        }
+
+    async def activate_pass(self, req):
+        user = self._get_current_user(req)
+        if not user:
+            raise web.HTTPFound("/plans?e=Debes acceder desde Telegram")
+
+        data = await req.post()
+        plan_code = data.get("plan_code", "")
+
+        result = activate_web_plan(user["id"], plan_code)
+
+        if not result["ok"]:
+            raise web.HTTPFound(f"/plans?e={result['error']}")
+
+        raise web.HTTPFound("/plans?ok=1")
+
+    @aiohttp_jinja2.template('devices.html')
+    async def devices_view(self, req):
+        user = self._get_current_user(req)
+        if not user:
+            raise web.HTTPFound("/plans")
+
+        devices = get_user_devices(user["id"])
+        access_ctx = self._get_access_context(req)
+
+        return {
+            "title": "Mis dispositivos",
+            "devices": devices,
+            **access_ctx
+        }
+
+    async def logout(self, req):
+        response = web.HTTPFound("/")
+        response.del_cookie("web_session")
+        response.del_cookie("device_id")
+        raise response
+
     async def api_catalog(self, req):
-        """Endpoint que devuelve el catálogo completo para el bot de Netflix."""
         from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
 
         if not chat_ids:
@@ -94,7 +205,6 @@ class Views:
         items = []
 
         try:
-            # ✅ FIX: límite aumentado a 500 para capturar todos los mensajes
             batch = await self.client.get_messages(
                 entity=chat_id,
                 limit=500,
@@ -148,8 +258,11 @@ class Views:
 
     @aiohttp_jinja2.template('home.html')
     async def home(self, req):
+        access_ctx = self._get_access_context(req)
+
         if len(chat_ids) == 1:
             raise web.HTTPFound(f"{chat_ids[0]['alias_id']}")
+
         chats = []
         for chat in chat_ids:
             chats.append({
@@ -157,7 +270,8 @@ class Views:
                 'name': chat['title'],
                 'url': req.rel_url.path + f"/{chat['alias_id']}"
             })
-        return {'chats': chats, 'otg': enable_otg}
+
+        return {'chats': chats, 'otg': enable_otg, **access_ctx}
 
     @aiohttp_jinja2.template('otg.html')
     async def otg_view(self, req):
@@ -200,24 +314,24 @@ class Views:
             raise web.HTTPFound(rel_url.with_query({'e': "Indexing channels is not supported!!"}))
         elif isinstance(chat, Chat) and not include_group:
             raise web.HTTPFound(rel_url.with_query({'e': "Indexing group chats is not supported!!"}))
-        log.debug(f"chat {chat} accessed!!")
         raise web.HTTPFound(f'/{chat.id}')
 
     @aiohttp_jinja2.template('index.html')
     async def index(self, req):
-        # Ignorar peticiones de prefetch del navegador
         purpose = req.headers.get('Purpose', '') or req.headers.get('Sec-Purpose', '')
         if 'prefetch' in purpose.lower():
             raise web.HTTPNoContent()
 
         alias_id = req.match_info['chat']
         search_query = req.query.get('search', '') or ''
-        # ✅ FIX: la clave de caché ya no incluye 'page' porque cargamos todo de una vez
         cache_key = f"{alias_id}:{search_query}"
         now = time.time()
+
         if cache_key in self._index_cache:
             ts, cached = self._index_cache[cache_key]
             if now - ts < self._cache_ttl:
+                cached = dict(cached)
+                cached.update(self._get_access_context(req))
                 return cached
 
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
@@ -228,14 +342,13 @@ class Views:
                 chat_id = int(alias_id)
                 chat_ = await self.client.get_entity(chat_id)
                 chat_name = chat_.title
-            except:
+            except Exception:
                 raise web.HTTPFound('/')
         else:
             chat = chat[0]
             chat_id = chat['chat_id']
             chat_name = chat['title']
 
-        # Solo mostrar mensajes de los temas de películas y series
         from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
         ALLOWED_THREADS = {MOVIES_THREAD_ID, SERIES_THREAD_ID}
 
@@ -250,36 +363,23 @@ class Views:
 
         try:
             if search_query:
-                # ✅ FIX: límite aumentado a 1000 para búsquedas, sin paginación
                 all_msgs = await self.client.get_messages(
                     entity=chat_id,
                     limit=1000,
                     search=search_query,
                 )
                 all_msgs = all_msgs or []
-                # ✅ FIX: sin [:PAGE_SIZE] — devolvemos TODOS los resultados que coincidan
                 messages = [m for m in all_msgs if _has_media(m) and _in_allowed_thread(m)]
             else:
-                # ✅ FIX: límite de 1000 para garantizar que se recogen todos los mensajes
-                #         del grupo aunque haya muchos mensajes no-media intercalados.
-                #         Sin add_offset ni paginación: cargamos el catálogo completo.
                 batch = await self.client.get_messages(
                     entity=chat_id,
                     limit=1000,
                 )
                 batch = batch or []
-                # ✅ FIX: eliminado el [:PAGE_SIZE] que cortaba a 20
                 messages = [m for m in batch if _has_media(m) and _in_allowed_thread(m)]
         except Exception:
             log.debug("failed to get messages", exc_info=True)
             messages = []
-
-        log.debug(f"search='{search_query}' found={len(messages)} messages")
-        log.error(f"REQUEST {req.method} {req.path} from={req.remote} total={len(messages)}")
-        for m in messages:
-            reply_to = getattr(m, 'reply_to', None)
-            top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
-            log.error(f"MSG id={m.id} top_id={top_id}")
 
         raw_results = []
         for m in messages:
@@ -298,7 +398,6 @@ class Views:
 
         enriched = list(await asyncio.gather(*[enrich_entry(e) for e in raw_results]))
 
-        # Deduplicar por file_id para evitar que el mismo vídeo aparezca varias veces
         seen_ids = set()
         deduped = []
         for e in enriched:
@@ -318,8 +417,8 @@ class Views:
                         all_genres.append(g)
         all_genres.sort()
 
-        # ✅ FIX: se eliminó la paginación — ya no se necesita prev_page / next_page
-        #         porque el catálogo completo se carga de una sola vez.
+        access_ctx = self._get_access_context(req)
+
         result = {
             'item_list': results,
             'prev_page': False,
@@ -330,37 +429,48 @@ class Views:
             'logo': f"/{alias_id}/logo",
             'title': "Index of " + chat_name,
             'all_genres': all_genres,
+            **access_ctx
         }
+
         self._index_cache[cache_key] = (time.time(), result)
         return result
 
     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
+        access_ctx = self._get_access_context(req)
+        if not access_ctx.get("has_web_access"):
+            raise web.HTTPFound("/plans")
+
         file_id = int(req.match_info["id"])
         try:
             alias_id = req.match_info['chat']
-        except:
+        except Exception:
             alias_id = chat_ids[0]['alias_id']
+
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
         if not chat:
             if not enable_otg:
                 raise web.HTTPFound('/')
             try:
                 chat_id = int(alias_id)
-            except:
+            except Exception:
                 raise web.HTTPFound('/')
         else:
             chat = chat[0]
             chat_id = chat['chat_id']
+
         try:
             message = await self.client.get_messages(entity=chat_id, ids=file_id)
-        except:
+        except Exception:
             log.debug(f"Error in getting message {file_id} in {chat_id}", exc_info=True)
             message = None
+
         if not message or not isinstance(message, Message):
             return {'found': False, 'reason': "Entry you are looking for cannot be retrived!"}
+
         return_val = {}
         reply_btns = []
+
         if message.reply_markup:
             if isinstance(message.reply_markup, types.ReplyInlineMarkup):
                 for button_row in message.reply_markup.rows:
@@ -369,6 +479,7 @@ class Views:
                         if isinstance(button, types.KeyboardButtonUrl):
                             btns.append({'url': button.url, 'text': button.text})
                     reply_btns.append(btns)
+
         if message.file and not isinstance(message.media, types.MessageMediaWebPage):
             file_name = get_file_name(message)
             file_size = message.file.size
@@ -396,6 +507,7 @@ class Views:
                 'thumbnail': f"/{alias_id}/{file_id}/thumbnail",
                 'download_url': f"/{alias_id}/{file_id}/download",
                 'page_id': alias_id,
+                **access_ctx
             }
         elif message.message:
             text = message.raw_text
@@ -407,9 +519,11 @@ class Views:
                 'text_html': text_html,
                 'reply_btns': reply_btns,
                 'page_id': alias_id,
+                **access_ctx
             }
         else:
-            return_val = {'found': False, 'reason': "Some kind of entry that I cannot display"}
+            return_val = {'found': False, 'reason': "Some kind of entry that I cannot display", **access_ctx}
+
         return return_val
 
     async def logo(self, req):
@@ -420,21 +534,23 @@ class Views:
                 return web.Response(status=403, text="403: Forbiden")
             try:
                 chat_id = int(alias_id)
-            except:
+            except Exception:
                 return web.Response(status=403, text="403: Forbiden")
         else:
             chat = chat[0]
             chat_id = chat['chat_id']
+
         chat_name = "Image not available"
         try:
             photo = await self.client.get_profile_photos(chat_id)
-        except:
+        except Exception:
             log.debug(f"Error in getting profile picture in {chat_id}", exc_info=True)
             photo = None
+
         if not photo:
             W, H = (160, 160)
             c = lambda: random.randint(0, 255)
-            color = tuple([c() for i in range(3)])
+            color = tuple([c() for _ in range(3)])
             im = Image.new("RGB", (W, H), color)
             draw = ImageDraw.Draw(im)
             bbox = draw.textbbox((0, 0), chat_name)
@@ -457,8 +573,10 @@ class Views:
                     thumb_size=size.type
                 )
                 body = self.client.iter_download(media)
+
         return web.Response(
-            status=200, body=body,
+            status=200,
+            body=body,
             headers={"Content-Type": "image/jpeg", "Content-Disposition": 'inline; filename="logo.jpg"'}
         )
 
@@ -477,17 +595,20 @@ class Views:
                 return web.Response(status=403, text="403: Forbiden")
             try:
                 chat_id = int(alias_id)
-            except:
+            except Exception:
                 return web.Response(status=403, text="403: Forbiden")
         else:
             chat = chat[0]
             chat_id = chat['chat_id']
+
         try:
             message = await self.client.get_messages(entity=chat_id, ids=file_id)
-        except:
+        except Exception:
             message = None
+
         if not message or not message.file:
             return web.Response(status=410, text="410: Gone.")
+
         if message.document:
             media = message.document
             thumbnails = media.thumbs
@@ -496,9 +617,10 @@ class Views:
             media = message.photo
             thumbnails = media.sizes
             location = types.InputPhotoFileLocation
+
         if not thumbnails:
             c = lambda: random.randint(0, 255)
-            color = tuple([c() for i in range(3)])
+            color = tuple([c() for _ in range(3)])
             im = Image.new("RGB", (160, 90), color)
             temp = io.BytesIO()
             im.save(temp, "PNG")
@@ -512,42 +634,55 @@ class Views:
                 body = self.client._download_cached_photo_size(thumbnail, bytes)
             else:
                 actual_file = location(
-                    id=media.id, access_hash=media.access_hash,
-                    file_reference=media.file_reference, thumb_size=thumbnail.type
+                    id=media.id,
+                    access_hash=media.access_hash,
+                    file_reference=media.file_reference,
+                    thumb_size=thumbnail.type
                 )
                 body = self.client.iter_download(actual_file)
+
         return web.Response(
-            status=200, body=body,
+            status=200,
+            body=body,
             headers={"Content-Type": "image/jpeg", "Content-Disposition": 'inline; filename="thumbnail.jpg"'}
         )
 
     async def handle_request(self, req, head=False):
+        access_ctx = self._get_access_context(req)
+        if not access_ctx.get("has_web_access"):
+            raise web.HTTPFound("/plans")
+
         file_id = int(req.match_info["id"])
         try:
             alias_id = req.match_info['chat']
-        except:
+        except Exception:
             alias_id = chat_ids[0]['alias_id']
+
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
         if not chat:
             if not enable_otg:
                 return web.Response(status=403, text="403: Forbiden")
             try:
                 chat_id = int(alias_id)
-            except:
+            except Exception:
                 return web.Response(status=403, text="403: Forbiden")
         else:
             chat = chat[0]
             chat_id = chat['chat_id']
+
         try:
             message = await self.client.get_messages(entity=chat_id, ids=file_id)
-        except:
+        except Exception:
             message = None
+
         if not message or not message.file:
             return web.Response(status=410, text="410: Gone.")
+
         media = message.media
         size = message.file.size
         file_name = get_file_name(message)
         mime_type = message.file.mime_type
+
         try:
             offset = req.http_range.start or 0
             limit = req.http_range.stop if req.http_range.stop is not None else size
@@ -555,8 +690,12 @@ class Views:
             if offset < 0 or limit < offset or offset >= size:
                 raise ValueError("range not in acceptable format")
         except ValueError:
-            return web.Response(status=416, text="416: Range Not Satisfiable",
-                                headers={"Content-Range": f"bytes */{size}"})
+            return web.Response(
+                status=416,
+                text="416: Range Not Satisfiable",
+                headers={"Content-Range": f"bytes */{size}"}
+            )
+
         headers = {
             "Content-Type": mime_type,
             "Content-Range": f"bytes {offset}-{limit - 1}/{size}",
@@ -566,17 +705,20 @@ class Views:
             "Access-Control-Allow-Origin": "*",
             "Cache-Control": "no-store",
         }
+
         if head:
             return web.Response(status=200, headers=headers)
-        log.info(f"Serving file in {message.id} (chat {chat_id}) ; Range: {offset} - {limit}")
+
         response = web.StreamResponse(
             status=206 if req.http_range.start is not None else 200,
             headers=headers
         )
         await response.prepare(req)
+
         try:
             async for chunk in self.client.download(media, size, offset, limit):
                 await response.write(chunk)
         except (ConnectionResetError, asyncio.CancelledError):
             log.debug(f"Connection closed while serving {file_id}")
+
         return response
