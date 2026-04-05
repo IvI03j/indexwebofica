@@ -138,7 +138,8 @@ class Views:
             session_value,
             httponly=True,
             max_age=60 * 60 * 24 * 30,
-            samesite="Lax"
+            samesite="Lax",
+            path="/"
         )
 
         if not req.cookies.get("device_id"):
@@ -147,34 +148,36 @@ class Views:
                 "device_id",
                 secrets.token_hex(16),
                 max_age=60 * 60 * 24 * 365,
-                samesite="Lax"
+                samesite="Lax",
+                path="/"
             )
 
         raise response
 
     async def telegram_webapp_auth(self, req):
-        try:
-            data = await req.json()
-        except Exception:
-            return web.json_response({"ok": False, "error": "JSON inválido"}, status=400)
-
-        telegram_id = data.get("telegram_id")
-        username = data.get("username")
-        first_name = data.get("first_name")
+        telegram_id = req.query.get("telegram_id")
+        username = req.query.get("username")
+        first_name = req.query.get("first_name")
+        next_url = req.query.get("next", "/")
 
         if not telegram_id:
-            return web.json_response({"ok": False, "error": "Falta telegram_id"}, status=400)
+            raise web.HTTPFound("/plans?e=Falta telegram_id")
+
+        try:
+            telegram_id = int(telegram_id)
+        except Exception:
+            raise web.HTTPFound("/plans?e=telegram_id inválido")
 
         log.error(f"MINIAPP AUTH telegram_id={telegram_id} username={username} first_name={first_name}")
 
-        user = get_user_by_telegram_id(int(telegram_id))
+        user = get_user_by_telegram_id(telegram_id)
         log.error(f"MINIAPP AUTH FOUND USER BEFORE CREATE={user}")
 
         if not user:
             created = (
                 supabase.table("users")
                 .insert({
-                    "telegram_id": int(telegram_id),
+                    "telegram_id": telegram_id,
                     "username": username or None,
                     "first_name": first_name or None,
                     "coins": 0
@@ -182,7 +185,7 @@ class Views:
                 .execute()
             )
             if not created.data:
-                return web.json_response({"ok": False, "error": "No se pudo crear el usuario"}, status=500)
+                raise web.HTTPFound("/plans?e=No se pudo crear el usuario")
             user = created.data[0]
             log.error(f"MINIAPP AUTH CREATED USER={user}")
 
@@ -190,23 +193,14 @@ class Views:
 
         session_value = make_session_cookie(user["id"])
 
-        response = web.json_response({
-            "ok": True,
-            "user": {
-                "id": user["id"],
-                "telegram_id": user.get("telegram_id"),
-                "username": user.get("username"),
-                "first_name": user.get("first_name"),
-                "coins": user.get("coins", 0)
-            }
-        })
-
+        response = web.HTTPFound(next_url or "/")
         response.set_cookie(
             "web_session",
             session_value,
             httponly=True,
             max_age=60 * 60 * 24 * 30,
-            samesite="Lax"
+            samesite="Lax",
+            path="/"
         )
 
         if not req.cookies.get("device_id"):
@@ -215,10 +209,11 @@ class Views:
                 "device_id",
                 secrets.token_hex(16),
                 max_age=60 * 60 * 24 * 365,
-                samesite="Lax"
+                samesite="Lax",
+                path="/"
             )
 
-        return response
+        raise response
 
     @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
