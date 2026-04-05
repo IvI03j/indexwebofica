@@ -6,6 +6,7 @@ try:
     port = int(os.environ.get("PORT", "8080"))
 except ValueError:
     port = -1
+
 if not 1 <= port <= 65535:
     print("Please make sure the PORT environment variable is an integer between 1 and 65535")
     sys.exit(1)
@@ -21,24 +22,24 @@ except (KeyError, ValueError):
 
 try:
     index_settings = {
-      "index_all": False,
-      "index_private": True,
-      "index_group": True,
-      "index_channel": True,
-      "exclude_chats": [],
-      "include_chats": [int(os.environ["INDEXING_CHAT"])],
-      "otg": {
-          "enable": True,
-          "include_private": True,
-          "include_group": True,
-          "include_channel": True
-      }
+        "index_all": False,
+        "index_private": True,
+        "index_group": True,
+        "index_channel": True,
+        "exclude_chats": [],
+        "include_chats": [int(os.environ["INDEXING_CHAT"])],
+        "otg": {
+            "enable": True,
+            "include_private": True,
+            "include_group": True,
+            "include_channel": True
+        }
     }
-    otg_settings = index_settings['otg']
-    enable_otg = otg_settings['enable']
+    otg_settings = index_settings["otg"]
+    enable_otg = otg_settings["enable"]
 except Exception:
     traceback.print_exc()
-    print("\n\nPlease set the INDEX_SETTINGS environment variable correctly")
+    print("\n\nPlease set the INDEXING_CHAT environment variable correctly")
     sys.exit(1)
 
 try:
@@ -50,6 +51,7 @@ except (KeyError, ValueError):
 
 host = os.environ.get("HOST", "0.0.0.0")
 debug = bool(os.environ.get("DEBUG"))
+
 chat_ids = []
 alias_ids = []
 
@@ -60,10 +62,10 @@ SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 # URL pública de esta web
 INDEXWEBOFICA_URL = os.environ.get("INDEXWEBOFICA_URL", "")
 
-# Sesión web
+# Secreto de sesión web
 WEB_SESSION_SECRET = os.environ.get("WEB_SESSION_SECRET", "CHANGE_THIS_SECRET_PLEASE")
 
-# Configuración de login web por token
+# Tiempo de validez de tokens de login web
 WEB_LOGIN_TOKEN_TTL_MINUTES = int(os.environ.get("WEB_LOGIN_TOKEN_TTL_MINUTES", "10"))
 
 # Planes web
@@ -86,7 +88,7 @@ WEB_PLANS = {
         "coins": 1200,
         "device_limit": 3,
     },
-INTERNAL_SERVICE_KEY = os.environ.get("INTERNAL_SERVICE_KEY", "")
-
-
 }
+
+# Clave interna para servicios autorizados como botneflixtelegram
+INTERNAL_SERVICE_KEY = os.environ.get("INTERNAL_SERVICE_KEY", "")
