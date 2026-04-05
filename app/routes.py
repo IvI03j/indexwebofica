@@ -1,16 +1,13 @@
 import random
 import string
 import logging
-import asyncio
 from aiohttp import web
 from .config import index_settings, alias_ids, chat_ids
-from .util import get_file_name, get_human_size
-from .tmdb import enrich_entry, parse_filename
 
 log = logging.getLogger(__name__)
 
-MOVIES_THREAD_ID = 5   # tema películas
-SERIES_THREAD_ID = 11  # tema series
+MOVIES_THREAD_ID = 5
+SERIES_THREAD_ID = 11
 
 
 def generate_alias_id(chat):
@@ -31,35 +28,44 @@ def generate_alias_id(chat):
 
 
 def register_routes(app, handler):
-    """Register URL routes immediately — no Telegram connection needed."""
     h = handler
     p = r"/{chat:[^/]+}"
+
     routes = [
         web.get("/", h.home),
+
+        # auth / acceso web
+        web.get("/auth", h.web_auth),
+        web.get("/plans", h.plans_view),
+        web.post("/activate-pass", h.activate_pass),
+        web.get("/devices", h.devices_view),
+        web.get("/logout", h.logout),
+
         web.post("/otg", h.dynamic_view),
         web.get("/otg", h.otg_view),
         web.get("/pc", h.playlist_creator),
-        # Ruta del catálogo con prefijo _api para evitar conflicto con /{chat}
         web.get("/_api/catalog", h.api_catalog),
+
         web.get(p, h.index),
         web.get(p + r"/logo", h.logo),
         web.get(p + r"/{id:\d+}/view", h.info),
         web.get(p + r"/{id:\d+}/download", h.download_get),
         web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
+
         web.get(r"/{id:\d+}/view", h.info),
         web.get(r"/{id:\d+}/download", h.download_get),
+
         web.view(r"/{wildcard:.*}", h.wildcard),
     ]
+
     app.add_routes(routes)
 
 
 async def setup_routes(app, handler):
-    """Legacy wrapper kept for compatibility."""
     register_routes(app, handler)
 
 
 async def initialize_chats(client):
-    """Populate chat_ids after Telegram client is connected."""
     index_all = index_settings["index_all"]
     index_private = index_settings["index_private"]
     index_group = index_settings["index_group"]
