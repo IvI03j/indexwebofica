@@ -18,7 +18,6 @@
     --muted:#a3a3a3;
     --muted2:#6b7280;
     --yellow:#f5c518;
-    --blue:#60a5fa;
   }
 
   *{margin:0;padding:0;box-sizing:border-box}
@@ -33,7 +32,7 @@
   .header{
     position:sticky;
     top:0;
-    z-index:400;
+    z-index:500;
     height:72px;
     display:flex;
     align-items:center;
@@ -51,7 +50,7 @@
     letter-spacing:1px;
   }
 
-  .header-title{
+  .header-sub{
     color:#666;
     font-size:.82rem;
   }
@@ -90,8 +89,8 @@
     inset:0;
     background-size:cover;
     background-position:center;
-    filter:brightness(.48);
-    transform:scale(1.02);
+    filter:brightness(.42);
+    transform:scale(1.03);
   }
 
   .hero-overlay{
@@ -109,10 +108,6 @@
     max-width:1400px;
     margin:0 auto;
     padding:0 28px 34px;
-    display:grid;
-    grid-template-columns:minmax(0, 760px) 320px;
-    gap:24px;
-    align-items:end;
   }
 
   .hero-badge{
@@ -132,7 +127,7 @@
 
   .hero-title{
     font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(2.6rem,5vw,4.6rem);
+    font-size:clamp(2.7rem,5vw,4.8rem);
     line-height:.94;
     letter-spacing:1px;
     margin-bottom:14px;
@@ -144,8 +139,9 @@
     display:flex;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:16px;
+    margin-bottom:18px;
   }
+
   .chip{
     background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.12);
@@ -175,11 +171,13 @@
     font-size:.92rem;
     transition:all .2s ease;
   }
+
   .btn-primary{
     background:#fff;
     color:#000;
   }
   .btn-primary:hover{background:#e9e9e9}
+
   .btn-ghost{
     background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.1);
@@ -187,57 +185,20 @@
   }
   .btn-ghost:hover{background:rgba(255,255,255,.14)}
 
-  .hero-side-card{
-    background:linear-gradient(180deg, rgba(20,20,20,.88), rgba(10,10,10,.84));
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:20px;
-    padding:18px;
-    backdrop-filter:blur(10px);
-  }
-  .hero-side-title{
-    font-size:.76rem;
-    color:#6b7280;
-    text-transform:uppercase;
-    letter-spacing:1.5px;
-    font-weight:800;
-    margin-bottom:10px;
-  }
-  .hero-side-row{
-    display:flex;
-    justify-content:space-between;
-    gap:14px;
-    padding:10px 0;
-    border-bottom:1px solid rgba(255,255,255,.06);
-    font-size:.85rem;
-  }
-  .hero-side-row:last-child{border-bottom:none}
-  .hero-side-row span{color:#8b8b8b}
-  .hero-side-row strong{
-    color:#fff;
-    text-align:right;
-    word-break:break-word;
-  }
-
   .page{
-    max-width:1400px;
+    max-width:1300px;
     margin:0 auto;
     padding:26px 28px 40px;
   }
 
-  .layout{
-    display:grid;
-    grid-template-columns:minmax(0, 1fr) 360px;
-    gap:24px;
-  }
-
   .player-panel,
-  .meta-panel,
-  .caption-panel,
-  .related-panel{
+  .details-panel,
+  .actions-panel{
     background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
     border:1px solid var(--line);
     border-radius:20px;
     box-shadow:0 10px 30px rgba(0,0,0,.25);
+    overflow:hidden;
   }
 
   .section-head{
@@ -248,11 +209,13 @@
     padding:18px 20px;
     border-bottom:1px solid var(--line);
   }
+
   .section-title{
     font-size:1rem;
     font-weight:800;
     color:#fff;
   }
+
   .section-sub{
     font-size:.76rem;
     color:#666;
@@ -313,16 +276,24 @@
     color:#fff;
   }
 
-  .caption-body,
-  .meta-body,
-  .related-body{
-    padding:20px;
+  .details-panel{
+    margin-top:24px;
+  }
+
+  .details-body{
+    padding:22px;
+  }
+
+  .details-grid{
+    display:grid;
+    grid-template-columns: 1.4fr .8fr;
+    gap:28px;
   }
 
   .description-box{
     color:#d2d2d2;
     font-size:.95rem;
-    line-height:1.75;
+    line-height:1.8;
     white-space:pre-wrap;
   }
 
@@ -331,6 +302,7 @@
     flex-direction:column;
     gap:14px;
   }
+
   .meta-item{
     display:flex;
     justify-content:space-between;
@@ -342,11 +314,13 @@
     border-bottom:none;
     padding-bottom:0;
   }
+
   .meta-key{
     color:#737373;
     font-size:.82rem;
     font-weight:700;
   }
+
   .meta-value{
     color:#f1f1f1;
     font-size:.9rem;
@@ -355,17 +329,26 @@
     word-break:break-word;
   }
 
+  .actions-panel{
+    margin-top:24px;
+  }
+
+  .actions-body{
+    padding:20px;
+  }
+
   .reply-btns{
     display:flex;
     flex-direction:column;
     gap:10px;
-    margin-top:8px;
   }
+
   .reply-row{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
   }
+
   .reply-btn{
     flex:1;
     min-width:140px;
@@ -393,6 +376,7 @@
     padding:90px 20px;
     color:#666;
   }
+
   .not-found h2{
     font-family:'Bebas Neue',sans-serif;
     font-size:2.5rem;
@@ -412,11 +396,8 @@
   footer a{color:#444}
   footer a:hover{color:var(--red)}
 
-  @media(max-width:1024px){
-    .hero-content{
-      grid-template-columns:1fr;
-    }
-    .layout{
+  @media(max-width:900px){
+    .details-grid{
       grid-template-columns:1fr;
     }
   }
@@ -437,7 +418,7 @@
 
 <header class="header">
   <a class="logo" href="/">TgIndex</a>
-  <span class="header-title">Ficha y reproducción</span>
+  <span class="header-sub">Ficha y reproducción</span>
   <div class="spacer"></div>
   <a class="back-btn" href="javascript:history.back()">← Volver</a>
 </header>
@@ -449,230 +430,220 @@
       <div class="hero-overlay"></div>
 
       <div class="hero-content">
-        <div>
-          <span class="hero-badge">{{ 'Contenido multimedia' if media else 'Información' }}</span>
-          <h1 class="hero-title">{{ name }}</h1>
+        <span class="hero-badge">
+          {% if media.video %}Vídeo{% elif media.audio %}Audio{% elif media.image %}Imagen{% else %}Contenido{% endif %}
+        </span>
 
-          <div class="hero-meta">
-            {% if media.video %}<span class="chip">🎬 Vídeo</span>{% endif %}
-            {% if media.audio %}<span class="chip">🎧 Audio</span>{% endif %}
-            {% if media.image %}<span class="chip">🖼 Imagen</span>{% endif %}
-            {% if download_url %}<span class="chip rating">⚡ Streaming activo</span>{% endif %}
-          </div>
+        <h1 class="hero-title">{{ name }}</h1>
 
-          <div class="hero-actions">
-            {% if download_url %}
-              <a class="btn-primary" href="#player">▶ Reproducir ahora</a>
-            {% endif %}
-            {% if reply_btns %}
-              <a class="btn-ghost" href="#acciones">🔗 Acciones</a>
-            {% endif %}
-            {% if trailer_url %}
-              <a class="btn-ghost" href="{{ trailer_url }}" target="_blank">🎞 Ver tráiler</a>
-            {% endif %}
-          </div>
+        <div class="hero-meta">
+          {% if media.video %}<span class="chip">🎬 Reproducción</span>{% endif %}
+          {% if media.audio %}<span class="chip">🎧 Audio</span>{% endif %}
+          {% if media.image %}<span class="chip">🖼 Imagen</span>{% endif %}
+          {% if rating %}<span class="chip rating">⭐ {{ rating }}</span>{% endif %}
+          {% if year %}<span class="chip">{{ year }}</span>{% endif %}
         </div>
 
-        <div class="hero-side-card">
-          <div class="hero-side-title">Resumen rápido</div>
-          <div class="hero-side-row">
-            <span>Título</span>
-            <strong>{{ name }}</strong>
-          </div>
-          <div class="hero-side-row">
-            <span>Tipo</span>
-            <strong>
-              {% if media.video %}Vídeo{% elif media.audio %}Audio{% elif media.image %}Imagen{% else %}Texto{% endif %}
-            </strong>
-          </div>
-          <div class="hero-side-row">
-            <span>Estado</span>
-            <strong>{% if found %}Disponible{% else %}No disponible{% endif %}</strong>
-          </div>
+        <div class="hero-actions">
+          {% if download_url %}
+            <a class="btn-primary" href="#player">▶ Reproducir ahora</a>
+          {% endif %}
+          {% if trailer_url %}
+            <a class="btn-ghost" href="{{ trailer_url }}" target="_blank">🎞 Ver tráiler</a>
+          {% endif %}
+          {% if reply_btns %}
+            <a class="btn-ghost" href="#acciones">🔗 Ver acciones</a>
+          {% endif %}
         </div>
       </div>
     </section>
 
     <div class="page">
-      <div class="layout">
-        <div>
-          <section class="player-panel" id="player">
-            <div class="section-head">
-              <div>
-                <div class="section-title">Reproducción</div>
-                <div class="section-sub">Visualización optimizada del contenido</div>
-              </div>
-            </div>
-
-            <div class="player-body">
-              {% if media.image %}
-                <div class="player-wrap">
-                  <img src="{{ thumbnail }}" alt="{{ name }}">
-                </div>
-
-              {% elif media.video %}
-                <div id="video-warning" class="video-warning">
-                  ⚠️ El vídeo <strong>{{ name }}</strong> no se pudo reproducir.
-                </div>
-
-                <div id="video-wrapper" class="player-wrap">
-                  <video id="my-video-player" controls poster="{{ thumbnail }}">
-                    <source src="{{ download_url }}" type="video/mp4">
-                  </video>
-                </div>
-
-                <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
-                <script>
-                  var src = document.querySelector('#my-video-player source');
-                  src.addEventListener('error', function() {
-                    document.getElementById('video-wrapper').style.display = 'none';
-                    document.getElementById('video-warning').style.display = 'block';
-                  });
-
-                  var player = fluidPlayer('my-video-player', {
-                    layoutControls: {
-                      autoPlay: false,
-                      mute: false,
-                      allowTheatre: true,
-                      playbackRateEnabled: true,
-                      allowDownload: false,
-                      playButtonShowing: true,
-                      fillToContainer: true,
-                      posterImage: "{{ thumbnail }}"
-                    }
-                  });
-                </script>
-
-              {% elif media.audio %}
-                <div id="audio-warning" class="video-warning">
-                  ⚠️ El audio <strong>{{ name }}</strong> no se pudo reproducir.
-                </div>
-
-                <div id="audio-wrapper" class="player-wrap" style="padding:24px;background:#0f0f0f;">
-                  <img src="{{ thumbnail }}" alt="{{ name }}" style="width:180px;border-radius:14px;display:block;margin:0 auto 18px;" onerror="this.style.display='none'">
-                  <audio controls style="width:100%;display:block;">
-                    <source src="{{ download_url }}" type="audio/mpeg">
-                  </audio>
-                </div>
-
-                <script>
-                  var audio = document.querySelector('audio source');
-                  audio.addEventListener('error', function() {
-                    document.getElementById('audio-wrapper').style.display = 'none';
-                    document.getElementById('audio-warning').style.display = 'block';
-                  });
-                </script>
-              {% endif %}
-
-              <div class="player-tools">
-                {% if download_url %}
-                  <a class="tool-btn" href="{{ download_url }}" target="_blank">⬇ Abrir enlace</a>
-                {% endif %}
-                {% if trailer_url %}
-                  <a class="tool-btn" href="{{ trailer_url }}" target="_blank">🎞 Ver tráiler</a>
-                {% endif %}
-                <a class="tool-btn" href="javascript:history.back()">← Volver</a>
-              </div>
-            </div>
-          </section>
-
-          {% if caption_html %}
-          <section class="caption-panel" style="margin-top:22px;">
-            <div class="section-head">
-              <div>
-                <div class="section-title">Descripción / información</div>
-                <div class="section-sub">Detalles del contenido</div>
-              </div>
-            </div>
-            <div class="caption-body">
-              <div class="description-box">{{ caption_html | safe }}</div>
-            </div>
-          </section>
-          {% endif %}
-        </div>
-
-        <aside>
-          <section class="meta-panel">
-            <div class="section-head">
-              <div>
-                <div class="section-title">Ficha rápida</div>
-                <div class="section-sub">Información general</div>
-              </div>
-            </div>
-            <div class="meta-body">
-              <div class="meta-list">
-                <div class="meta-item">
-                  <span class="meta-key">Título</span>
-                  <span class="meta-value">{{ name }}</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-key">Tipo</span>
-                  <span class="meta-value">
-                    {% if media.video %}Vídeo{% elif media.audio %}Audio{% elif media.image %}Imagen{% else %}Texto{% endif %}
-                  </span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-key">Estado</span>
-                  <span class="meta-value">Disponible</span>
-                </div>
-                {% if download_url %}
-                <div class="meta-item">
-                  <span class="meta-key">Streaming</span>
-                  <span class="meta-value">Activo</span>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-          </section>
-
-          {% if reply_btns %}
-          <section class="related-panel" id="acciones" style="margin-top:22px;">
-            <div class="section-head">
-              <div>
-                <div class="section-title">Acciones disponibles</div>
-                <div class="section-sub">Enlaces y opciones</div>
-              </div>
-            </div>
-            <div class="related-body">
-              <div class="reply-btns">
-                {% for row in reply_btns %}
-                  <div class="reply-row">
-                    {% for btn in row %}
-                      <a class="reply-btn" href="{{ btn.url }}" target="_blank">{{ btn.text }}</a>
-                    {% endfor %}
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          </section>
-          {% endif %}
-        </aside>
-      </div>
-    </div>
-
-  {% else %}
-    <div class="page">
-      <section class="caption-panel">
+      <section class="player-panel" id="player">
         <div class="section-head">
           <div>
-            <div class="section-title">Información</div>
-            <div class="section-sub">Contenido textual</div>
+            <div class="section-title">Reproducción</div>
+            <div class="section-sub">Visualización optimizada del contenido</div>
           </div>
         </div>
-        <div class="caption-body">
-          <div class="description-box">{{ text_html | safe }}</div>
+
+        <div class="player-body">
+          {% if media.image %}
+            <div class="player-wrap">
+              <img src="{{ thumbnail }}" alt="{{ name }}">
+            </div>
+
+          {% elif media.video %}
+            <div id="video-warning" class="video-warning">
+              ⚠️ El vídeo <strong>{{ name }}</strong> no se pudo reproducir.
+            </div>
+
+            <div id="video-wrapper" class="player-wrap">
+              <video id="my-video-player" controls poster="{{ thumbnail }}">
+                <source src="{{ download_url }}" type="video/mp4">
+              </video>
+            </div>
+
+            <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
+            <script>
+              var src = document.querySelector('#my-video-player source');
+              src.addEventListener('error', function() {
+                document.getElementById('video-wrapper').style.display = 'none';
+                document.getElementById('video-warning').style.display = 'block';
+              });
+
+              fluidPlayer('my-video-player', {
+                layoutControls: {
+                  autoPlay: false,
+                  mute: false,
+                  allowTheatre: true,
+                  playbackRateEnabled: true,
+                  allowDownload: false,
+                  playButtonShowing: true,
+                  fillToContainer: true,
+                  posterImage: "{{ thumbnail }}"
+                }
+              });
+            </script>
+
+          {% elif media.audio %}
+            <div id="audio-warning" class="video-warning">
+              ⚠️ El audio <strong>{{ name }}</strong> no se pudo reproducir.
+            </div>
+
+            <div id="audio-wrapper" class="player-wrap" style="padding:24px;background:#0f0f0f;">
+              <img src="{{ thumbnail }}" alt="{{ name }}" style="width:180px;border-radius:14px;display:block;margin:0 auto 18px;" onerror="this.style.display='none'">
+              <audio controls style="width:100%;display:block;">
+                <source src="{{ download_url }}" type="audio/mpeg">
+              </audio>
+            </div>
+
+            <script>
+              var audio = document.querySelector('audio source');
+              audio.addEventListener('error', function() {
+                document.getElementById('audio-wrapper').style.display = 'none';
+                document.getElementById('audio-warning').style.display = 'block';
+              });
+            </script>
+          {% endif %}
+
+          <div class="player-tools">
+            {% if trailer_url %}
+              <a class="tool-btn" href="{{ trailer_url }}" target="_blank">🎞 Ver tráiler</a>
+            {% endif %}
+            <a class="tool-btn" href="javascript:history.back()">← Volver</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="details-panel">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Descripción y detalles</div>
+            <div class="section-sub">Información del contenido</div>
+          </div>
+        </div>
+
+        <div class="details-body">
+          <div class="details-grid">
+            <div class="description-box">
+              {% if caption_html %}
+                {{ caption_html | safe }}
+              {% else %}
+                No hay descripción disponible.
+              {% endif %}
+            </div>
+
+            <div class="meta-list">
+              <div class="meta-item">
+                <span class="meta-key">Título</span>
+                <span class="meta-value">{{ name }}</span>
+              </div>
+
+              {% if year %}
+              <div class="meta-item">
+                <span class="meta-key">Año</span>
+                <span class="meta-value">{{ year }}</span>
+              </div>
+              {% endif %}
+
+              {% if rating %}
+              <div class="meta-item">
+                <span class="meta-key">Puntuación</span>
+                <span class="meta-value">⭐ {{ rating }}</span>
+              </div>
+              {% endif %}
+
+              {% if media.video %}
+              <div class="meta-item">
+                <span class="meta-key">Formato</span>
+                <span class="meta-value">Vídeo</span>
+              </div>
+              {% elif media.audio %}
+              <div class="meta-item">
+                <span class="meta-key">Formato</span>
+                <span class="meta-value">Audio</span>
+              </div>
+              {% elif media.image %}
+              <div class="meta-item">
+                <span class="meta-key">Formato</span>
+                <span class="meta-value">Imagen</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
         </div>
       </section>
 
       {% if reply_btns %}
-      <section class="related-panel" style="margin-top:22px;">
+      <section class="actions-panel" id="acciones">
         <div class="section-head">
           <div>
             <div class="section-title">Acciones disponibles</div>
             <div class="section-sub">Opciones relacionadas</div>
           </div>
         </div>
-        <div class="related-body">
+
+        <div class="actions-body">
+          <div class="reply-btns">
+            {% for row in reply_btns %}
+              <div class="reply-row">
+                {% for btn in row %}
+                  <a class="reply-btn" href="{{ btn.url }}" target="_blank">{{ btn.text }}</a>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <div class="page">
+      <section class="details-panel">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Información</div>
+            <div class="section-sub">Contenido textual</div>
+          </div>
+        </div>
+
+        <div class="details-body">
+          <div class="description-box">{{ text_html | safe }}</div>
+        </div>
+      </section>
+
+      {% if reply_btns %}
+      <section class="actions-panel" style="margin-top:24px;">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Acciones disponibles</div>
+            <div class="section-sub">Opciones relacionadas</div>
+          </div>
+        </div>
+
+        <div class="actions-body">
           <div class="reply-btns">
             {% for row in reply_btns %}
               <div class="reply-row">
@@ -687,7 +658,6 @@
       {% endif %}
     </div>
   {% endif %}
-
 {% else %}
   <div class="not-found">
     <h2>Contenido no encontrado</h2>
@@ -699,5 +669,6 @@
 <footer>
   <a href="https://github.com/odysseusmax" target="_blank">@odysseusmax</a>
 </footer>
+
 </body>
 </html>
