@@ -14,7 +14,7 @@ from telethon.tl.types import User, Chat, Channel
 
 from .tmdb import enrich_entry
 from .util import get_file_name, get_human_size
-from .config import otg_settings, chat_ids, enable_otg, WEB_PLANS
+from .config import otg_settings, chat_ids, enable_otg, WEB_PLANS, INTERNAL_SERVICE_KEY
 from .web_auth import (
     consume_web_login_token,
     make_session_cookie,
@@ -28,10 +28,6 @@ from .web_auth import (
 from .supabase_client import supabase
 
 log = logging.getLogger(__name__)
-
-ALLOWED_EXTERNAL_ORIGINS = [
-    "botneflixtelegram.fly.dev",
-]
 
 
 def _has_media(m):
@@ -125,6 +121,15 @@ class Views:
         ip_address = req.remote or ""
         return build_access_context(user, device_id, user_agent, ip_address)
 
+    def _has_internal_service_access(self, req):
+        if not INTERNAL_SERVICE_KEY:
+            return False
+
+        q_key = req.query.get("service_key", "")
+        h_key = req.headers.get("X-Internal-Service-Key", "")
+
+        return q_key == INTERNAL_SERVICE_KEY or h_key == INTERNAL_SERVICE_KEY
+
     def _is_telegram_webapp_request(self, req):
         ua = (req.headers.get("User-Agent") or "").lower()
         referer = (req.headers.get("Referer") or "").lower()
@@ -148,25 +153,39 @@ class Views:
         ua = (req.headers.get("User-Agent") or "").lower()
         return "oficaofficialapp" in ua
 
-    def _is_allowed_external_origin(self, req):
-        referer = (req.headers.get("Referer") or "").lower()
-        origin = (req.headers.get("Origin") or "").lower()
-
-        for allowed in ALLOWED_EXTERNAL_ORIGINS:
-            allowed = allowed.lower()
-            if allowed in referer or allowed in origin:
-                return True
-
-        return False
-
     def _is_allowed_session(self, req):
         session_source = self._get_session_source(req)
         return session_source in ("telegram_webapp", "official_app")
 
-    def _ensure_telegram_or_session(self, req):
+    def _allow_initial_public_entry(self, req):
+        path = req.path or ""
+
+        if path == "/":
+            return True
+
+        if path.startswith("/auth/telegram-webapp"):
+            return True
+
+        if path.startswith("/blocked"):
+            return True
+
+        if path.startswith("/plans"):
+            return True
+
+        # permitir páginas de catálogo iniciales /{alias}
+        parts = [p for p in path.split("/") if p]
+        if len(parts) == 1:
+            return True
+
+        return False
+
+    def _ensure_allowed_access(self, req):
         user = self._get_current_user(req)
         if user and self._is_allowed_session(req):
             return user
+
+        if self._has_internal_service_access(req):
+            return None
 
         if self._is_telegram_webapp_request(req):
             return None
@@ -174,7 +193,7 @@ class Views:
         if self._is_official_app_request(req):
             return None
 
-        if self._is_allowed_external_origin(req):
+        if self._allow_initial_public_entry(req):
             return None
 
         raise web.HTTPFound("/blocked")
@@ -283,7 +302,7 @@ class Views:
 
     @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
         return {
             "title": "Planes web",
@@ -293,10 +312,10 @@ class Views:
         }
 
     async def activate_pass(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         user = self._get_current_user(req)
         if not user:
-            raise web.HTTPFound("/blocked")
+            raise web.HTTPFound("/plans?e=Debes acceder desde Telegram o app oficial")
 
         data = await req.post()
         plan_code = data.get("plan_code", "")
@@ -310,7 +329,7 @@ class Views:
 
     @aiohttp_jinja2.template('devices.html')
     async def devices_view(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         user = self._get_current_user(req)
         if not user:
             raise web.HTTPFound("/blocked")
@@ -331,7 +350,7 @@ class Views:
         raise response
 
     async def api_catalog(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
 
         from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
 
@@ -397,7 +416,7 @@ class Views:
 
     @aiohttp_jinja2.template('home.html')
     async def home(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
 
         if len(chat_ids) == 1:
@@ -415,7 +434,7 @@ class Views:
 
     @aiohttp_jinja2.template('otg.html')
     async def otg_view(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         if not enable_otg:
             raise web.HTTPFound('/')
         return_data = {}
@@ -426,7 +445,7 @@ class Views:
 
     @aiohttp_jinja2.template('playlistCreator.html')
     async def playlist_creator(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         return_data = {}
         error = req.query.get('e')
         if error:
@@ -434,7 +453,7 @@ class Views:
         return return_data
 
     async def dynamic_view(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
 
         if not enable_otg:
             raise web.HTTPFound('/')
@@ -462,7 +481,7 @@ class Views:
 
     @aiohttp_jinja2.template('index.html')
     async def index(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
 
         purpose = req.headers.get('Purpose', '') or req.headers.get('Sec-Purpose', '')
         if 'prefetch' in purpose.lower():
@@ -583,7 +602,7 @@ class Views:
 
     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
@@ -734,7 +753,7 @@ class Views:
         return await self.handle_request(req, head=True)
 
     async def thumbnail_get(self, req):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
 
         file_id = int(req.match_info["id"])
         alias_id = req.match_info['chat']
@@ -797,7 +816,7 @@ class Views:
         )
 
     async def handle_request(self, req, head=False):
-        self._ensure_telegram_or_session(req)
+        self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
