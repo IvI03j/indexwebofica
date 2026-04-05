@@ -1046,8 +1046,6 @@
 
         <a href="/devices" class="top-pill link">📱 Dispositivos</a>
         <a href="/logout" class="top-pill link">🚪 Salir</a>
-      {% else %}
-        <a href="/plans" class="top-pill red link">🔒 Acceder desde Telegram</a>
       {% endif %}
     </div>
 
@@ -1420,41 +1418,42 @@
 
 <script>
   async function telegramMiniAppLogin() {
-  try {
-    const tg = window.Telegram?.WebApp;
-    if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-      return;
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+        return;
+      }
+
+      tg.ready();
+      try { tg.expand(); } catch(e) {}
+
+      const user = tg.initDataUnsafe.user;
+      const serverUserId = "{{ web_user.telegram_id if web_user else '' }}";
+
+      if (serverUserId && String(serverUserId) === String(user.id)) {
+        sessionStorage.setItem('tg_webapp_authed', String(user.id));
+        return;
+      }
+
+      const redirecting = sessionStorage.getItem('tg_webapp_redirecting');
+      if (redirecting === String(user.id)) {
+        sessionStorage.removeItem('tg_webapp_redirecting');
+        return;
+      }
+
+      sessionStorage.setItem('tg_webapp_redirecting', String(user.id));
+
+      const nextUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      const username = encodeURIComponent(user.username || '');
+      const firstName = encodeURIComponent(user.first_name || '');
+
+      window.location.href =
+        `/auth/telegram-webapp?telegram_id=${user.id}&username=${username}&first_name=${firstName}&next=${nextUrl}`;
+    } catch (error) {
+      console.error('Error autenticando Telegram Mini App:', error);
     }
-
-    tg.ready();
-    try { tg.expand(); } catch(e) {}
-
-    const user = tg.initDataUnsafe.user;
-    const serverUserId = "{{ web_user.telegram_id if web_user else '' }}";
-
-    if (serverUserId && String(serverUserId) === String(user.id)) {
-      sessionStorage.setItem('tg_webapp_authed', String(user.id));
-      return;
-    }
-
-    const redirecting = sessionStorage.getItem('tg_webapp_redirecting');
-    if (redirecting === String(user.id)) {
-      sessionStorage.removeItem('tg_webapp_redirecting');
-      return;
-    }
-
-    sessionStorage.setItem('tg_webapp_redirecting', String(user.id));
-
-    const nextUrl = encodeURIComponent(window.location.pathname + window.location.search);
-    const username = encodeURIComponent(user.username || '');
-    const firstName = encodeURIComponent(user.first_name || '');
-
-    window.location.href =
-      `/auth/telegram-webapp?telegram_id=${user.id}&username=${username}&first_name=${firstName}&next=${nextUrl}`;
-  } catch (error) {
-    console.error('Error autenticando Telegram Mini App:', error);
   }
-}
+
   const activeGenreFilters = { genre:'', type:'', year:'', rating:'' };
   const fullSectionFilters = { genre:'', type:'', year:'', rating:'' };
 
