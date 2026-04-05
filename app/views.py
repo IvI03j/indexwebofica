@@ -32,11 +32,11 @@ log = logging.getLogger(__name__)
 
 def _has_media(m):
     if not m.media:
-      return False
+        return False
     if isinstance(m.media, types.MessageMediaWebPage):
-      return False
+        return False
     if not m.file:
-      return False
+        return False
     mime = m.file.mime_type or ""
     return mime.startswith("video/")
 
@@ -104,14 +104,18 @@ class Views:
         if not user_id:
             return None
 
-        return get_user_by_id(user_id)
+        user = get_user_by_id(user_id)
+        log.error(f"_get_current_user user_id={user_id} user={user}")
+        return user
 
     def _get_access_context(self, req):
         user = self._get_current_user(req)
         device_id = self._get_device_id(req)
         user_agent = req.headers.get("User-Agent", "")
         ip_address = req.remote or ""
-        return build_access_context(user, device_id, user_agent, ip_address)
+        ctx = build_access_context(user, device_id, user_agent, ip_address)
+        log.error(f"_get_access_context coins={ctx.get('coins')} has_web_access={ctx.get('has_web_access')} web_user={ctx.get('web_user')}")
+        return ctx
 
     async def wildcard(self, req):
         raise web.HTTPFound('/')
@@ -161,7 +165,10 @@ class Views:
         if not telegram_id:
             return web.json_response({"ok": False, "error": "Falta telegram_id"}, status=400)
 
+        log.error(f"MINIAPP AUTH telegram_id={telegram_id} username={username} first_name={first_name}")
+
         user = get_user_by_telegram_id(int(telegram_id))
+        log.error(f"MINIAPP AUTH FOUND USER BEFORE CREATE={user}")
 
         if not user:
             created = (
@@ -177,6 +184,9 @@ class Views:
             if not created.data:
                 return web.json_response({"ok": False, "error": "No se pudo crear el usuario"}, status=500)
             user = created.data[0]
+            log.error(f"MINIAPP AUTH CREATED USER={user}")
+
+        log.error(f"MINIAPP AUTH FINAL USER={user}")
 
         session_value = make_session_cookie(user["id"])
 
