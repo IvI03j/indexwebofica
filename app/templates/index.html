@@ -314,20 +314,32 @@
     .hero{
       position:relative;
       min-height:84vh;
-      display:flex;
-      align-items:flex-end;
       overflow:hidden;
     }
+
+    .hero-slide{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .8s ease;
+    }
+
+    .hero-slide.active{
+      opacity:1;
+      pointer-events:auto;
+      z-index:2;
+    }
+
     .hero-bg{
       position:absolute;
       inset:0;
       background-size:cover;
       background-position:center top;
       transform:scale(1.04);
-      transition:transform 9s ease;
       filter:saturate(1.05);
     }
-    .hero:hover .hero-bg{transform:scale(1)}
+
     .hero-overlay{
       position:absolute;
       inset:0;
@@ -335,14 +347,45 @@
         linear-gradient(0deg, rgba(7,7,7,1) 0%, rgba(7,7,7,.88) 28%, rgba(7,7,7,.16) 58%, transparent 100%),
         linear-gradient(90deg, rgba(7,7,7,.96) 0%, rgba(7,7,7,.58) 42%, rgba(7,7,7,.12) 68%, transparent 100%);
     }
+
     .hero-content{
       position:relative;
       z-index:2;
       width:100%;
-      padding:0 42px 56px;
       max-width:760px;
+      padding:280px 42px 56px;
       animation:fadeUp .7s ease;
     }
+
+    .hero-dots{
+      position:absolute;
+      z-index:5;
+      right:34px;
+      bottom:24px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .hero-dot{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      border:none;
+      background:rgba(255,255,255,.35);
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .hero-dot.active{
+      background:var(--red);
+      transform:scale(1.15);
+    }
+
+    .hero-dot:hover{
+      background:#fff;
+    }
+
     @keyframes fadeUp{
       from{opacity:0;transform:translateY(16px)}
       to{opacity:1;transform:translateY(0)}
@@ -870,28 +913,6 @@
       transform:none;
     }
 
-    .full-section-header{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:0 32px 20px;
-      flex-wrap:wrap;
-    }
-    .back-to-main-btn{
-      border:none;
-      background:#161616;
-      color:#fff;
-      border:1px solid #2a2a2a;
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-    .back-to-main-btn:hover{
-      background:#222;
-    }
-
     footer{
       padding:24px 32px 30px;
       color:#777;
@@ -908,17 +929,19 @@
       .sidebar{display:none}
       .content{margin-left:0}
       .topbar{left:0;padding:12px 16px}
-      .hero{min-height:72vh}
-      .hero-content{padding:0 18px 34px}
+      .hero-content{padding:260px 18px 34px}
       .hero-title{font-size:2.5rem}
       .hero-overview{-webkit-line-clamp:3}
+      .hero-dots{
+        right:16px;
+        bottom:16px;
+      }
       .row-header{padding:0 16px 12px}
       .row-slider-shell{padding:0 16px}
       .filters-panel{padding:0 16px 16px}
       .vertical-grid-wrap{padding:0 16px 8px}
       .pagination{padding:18px 16px 8px}
       .empty-filter-message{padding:0 16px}
-      .full-section-header{padding:0 16px 16px}
       footer{padding:22px 16px 28px}
       .search-input{width:180px}
       .search-input:focus{width:220px}
@@ -939,7 +962,7 @@
     <div class="sb-brand-mark">TG</div>
     <div class="sb-brand-text">
       <div class="sb-brand-title">TGINDEX</div>
-      <div class="sb-brand-sub">Streaming Telegram</div>
+      <div class="sb-brand-sub">Biblioteca autorizada</div>
     </div>
   </div>
 
@@ -1011,7 +1034,7 @@
   <header class="topbar" id="topbar">
     <div class="topbar-meta">
       <span class="topbar-title">{{ title }}</span>
-      <span class="topbar-sub">Biblioteca premium</span>
+      <span class="topbar-sub">Catálogo autorizado</span>
     </div>
 
     <div class="spacer"></div>
@@ -1036,7 +1059,7 @@
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <form method="GET">
-        <input id="mainSearch" class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar películas o series...">
+        <input id="mainSearch" class="search-input" type="text" name="search" value="{{ search or '' }}" placeholder="Buscar contenido...">
       </form>
     </div>
   </header>
@@ -1044,7 +1067,7 @@
   {% if not has_web_access %}
     <div class="notice-banner">
       <strong>Modo catálogo activo.</strong>
-      Puedes explorar todo el contenido, pero para abrir películas o series necesitas activar un plan con monedas.
+      Puedes explorar todo el contenido, pero para abrir fichas necesitas activar un plan con monedas.
       <div class="notice-actions">
         <a href="/plans" class="notice-btn">Activar acceso</a>
         {% if device_limit_reached %}
@@ -1103,49 +1126,13 @@
       {% set recently_added = recently_added | sort(attribute='created_at', reverse=True) %}
     {% endif %}
 
-    {% set hero = namespace(item=None) %}
+    {% set featured_heroes = [] %}
     {% for item in newest_releases %}
-      {% if not hero.item and item.get('tmdb') and item.tmdb.backdrop %}
-        {% set hero.item = item %}
+      {% if item.get('tmdb') and item.tmdb.backdrop %}
+        {% if featured_heroes.append(item) %}{% endif %}
       {% endif %}
+      {% if featured_heroes|length >= 3 %}{% break %}{% endif %}
     {% endfor %}
-
-    {% if hero.item %}
-      {% set hi = hero.item %}
-      {% set ht = hi.tmdb %}
-      <section class="hero">
-        <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
-        <div class="hero-overlay"></div>
-
-        <div class="hero-content">
-          <span class="hero-kicker">{{ 'Serie' if ht.is_series else 'Película' }} destacada</span>
-          <h1 class="hero-title">{{ ht.title }}</h1>
-
-          <div class="hero-meta">
-            {% if ht.year %}<span class="meta-chip">{{ ht.year }}</span>{% endif %}
-            {% if ht.rating > 0 %}<span class="meta-chip rating">⭐ {{ ht.rating }}</span>{% endif %}
-            <span class="meta-chip">{{ 'Serie' if ht.is_series else 'Película' }}</span>
-          </div>
-
-          {% if ht.overview %}
-            <p class="hero-overview">{{ ht.overview }}</p>
-          {% endif %}
-
-          {% if ht.genres %}
-            <div class="hero-genres">
-              {% for g in ht.genres[:5] %}
-                <span class="hero-genre">{{ g }}</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          <div class="hero-actions">
-            <a class="btn-main" href="{{ hi.url if has_web_access else '/plans' }}">▶ Reproducir</a>
-            <a class="btn-secondary" href="{{ hi.url if has_web_access else '/plans' }}">ℹ Ver detalles</a>
-          </div>
-        </div>
-      </section>
-    {% endif %}
 
     {% macro card(item) %}
       {% set t = item.tmdb if item.get('tmdb') else None %}
@@ -1232,6 +1219,126 @@
       </div>
     {% endmacro %}
 
+    {% macro vertical_section(section_id, title, grid_id, items, empty_id, pagination_id, extra_filters='') %}
+      <section id="{{ section_id }}" class="content-section" style="display:none;">
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">{{ title }}</h2>
+            <div class="row-line"></div>
+          </div>
+
+          <div class="filters-panel">
+            {{ extra_filters | safe }}
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Puntuación</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="{{ grid_id }}" data-filter-group="rating" data-value="">Cualquiera</button>
+                <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="rating" data-value="8">8+ ⭐</button>
+                <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="rating" data-value="7">7+ ⭐</button>
+                <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="rating" data-value="6">6+ ⭐</button>
+                <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="rating" data-value="5">5+ ⭐</button>
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Año</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="{{ grid_id }}" data-filter-group="year" data-value="">Todos</button>
+                {% for y in years | sort(reverse=True) %}
+                  <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Género</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="{{ grid_id }}" data-filter-group="genre" data-value="">Todos</button>
+                {% for g in all_genres | sort %}
+                  <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="filters-actions">
+              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('{{ grid_id }}')">Limpiar filtros</button>
+            </div>
+          </div>
+
+          <div class="empty-filter-message" id="{{ empty_id }}">
+            No se encontraron resultados con los filtros seleccionados.
+          </div>
+
+          <div class="vertical-grid-wrap">
+            <div class="vertical-grid" id="{{ grid_id }}">
+              {% for item in items %}
+                {{ card(item) }}
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="pagination" id="{{ pagination_id }}"></div>
+        </div>
+      </section>
+    {% endmacro %}
+
+    {% set genres_type_filters %}
+      <div class="chip-group-wrap">
+        <div class="chip-group-title">Tipo</div>
+        <div class="chip-row">
+          <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="type" data-value="">Todo</button>
+          <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="pelicula">Películas</button>
+          <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="serie">Series</button>
+        </div>
+      </div>
+    {% endset %}
+
+    {% if featured_heroes %}
+      <section class="hero" id="heroRotator">
+        {% for hi in featured_heroes %}
+          {% set ht = hi.tmdb %}
+          <div class="hero-slide {% if loop.first %}active{% endif %}" data-hero-slide>
+            <div class="hero-bg" style="background-image:url('{{ ht.backdrop }}')"></div>
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+              <span class="hero-kicker">{{ 'Serie' if ht.is_series else 'Película' }} destacada</span>
+              <h1 class="hero-title">{{ ht.title }}</h1>
+
+              <div class="hero-meta">
+                {% if ht.year %}<span class="meta-chip">{{ ht.year }}</span>{% endif %}
+                {% if ht.rating > 0 %}<span class="meta-chip rating">⭐ {{ ht.rating }}</span>{% endif %}
+                <span class="meta-chip">{{ 'Serie' if ht.is_series else 'Película' }}</span>
+              </div>
+
+              {% if ht.overview %}
+                <p class="hero-overview">{{ ht.overview }}</p>
+              {% endif %}
+
+              {% if ht.genres %}
+                <div class="hero-genres">
+                  {% for g in ht.genres[:5] %}
+                    <span class="hero-genre">{{ g }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="hero-actions">
+                <a class="btn-main" href="{{ hi.url if has_web_access else '/plans' }}">▶ Reproducir</a>
+                <a class="btn-secondary" href="{{ hi.url if has_web_access else '/plans' }}">ℹ Ver detalles</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        <div class="hero-dots" id="heroDots">
+          {% for hi in featured_heroes %}
+            <button class="hero-dot {% if loop.first %}active{% endif %}" data-hero-dot="{{ loop.index0 }}"></button>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
     <main class="main">
       <section id="section-home" class="content-section">
         {{ slider_row('🆕 Nuevos lanzamientos', newest_releases[:20], 'slider-home-releases', 'newest_releases') }}
@@ -1249,195 +1356,33 @@
         {{ slider_row('🕒 Añadido recientemente', recently_added[:20], 'slider-home-added', 'recently_added') }}
       </section>
 
-      <section id="section-movies" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🎬 Películas</h2>
-            <div class="row-line"></div>
-          </div>
+      {{ vertical_section('section-movies', '🎬 Películas', 'moviesGrid', movies, 'moviesEmptyMessage', 'moviesPagination') }}
 
-          <div class="filters-panel">
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Puntuación</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="rating" data-value="">Cualquiera</button>
-                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
-                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
-                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
-              </div>
-            </div>
+      {{ vertical_section('section-series', '📺 Series', 'seriesGrid', series_list, 'seriesEmptyMessage', 'seriesPagination') }}
 
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Año</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="year" data-value="">Todos</button>
-                {% for y in years | sort(reverse=True) %}
-                  <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Género</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="genre" data-value="">Todos</button>
-                {% for g in all_genres | sort %}
-                  <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="filters-actions">
-              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('moviesGrid')">Limpiar filtros</button>
-            </div>
-          </div>
-
-          <div class="empty-filter-message" id="moviesEmptyMessage">
-            No se encontraron películas con los filtros seleccionados.
-          </div>
-
-          <div class="vertical-grid-wrap">
-            <div class="vertical-grid" id="moviesGrid">
-              {% for item in movies %}
-                {{ card(item) }}
-              {% endfor %}
-            </div>
-          </div>
-
-          <div class="pagination" id="moviesPagination"></div>
-        </div>
-      </section>
-
-      <section id="section-series" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">📺 Series</h2>
-            <div class="row-line"></div>
-          </div>
-
-          <div class="filters-panel">
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Puntuación</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="rating" data-value="">Cualquiera</button>
-                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
-                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
-                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Año</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="year" data-value="">Todos</button>
-                {% for y in years | sort(reverse=True) %}
-                  <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Género</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="genre" data-value="">Todos</button>
-                {% for g in all_genres | sort %}
-                  <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="filters-actions">
-              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('seriesGrid')">Limpiar filtros</button>
-            </div>
-          </div>
-
-          <div class="empty-filter-message" id="seriesEmptyMessage">
-            No se encontraron series con los filtros seleccionados.
-          </div>
-
-          <div class="vertical-grid-wrap">
-            <div class="vertical-grid" id="seriesGrid">
-              {% for item in series_list %}
-                {{ card(item) }}
-              {% endfor %}
-            </div>
-          </div>
-
-          <div class="pagination" id="seriesPagination"></div>
-        </div>
-      </section>
-
-      <section id="section-genres" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="row-header">
-            <h2 class="row-title">🎭 Géneros</h2>
-            <div class="row-line"></div>
-          </div>
-
-          <div class="filters-panel">
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Tipo</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="type" data-value="">Todo</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="pelicula">Películas</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="serie">Series</button>
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Puntuación</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="rating" data-value="">Cualquiera</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
-                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="5">5+ ⭐</button>
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Año</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="year" data-value="">Todos</button>
-                {% for y in years | sort(reverse=True) %}
-                  <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Género</div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="genre" data-value="">Todos</button>
-                {% for g in all_genres | sort %}
-                  <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <div class="filters-actions">
-              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('genresGrid')">Limpiar filtros</button>
-            </div>
-          </div>
-
-          <div class="empty-filter-message" id="genresEmptyMessage">
-            No se encontraron resultados con los filtros seleccionados.
-          </div>
-
-          <div class="vertical-grid-wrap">
-            <div class="vertical-grid" id="genresGrid">
-              {% for item in media_items %}
-                {% if item.get('tmdb') %}
-                  {{ card(item) }}
-                {% endif %}
-              {% endfor %}
-            </div>
-          </div>
-
-          <div class="pagination" id="genresPagination"></div>
-        </div>
-      </section>
+      {{ vertical_section('section-genres', '🎭 Géneros', 'genresGrid', media_items, 'genresEmptyMessage', 'genresPagination', genres_type_filters) }}
     </main>
+
+    <div id="hidden-expanded-sources" style="display:none;">
+      <div data-expand-source="newest_releases">
+        {% for item in newest_releases %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="recently_added">
+        {% for item in recently_added %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="movies">
+        {% for item in movies %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="series">
+        {% for item in series_list %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="animation">
+        {% for item in animation_best %}{{ card(item) }}{% endfor %}
+      </div>
+      <div data-expand-source="horror">
+        {% for item in horror_best %}{{ card(item) }}{% endfor %}
+      </div>
+    </div>
   {% endif %}
 
   <footer>@odysseusmax</footer>
@@ -1481,12 +1426,13 @@
     }
   }
 
-  let previousMainSection = 'home';
   const gridsState = {
     moviesGrid: { filters: { genre:'', year:'', rating:'' }, page: 1, perPage: 24, emptyId: 'moviesEmptyMessage', paginationId: 'moviesPagination' },
     seriesGrid: { filters: { genre:'', year:'', rating:'' }, page: 1, perPage: 24, emptyId: 'seriesEmptyMessage', paginationId: 'seriesPagination' },
     genresGrid: { filters: { genre:'', year:'', rating:'', type:'' }, page: 1, perPage: 24, emptyId: 'genresEmptyMessage', paginationId: 'genresPagination' }
   };
+
+  let previousMainSection = 'home';
 
   function showSection(section) {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
@@ -1509,6 +1455,33 @@
   function focusSearch() {
     const input = document.getElementById('mainSearch');
     if (input) input.focus();
+  }
+
+  function setupHeroRotator() {
+    const slides = document.querySelectorAll('[data-hero-slide]');
+    const dots = document.querySelectorAll('[data-hero-dot]');
+    if (!slides.length || slides.length < 2) return;
+
+    let current = 0;
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+      current = index;
+    }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => showSlide(i));
+    });
+
+    setInterval(() => {
+      const next = (current + 1) % slides.length;
+      showSlide(next);
+    }, 6000);
   }
 
   function openFullSection(key, title) {
@@ -1765,9 +1738,8 @@
     });
   }
 
-  // SIN scroll horizontal con rueda
   function setupWheelHorizontal() {
-    // desactivado a propósito
+    // Desactivado a propósito para que no haga scroll horizontal con ratón
   }
 
   window.addEventListener('scroll', () => {
@@ -1787,6 +1759,7 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     await telegramMiniAppLogin();
+    setupHeroRotator();
     setupGridFilterChips();
     setupSliderButtons();
     setupSliderDrag();
