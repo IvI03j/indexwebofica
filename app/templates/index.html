@@ -523,7 +523,6 @@
       padding:8px 2px 14px;
       scrollbar-width:none;
       -ms-overflow-style:none;
-      cursor:grab;
       user-select:none;
     }
     .cards-grid::-webkit-scrollbar{display:none}
@@ -546,7 +545,7 @@
       user-select:none;
     }
     .card:hover{
-      transform:scale(1.08) translateY(-8px);
+      transform:scale(1.05) translateY(-6px);
       z-index:30;
     }
     .card-inner{
@@ -571,7 +570,7 @@
       transition:transform .42s ease, filter .42s ease;
     }
     .card:hover .card-poster{
-      transform:scale(1.06);
+      transform:scale(1.04);
       filter:brightness(.34);
     }
 
@@ -739,8 +738,7 @@
       stroke-linejoin:round;
     }
 
-    .genre-filter-box,
-    .section-filter-box{
+    .filters-panel{
       padding:0 32px 18px;
       display:flex;
       flex-direction:column;
@@ -768,8 +766,7 @@
     }
     .chip-row::-webkit-scrollbar{display:none}
 
-    .filter-chip,
-    .section-filter-chip{
+    .filter-chip{
       border:none;
       background:#181818;
       color:#d4d4d4;
@@ -783,15 +780,13 @@
       transition:all .2s ease;
       flex:0 0 auto;
     }
-    .filter-chip:hover,
-    .section-filter-chip:hover{
+    .filter-chip:hover{
       background:#222;
       color:#fff;
       border-color:#3a3a3a;
       transform:translateY(-1px);
     }
-    .filter-chip.active,
-    .section-filter-chip.active{
+    .filter-chip.active{
       background:linear-gradient(135deg,var(--red),#ff4d57);
       color:#fff;
       border-color:transparent;
@@ -804,8 +799,7 @@
       align-items:center;
       flex-wrap:wrap;
     }
-    .clear-filters-btn,
-    .clear-section-filters-btn{
+    .clear-filters-btn{
       border:none;
       background:#151515;
       color:#fff;
@@ -816,37 +810,31 @@
       cursor:pointer;
       transition:.2s ease;
     }
-    .clear-filters-btn:hover,
-    .clear-section-filters-btn:hover{
+    .clear-filters-btn:hover{
       background:#222;
     }
 
-    .empty-filter-message,
-    .empty-section-message{
+    .empty-filter-message{
       display:none;
       padding:0 32px;
       color:#8f8f8f;
       font-size:.95rem;
     }
 
-    .genres-vertical-wrap,
-    .full-section-grid-wrap{
+    .vertical-grid-wrap{
       padding:0 32px 8px;
     }
-    .genres-grid,
-    .full-section-grid{
+    .vertical-grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(170px, 1fr));
       gap:var(--gap);
     }
-    .genres-grid .card,
-    .full-section-grid .card{
+    .vertical-grid .card{
       width:100%;
       height:var(--card-h);
     }
 
-    .pagination,
-    .section-pagination{
+    .pagination{
       display:flex;
       justify-content:center;
       align-items:center;
@@ -854,8 +842,7 @@
       flex-wrap:wrap;
       padding:18px 32px 8px;
     }
-    .page-btn,
-    .section-page-btn{
+    .page-btn{
       min-width:42px;
       height:42px;
       border:none;
@@ -868,19 +855,16 @@
       cursor:pointer;
       transition:.2s ease;
     }
-    .page-btn:hover,
-    .section-page-btn:hover{
+    .page-btn:hover{
       background:#222;
       transform:translateY(-1px);
     }
-    .page-btn.active,
-    .section-page-btn.active{
+    .page-btn.active{
       background:linear-gradient(135deg,var(--red),#ff4d57);
       border-color:transparent;
       box-shadow:0 10px 20px rgba(229,9,20,.22);
     }
-    .page-btn:disabled,
-    .section-page-btn:disabled{
+    .page-btn:disabled{
       opacity:.45;
       cursor:not-allowed;
       transform:none;
@@ -930,10 +914,10 @@
       .hero-overview{-webkit-line-clamp:3}
       .row-header{padding:0 16px 12px}
       .row-slider-shell{padding:0 16px}
-      .genre-filter-box,.section-filter-box{padding:0 16px 16px}
-      .genres-vertical-wrap,.full-section-grid-wrap{padding:0 16px 8px}
-      .pagination,.section-pagination{padding:18px 16px 8px}
-      .empty-filter-message,.empty-section-message{padding:0 16px}
+      .filters-panel{padding:0 16px 16px}
+      .vertical-grid-wrap{padding:0 16px 8px}
+      .pagination{padding:18px 16px 8px}
+      .empty-filter-message{padding:0 16px}
       .full-section-header{padding:0 16px 16px}
       footer{padding:22px 16px 28px}
       .search-input{width:180px}
@@ -1266,11 +1250,121 @@
       </section>
 
       <section id="section-movies" class="content-section" style="display:none;">
-        {{ slider_row('🎬 Películas', movies[:50], 'slider-movies', 'movies') }}
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">🎬 Películas</h2>
+            <div class="row-line"></div>
+          </div>
+
+          <div class="filters-panel">
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Puntuación</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="rating" data-value="">Cualquiera</button>
+                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
+                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
+                <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Año</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="year" data-value="">Todos</button>
+                {% for y in years | sort(reverse=True) %}
+                  <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Género</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="moviesGrid" data-filter-group="genre" data-value="">Todos</button>
+                {% for g in all_genres | sort %}
+                  <button class="filter-chip" data-target-grid="moviesGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="filters-actions">
+              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('moviesGrid')">Limpiar filtros</button>
+            </div>
+          </div>
+
+          <div class="empty-filter-message" id="moviesEmptyMessage">
+            No se encontraron películas con los filtros seleccionados.
+          </div>
+
+          <div class="vertical-grid-wrap">
+            <div class="vertical-grid" id="moviesGrid">
+              {% for item in movies %}
+                {{ card(item) }}
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="pagination" id="moviesPagination"></div>
+        </div>
       </section>
 
       <section id="section-series" class="content-section" style="display:none;">
-        {{ slider_row('📺 Series', series_list[:50], 'slider-series', 'series') }}
+        <div class="row-section">
+          <div class="row-header">
+            <h2 class="row-title">📺 Series</h2>
+            <div class="row-line"></div>
+          </div>
+
+          <div class="filters-panel">
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Puntuación</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="rating" data-value="">Cualquiera</button>
+                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
+                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
+                <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Año</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="year" data-value="">Todos</button>
+                {% for y in years | sort(reverse=True) %}
+                  <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="chip-group-wrap">
+              <div class="chip-group-title">Género</div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-target-grid="seriesGrid" data-filter-group="genre" data-value="">Todos</button>
+                {% for g in all_genres | sort %}
+                  <button class="filter-chip" data-target-grid="seriesGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="filters-actions">
+              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('seriesGrid')">Limpiar filtros</button>
+            </div>
+          </div>
+
+          <div class="empty-filter-message" id="seriesEmptyMessage">
+            No se encontraron series con los filtros seleccionados.
+          </div>
+
+          <div class="vertical-grid-wrap">
+            <div class="vertical-grid" id="seriesGrid">
+              {% for item in series_list %}
+                {{ card(item) }}
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="pagination" id="seriesPagination"></div>
+        </div>
       </section>
 
       <section id="section-genres" class="content-section" style="display:none;">
@@ -1280,33 +1374,33 @@
             <div class="row-line"></div>
           </div>
 
-          <div class="genre-filter-box">
+          <div class="filters-panel">
             <div class="chip-group-wrap">
               <div class="chip-group-title">Tipo</div>
               <div class="chip-row">
-                <button class="filter-chip active" data-filter-group="type" data-value="">Todo</button>
-                <button class="filter-chip" data-filter-group="type" data-value="pelicula">Películas</button>
-                <button class="filter-chip" data-filter-group="type" data-value="serie">Series</button>
+                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="type" data-value="">Todo</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="pelicula">Películas</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="serie">Series</button>
               </div>
             </div>
 
             <div class="chip-group-wrap">
               <div class="chip-group-title">Puntuación</div>
               <div class="chip-row">
-                <button class="filter-chip active" data-filter-group="rating" data-value="">Cualquiera</button>
-                <button class="filter-chip" data-filter-group="rating" data-value="8">8+ ⭐</button>
-                <button class="filter-chip" data-filter-group="rating" data-value="7">7+ ⭐</button>
-                <button class="filter-chip" data-filter-group="rating" data-value="6">6+ ⭐</button>
-                <button class="filter-chip" data-filter-group="rating" data-value="5">5+ ⭐</button>
+                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="rating" data-value="">Cualquiera</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="8">8+ ⭐</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="7">7+ ⭐</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="6">6+ ⭐</button>
+                <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="rating" data-value="5">5+ ⭐</button>
               </div>
             </div>
 
             <div class="chip-group-wrap">
               <div class="chip-group-title">Año</div>
               <div class="chip-row">
-                <button class="filter-chip active" data-filter-group="year" data-value="">Todos</button>
+                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="year" data-value="">Todos</button>
                 {% for y in years | sort(reverse=True) %}
-                  <button class="filter-chip" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
+                  <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="year" data-value="{{ y }}">{{ y }}</button>
                 {% endfor %}
               </div>
             </div>
@@ -1314,24 +1408,24 @@
             <div class="chip-group-wrap">
               <div class="chip-group-title">Género</div>
               <div class="chip-row">
-                <button class="filter-chip active" data-filter-group="genre" data-value="">Todos</button>
+                <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="genre" data-value="">Todos</button>
                 {% for g in all_genres | sort %}
-                  <button class="filter-chip" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
+                  <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="genre" data-value="{{ g | lower }}">{{ g }}</button>
                 {% endfor %}
               </div>
             </div>
 
             <div class="filters-actions">
-              <button class="clear-filters-btn" type="button" onclick="resetGenreFilters()">Limpiar filtros</button>
+              <button class="clear-filters-btn" type="button" onclick="resetGridFilters('genresGrid')">Limpiar filtros</button>
             </div>
           </div>
 
-          <div class="empty-filter-message" id="emptyFilterMessage">
+          <div class="empty-filter-message" id="genresEmptyMessage">
             No se encontraron resultados con los filtros seleccionados.
           </div>
 
-          <div class="genres-vertical-wrap">
-            <div class="full-section-grid" id="genresGrid">
+          <div class="vertical-grid-wrap">
+            <div class="vertical-grid" id="genresGrid">
               {% for item in media_items %}
                 {% if item.get('tmdb') %}
                   {{ card(item) }}
@@ -1343,74 +1437,7 @@
           <div class="pagination" id="genresPagination"></div>
         </div>
       </section>
-
-      <section id="section-fullview" class="content-section" style="display:none;">
-        <div class="row-section">
-          <div class="full-section-header">
-            <button class="back-to-main-btn" type="button" onclick="closeFullSection()">← Volver</button>
-            <h2 class="row-title" id="fullSectionTitle">Sección</h2>
-            <div class="row-line"></div>
-          </div>
-
-          <div class="section-filter-box">
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Tipo</div>
-              <div class="chip-row" id="fullFilterType"></div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Puntuación</div>
-              <div class="chip-row" id="fullFilterRating"></div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Año</div>
-              <div class="chip-row" id="fullFilterYear"></div>
-            </div>
-
-            <div class="chip-group-wrap">
-              <div class="chip-group-title">Género</div>
-              <div class="chip-row" id="fullFilterGenre"></div>
-            </div>
-
-            <div class="filters-actions">
-              <button class="clear-section-filters-btn" type="button" onclick="resetFullSectionFilters()">Limpiar filtros</button>
-            </div>
-          </div>
-
-          <div class="empty-section-message" id="emptyFullSectionMessage">
-            No se encontraron resultados en esta sección con los filtros seleccionados.
-          </div>
-
-          <div class="full-section-grid-wrap">
-            <div class="full-section-grid" id="fullSectionGrid"></div>
-          </div>
-
-          <div class="section-pagination" id="fullSectionPagination"></div>
-        </div>
-      </section>
     </main>
-
-    <div id="hidden-expanded-sources" style="display:none;">
-      <div data-expand-source="newest_releases">
-        {% for item in newest_releases %}{{ card(item) }}{% endfor %}
-      </div>
-      <div data-expand-source="recently_added">
-        {% for item in recently_added %}{{ card(item) }}{% endfor %}
-      </div>
-      <div data-expand-source="movies">
-        {% for item in movies %}{{ card(item) }}{% endfor %}
-      </div>
-      <div data-expand-source="series">
-        {% for item in series_list %}{{ card(item) }}{% endfor %}
-      </div>
-      <div data-expand-source="animation">
-        {% for item in animation_best %}{{ card(item) }}{% endfor %}
-      </div>
-      <div data-expand-source="horror">
-        {% for item in horror_best %}{{ card(item) }}{% endfor %}
-      </div>
-    </div>
   {% endif %}
 
   <footer>@odysseusmax</footer>
@@ -1418,50 +1445,48 @@
 
 <script>
   async function telegramMiniAppLogin() {
-  try {
-    const tg = window.Telegram?.WebApp;
-    if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-      return;
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+        return;
+      }
+
+      tg.ready();
+      try { tg.expand(); } catch(e) {}
+
+      const user = tg.initDataUnsafe.user;
+      const serverUserId = "{{ web_user.telegram_id if web_user else '' }}";
+
+      if (serverUserId && String(serverUserId) === String(user.id)) {
+        sessionStorage.setItem('tg_webapp_authed', String(user.id));
+        return;
+      }
+
+      const redirecting = sessionStorage.getItem('tg_webapp_redirecting');
+      if (redirecting === String(user.id)) {
+        sessionStorage.removeItem('tg_webapp_redirecting');
+        return;
+      }
+
+      sessionStorage.setItem('tg_webapp_redirecting', String(user.id));
+
+      const nextUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      const username = encodeURIComponent(user.username || '');
+      const firstName = encodeURIComponent(user.first_name || '');
+
+      window.location.href =
+        `/auth/telegram-webapp?telegram_id=${user.id}&username=${username}&first_name=${firstName}&next=${nextUrl}`;
+    } catch (error) {
+      console.error('Error autenticando Telegram Mini App:', error);
     }
-
-    tg.ready();
-    try { tg.expand(); } catch(e) {}
-
-    const user = tg.initDataUnsafe.user;
-    const serverUserId = "{{ web_user.telegram_id if web_user else '' }}";
-
-    if (serverUserId && String(serverUserId) === String(user.id)) {
-      sessionStorage.setItem('tg_webapp_authed', String(user.id));
-      return;
-    }
-
-    const redirecting = sessionStorage.getItem('tg_webapp_redirecting');
-    if (redirecting === String(user.id)) {
-      sessionStorage.removeItem('tg_webapp_redirecting');
-      return;
-    }
-
-    sessionStorage.setItem('tg_webapp_redirecting', String(user.id));
-
-    const nextUrl = encodeURIComponent(window.location.pathname + window.location.search);
-    const username = encodeURIComponent(user.username || '');
-    const firstName = encodeURIComponent(user.first_name || '');
-
-    window.location.href =
-      `/auth/telegram-webapp?telegram_id=${user.id}&username=${username}&first_name=${firstName}&next=${nextUrl}`;
-  } catch (error) {
-    console.error('Error autenticando Telegram Mini App:', error);
   }
-}
-  const activeGenreFilters = { genre:'', type:'', year:'', rating:'' };
-  const fullSectionFilters = { genre:'', type:'', year:'', rating:'' };
 
-  let genresCurrentPage = 1;
   let previousMainSection = 'home';
-  const genresPerPage = 24;
-
-  let fullSectionCurrentPage = 1;
-  const fullSectionPerPage = 24;
+  const gridsState = {
+    moviesGrid: { filters: { genre:'', year:'', rating:'' }, page: 1, perPage: 24, emptyId: 'moviesEmptyMessage', paginationId: 'moviesPagination' },
+    seriesGrid: { filters: { genre:'', year:'', rating:'' }, page: 1, perPage: 24, emptyId: 'seriesEmptyMessage', paginationId: 'seriesPagination' },
+    genresGrid: { filters: { genre:'', year:'', rating:'', type:'' }, page: 1, perPage: 24, emptyId: 'genresEmptyMessage', paginationId: 'genresPagination' }
+  };
 
   function showSection(section) {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
@@ -1473,12 +1498,11 @@
     const items = document.querySelectorAll('.sb-item');
     if (items[map[section]]) items[map[section]].classList.add('active');
 
-    if (section === 'genres') {
-      setTimeout(() => applyGenreFilters(), 50);
-    } else {
-      setTimeout(() => refreshAllSliderArrows(), 80);
-    }
+    if (section === 'movies') applyGridFilters('moviesGrid', false);
+    if (section === 'series') applyGridFilters('seriesGrid', false);
+    if (section === 'genres') applyGridFilters('genresGrid', false);
 
+    setTimeout(() => refreshAllSliderArrows(), 80);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1487,42 +1511,81 @@
     if (input) input.focus();
   }
 
-  function getVisibleGenreCards() {
-    return [...document.querySelectorAll('#genresGrid .card')].filter(card => card.dataset.filteredVisible === 'true');
+  function openFullSection(key, title) {
+    const source = document.querySelector(`[data-expand-source="${key}"]`);
+    if (!source) return;
+
+    const current = [...document.querySelectorAll('.content-section')]
+      .find(sec => sec.style.display !== 'none');
+    if (current) previousMainSection = current.id.replace('section-', '');
+
+    const overlay = document.createElement('section');
+    overlay.className = 'content-section';
+    overlay.id = 'section-full-temp';
+    overlay.innerHTML = `
+      <div class="row-section">
+        <div class="full-section-header">
+          <button class="back-to-main-btn" type="button" onclick="closeTempFullSection()">← Volver</button>
+          <h2 class="row-title">${title}</h2>
+          <div class="row-line"></div>
+        </div>
+        <div class="vertical-grid-wrap">
+          <div class="vertical-grid">${source.innerHTML}</div>
+        </div>
+      </div>
+    `;
+
+    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    document.querySelector('.main').appendChild(overlay);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function renderGenresPagination() {
-    const pagination = document.getElementById('genresPagination');
-    const cards = getVisibleGenreCards();
+  function closeTempFullSection() {
+    const temp = document.getElementById('section-full-temp');
+    if (temp) temp.remove();
+    const target = document.getElementById('section-' + previousMainSection);
+    if (target) target.style.display = '';
+    setTimeout(() => refreshAllSliderArrows(), 80);
+  }
+
+  function getVisibleCards(gridId) {
+    return [...document.querySelectorAll(`#${gridId} .card`)].filter(card => card.dataset.visible === 'true');
+  }
+
+  function renderPagination(gridId) {
+    const state = gridsState[gridId];
+    const pagination = document.getElementById(state.paginationId);
+    const cards = getVisibleCards(gridId);
     if (!pagination) return;
 
-    const totalPages = Math.max(1, Math.ceil(cards.length / genresPerPage));
-    if (genresCurrentPage > totalPages) genresCurrentPage = totalPages;
+    const totalPages = Math.max(1, Math.ceil(cards.length / state.perPage));
+    if (state.page > totalPages) state.page = totalPages;
 
     pagination.innerHTML = '';
 
     const prev = document.createElement('button');
     prev.className = 'page-btn';
     prev.textContent = '‹';
-    prev.disabled = genresCurrentPage === 1;
+    prev.disabled = state.page === 1;
     prev.onclick = () => {
-      if (genresCurrentPage > 1) {
-        genresCurrentPage--;
-        updateGenresPage();
+      if (state.page > 1) {
+        state.page--;
+        updateGridPage(gridId);
       }
     };
     pagination.appendChild(prev);
 
-    const startPage = Math.max(1, genresCurrentPage - 2);
+    const startPage = Math.max(1, state.page - 2);
     const endPage = Math.min(totalPages, startPage + 4);
 
     for (let i = startPage; i <= endPage; i++) {
       const btn = document.createElement('button');
-      btn.className = 'page-btn' + (i === genresCurrentPage ? ' active' : '');
+      btn.className = 'page-btn' + (i === state.page ? ' active' : '');
       btn.textContent = i;
       btn.onclick = () => {
-        genresCurrentPage = i;
-        updateGenresPage();
+        state.page = i;
+        updateGridPage(gridId);
       };
       pagination.appendChild(btn);
     }
@@ -1530,11 +1593,11 @@
     const next = document.createElement('button');
     next.className = 'page-btn';
     next.textContent = '›';
-    next.disabled = genresCurrentPage === totalPages;
+    next.disabled = state.page === totalPages;
     next.onclick = () => {
-      if (genresCurrentPage < totalPages) {
-        genresCurrentPage++;
-        updateGenresPage();
+      if (state.page < totalPages) {
+        state.page++;
+        updateGridPage(gridId);
       }
     };
     pagination.appendChild(next);
@@ -1542,27 +1605,25 @@
     pagination.style.display = cards.length > 0 ? 'flex' : 'none';
   }
 
-  function updateGenresPage() {
-    const cards = getVisibleGenreCards();
-    const start = (genresCurrentPage - 1) * genresPerPage;
-    const end = start + genresPerPage;
+  function updateGridPage(gridId) {
+    const state = gridsState[gridId];
+    const cards = getVisibleCards(gridId);
+    const start = (state.page - 1) * state.perPage;
+    const end = start + state.perPage;
 
     cards.forEach((card, index) => {
       card.style.display = (index >= start && index < end) ? '' : 'none';
     });
 
-    renderGenresPagination();
+    renderPagination(gridId);
   }
 
-  function applyGenreFilters(resetPage = true) {
-    const genre = activeGenreFilters.genre || '';
-    const type = activeGenreFilters.type || '';
-    const year = activeGenreFilters.year || '';
-    const rating = activeGenreFilters.rating || '';
-
+  function applyGridFilters(gridId, resetPage = true) {
+    const state = gridsState[gridId];
+    const filters = state.filters;
     let visibleCount = 0;
 
-    document.querySelectorAll('#genresGrid .card').forEach(card => {
+    document.querySelectorAll(`#${gridId} .card`).forEach(card => {
       const cardType = card.dataset.type || '';
       const cardYear = card.dataset.year || '';
       const cardRating = parseFloat(card.dataset.rating || '0');
@@ -1570,264 +1631,55 @@
 
       let visible = true;
 
-      if (genre && !cardGenres.includes(genre)) visible = false;
-      if (type && cardType !== type) visible = false;
-      if (year && cardYear !== year) visible = false;
-      if (rating && cardRating < parseFloat(rating)) visible = false;
+      if (filters.genre && !cardGenres.includes(filters.genre)) visible = false;
+      if (filters.type && cardType !== filters.type) visible = false;
+      if (filters.year && cardYear !== filters.year) visible = false;
+      if (filters.rating && cardRating < parseFloat(filters.rating)) visible = false;
 
-      card.dataset.filteredVisible = visible ? 'true' : 'false';
+      card.dataset.visible = visible ? 'true' : 'false';
       card.style.display = 'none';
 
       if (visible) visibleCount++;
     });
 
-    const emptyMsg = document.getElementById('emptyFilterMessage');
-    const pagination = document.getElementById('genresPagination');
+    const empty = document.getElementById(state.emptyId);
+    const pagination = document.getElementById(state.paginationId);
 
-    if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    if (empty) empty.style.display = visibleCount === 0 ? 'block' : 'none';
     if (pagination) pagination.style.display = visibleCount === 0 ? 'none' : 'flex';
 
-    if (resetPage) genresCurrentPage = 1;
-    if (visibleCount > 0) updateGenresPage();
+    if (resetPage) state.page = 1;
+    if (visibleCount > 0) updateGridPage(gridId);
   }
 
-  function resetGenreFilters() {
-    activeGenreFilters.genre = '';
-    activeGenreFilters.type = '';
-    activeGenreFilters.year = '';
-    activeGenreFilters.rating = '';
+  function resetGridFilters(gridId) {
+    const state = gridsState[gridId];
+    Object.keys(state.filters).forEach(k => state.filters[k] = '');
 
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-      const value = chip.dataset.value ?? '';
-      chip.classList.toggle('active', value === '');
+    document.querySelectorAll(`.filter-chip[data-target-grid="${gridId}"]`).forEach(chip => {
+      chip.classList.toggle('active', (chip.dataset.value || '') === '');
     });
 
-    applyGenreFilters(true);
+    applyGridFilters(gridId, true);
   }
 
-  function setupFilterChips() {
+  function setupGridFilterChips() {
     document.querySelectorAll('.filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
+        const gridId = chip.dataset.targetGrid;
         const group = chip.dataset.filterGroup;
         const value = chip.dataset.value ?? '';
 
-        document.querySelectorAll(`.filter-chip[data-filter-group="${group}"]`).forEach(c => c.classList.remove('active'));
+        if (!gridId || !gridsState[gridId]) return;
+
+        document.querySelectorAll(`.filter-chip[data-target-grid="${gridId}"][data-filter-group="${group}"]`)
+          .forEach(c => c.classList.remove('active'));
+
         chip.classList.add('active');
-        activeGenreFilters[group] = value;
-        applyGenreFilters(true);
+        gridsState[gridId].filters[group] = value;
+        applyGridFilters(gridId, true);
       });
     });
-  }
-
-  function openFullSection(key, title) {
-    const source = document.querySelector(`[data-expand-source="${key}"]`);
-    const grid = document.getElementById('fullSectionGrid');
-    const section = document.getElementById('section-fullview');
-    const titleEl = document.getElementById('fullSectionTitle');
-
-    if (!source || !grid || !section || !titleEl) return;
-
-    const activeSection = [...document.querySelectorAll('.content-section')]
-      .find(sec => sec.style.display !== 'none' && sec.id !== 'section-fullview');
-
-    if (activeSection) {
-      previousMainSection = activeSection.id.replace('section-', '');
-    }
-
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    titleEl.textContent = title;
-    grid.innerHTML = source.innerHTML;
-    section.style.display = '';
-
-    resetFullSectionFilters(true);
-    buildFullSectionFilters();
-    applyFullSectionFilters(true);
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function closeFullSection() {
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    const target = document.getElementById('section-' + previousMainSection);
-    if (target) target.style.display = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    if (previousMainSection === 'genres') {
-      setTimeout(() => applyGenreFilters(), 50);
-    } else {
-      setTimeout(() => refreshAllSliderArrows(), 80);
-    }
-  }
-
-  function buildChipList(containerId, values, groupName, defaultLabel) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    const defaultChip = document.createElement('button');
-    defaultChip.className = 'section-filter-chip active';
-    defaultChip.dataset.filterGroup = groupName;
-    defaultChip.dataset.value = '';
-    defaultChip.textContent = defaultLabel;
-    container.appendChild(defaultChip);
-
-    values.forEach(value => {
-      const chip = document.createElement('button');
-      chip.className = 'section-filter-chip';
-      chip.dataset.filterGroup = groupName;
-      chip.dataset.value = value;
-      chip.textContent = value;
-      container.appendChild(chip);
-    });
-  }
-
-  function buildFullSectionFilters() {
-    const cards = [...document.querySelectorAll('#fullSectionGrid .card')];
-
-    const years = [...new Set(cards.map(c => c.dataset.year).filter(Boolean))].sort((a,b) => Number(b)-Number(a));
-    const genresSet = new Set();
-    cards.forEach(c => {
-      (c.dataset.genres || '').split('|').filter(Boolean).forEach(g => genresSet.add(g));
-    });
-    const genres = [...genresSet].sort((a,b) => a.localeCompare(b));
-
-    buildChipList('fullFilterType', ['pelicula', 'serie'], 'type', 'Todo');
-    buildChipList('fullFilterRating', ['8', '7', '6', '5'], 'rating', 'Cualquiera');
-    buildChipList('fullFilterYear', years, 'year', 'Todos');
-    buildChipList('fullFilterGenre', genres, 'genre', 'Todos');
-
-    document.querySelectorAll('.section-filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const group = chip.dataset.filterGroup;
-        const value = chip.dataset.value ?? '';
-
-        document.querySelectorAll(`.section-filter-chip[data-filter-group="${group}"]`).forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        fullSectionFilters[group] = value;
-        applyFullSectionFilters(true);
-      });
-    });
-  }
-
-  function resetFullSectionFilters(skipRender = false) {
-    fullSectionFilters.genre = '';
-    fullSectionFilters.type = '';
-    fullSectionFilters.year = '';
-    fullSectionFilters.rating = '';
-    fullSectionCurrentPage = 1;
-
-    if (!skipRender) {
-      document.querySelectorAll('.section-filter-chip').forEach(chip => {
-        const value = chip.dataset.value ?? '';
-        chip.classList.toggle('active', value === '');
-      });
-      applyFullSectionFilters(true);
-    }
-  }
-
-  function getVisibleFullSectionCards() {
-    return [...document.querySelectorAll('#fullSectionGrid .card')].filter(card => card.dataset.fullVisible === 'true');
-  }
-
-  function renderFullSectionPagination() {
-    const pagination = document.getElementById('fullSectionPagination');
-    const cards = getVisibleFullSectionCards();
-    if (!pagination) return;
-
-    const totalPages = Math.max(1, Math.ceil(cards.length / fullSectionPerPage));
-    if (fullSectionCurrentPage > totalPages) fullSectionCurrentPage = totalPages;
-
-    pagination.innerHTML = '';
-
-    const prev = document.createElement('button');
-    prev.className = 'section-page-btn';
-    prev.textContent = '‹';
-    prev.disabled = fullSectionCurrentPage === 1;
-    prev.onclick = () => {
-      if (fullSectionCurrentPage > 1) {
-        fullSectionCurrentPage--;
-        updateFullSectionPage();
-      }
-    };
-    pagination.appendChild(prev);
-
-    const startPage = Math.max(1, fullSectionCurrentPage - 2);
-    const endPage = Math.min(totalPages, startPage + 4);
-
-    for (let i = startPage; i <= endPage; i++) {
-      const btn = document.createElement('button');
-      btn.className = 'section-page-btn' + (i === fullSectionCurrentPage ? ' active' : '');
-      btn.textContent = i;
-      btn.onclick = () => {
-        fullSectionCurrentPage = i;
-        updateFullSectionPage();
-      };
-      pagination.appendChild(btn);
-    }
-
-    const next = document.createElement('button');
-    next.className = 'section-page-btn';
-    next.textContent = '›';
-    next.disabled = fullSectionCurrentPage === totalPages;
-    next.onclick = () => {
-      if (fullSectionCurrentPage < totalPages) {
-        fullSectionCurrentPage++;
-        updateFullSectionPage();
-      }
-    };
-    pagination.appendChild(next);
-
-    pagination.style.display = cards.length > 0 ? 'flex' : 'none';
-  }
-
-  function updateFullSectionPage() {
-    const cards = getVisibleFullSectionCards();
-    const start = (fullSectionCurrentPage - 1) * fullSectionPerPage;
-    const end = start + fullSectionPerPage;
-
-    cards.forEach((card, index) => {
-      card.style.display = (index >= start && index < end) ? '' : 'none';
-    });
-
-    renderFullSectionPagination();
-  }
-
-  function applyFullSectionFilters(resetPage = true) {
-    const genre = fullSectionFilters.genre || '';
-    const type = fullSectionFilters.type || '';
-    const year = fullSectionFilters.year || '';
-    const rating = fullSectionFilters.rating || '';
-
-    let visibleCount = 0;
-
-    document.querySelectorAll('#fullSectionGrid .card').forEach(card => {
-      const cardType = card.dataset.type || '';
-      const cardYear = card.dataset.year || '';
-      const cardRating = parseFloat(card.dataset.rating || '0');
-      const cardGenres = (card.dataset.genres || '').toLowerCase().split('|').filter(Boolean);
-
-      let visible = true;
-
-      if (genre && !cardGenres.includes(genre)) visible = false;
-      if (type && cardType !== type) visible = false;
-      if (year && cardYear !== year) visible = false;
-      if (rating && cardRating < parseFloat(rating)) visible = false;
-
-      card.dataset.fullVisible = visible ? 'true' : 'false';
-      card.style.display = 'none';
-
-      if (visible) visibleCount++;
-    });
-
-    const emptyMsg = document.getElementById('emptyFullSectionMessage');
-    const pagination = document.getElementById('fullSectionPagination');
-
-    if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
-    if (pagination) pagination.style.display = visibleCount === 0 ? 'none' : 'flex';
-
-    if (resetPage) fullSectionCurrentPage = 1;
-    if (visibleCount > 0) updateFullSectionPage();
   }
 
   function scrollSlider(track, direction = 1) {
@@ -1865,13 +1717,6 @@
         const direction = btn.classList.contains('left') ? -1 : 1;
         scrollSlider(track, direction);
       });
-    });
-  }
-
-  function setupSliderScrollWatch() {
-    document.querySelectorAll('.slider-track').forEach(track => {
-      track.addEventListener('scroll', () => refreshSliderArrows(track));
-      refreshSliderArrows(track);
     });
   }
 
@@ -1920,15 +1765,9 @@
     });
   }
 
+  // SIN scroll horizontal con rueda
   function setupWheelHorizontal() {
-    document.querySelectorAll('.slider-track').forEach(track => {
-      track.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-          e.preventDefault();
-          track.scrollLeft += e.deltaY;
-        }
-      }, { passive:false });
-    });
+    // desactivado a propósito
   }
 
   window.addEventListener('scroll', () => {
@@ -1948,13 +1787,14 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     await telegramMiniAppLogin();
-    setupFilterChips();
+    setupGridFilterChips();
     setupSliderButtons();
-    setupSliderScrollWatch();
     setupSliderDrag();
     setupWheelHorizontal();
     refreshAllSliderArrows();
-    applyGenreFilters(true);
+    applyGridFilters('moviesGrid', true);
+    applyGridFilters('seriesGrid', true);
+    applyGridFilters('genresGrid', true);
   });
 </script>
 </body>
