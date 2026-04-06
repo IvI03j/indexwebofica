@@ -747,6 +747,89 @@ class Views:
 
         return {'found': False, 'reason': "Some kind of entry that I cannot display", **access_ctx}
 
+    @aiohttp_jinja2.template('player.html')
+    async def player_view(self, req):
+        user = self._get_current_user(req)
+        if not user:
+            raise web.HTTPFound("/plans")
+
+        access_ctx = self._get_access_context(req)
+        if not access_ctx.get("has_web_access"):
+            raise web.HTTPFound("/plans")
+
+        file_id = int(req.match_info["id"])
+        try:
+            alias_id = req.match_info['chat']
+        except Exception:
+            alias_id = chat_ids[0]['alias_id']
+
+        chat = [i for i in chat_ids if i['alias_id'] == alias_id]
+        if not chat:
+            if not enable_otg:
+                raise web.HTTPFound('/')
+            try:
+                chat_id = int(alias_id)
+            except Exception:
+                raise web.HTTPFound('/')
+        else:
+            chat = chat[0]
+            chat_id = chat['chat_id']
+
+        try:
+            message = await self.client.get_messages(entity=chat_id, ids=file_id)
+        except Exception:
+            log.debug(f"Error in getting message {file_id} in {chat_id}", exc_info=True)
+            message = None
+
+        if not message or not isinstance(message, Message) or not message.file:
+            return {'found': False, 'reason': "Contenido no disponible"}
+
+        file_name = get_file_name(message)
+        temp_entry = {
+            "media": True,
+            "insight": file_name,
+        }
+        enriched = await enrich_entry(temp_entry)
+
+        tmdb = enriched.get("tmdb") or {}
+        parsed = enriched.get("parsed") or {}
+
+        clean_title = tmdb.get("title") or parsed.get("title") or file_name
+        overview = tmdb.get("overview") or (message.raw_text if message.text else '')
+        year = tmdb.get("year")
+        rating = tmdb.get("rating")
+        trailer_url = tmdb.get("trailer_url")
+        is_series = tmdb.get("is_series", False)
+        content_type = "Serie" if is_series else "Película"
+
+        media = {'type': message.file.mime_type}
+        if 'video/' in message.file.mime_type:
+            media['video'] = True
+        elif 'audio/' in message.file.mime_type:
+            media['audio'] = True
+        elif 'image/' in message.file.mime_type:
+            media['image'] = True
+
+        return {
+            'found': True,
+            'name': file_name,
+            'file_id': file_id,
+            'media': media,
+            'title': clean_title,
+            'clean_title': clean_title,
+            'overview': overview,
+            'year': year,
+            'rating': rating,
+            'trailer_url': trailer_url,
+            'content_type': content_type,
+            'thumbnail': tmdb.get("backdrop") or tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
+            'poster': tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
+            'backdrop': tmdb.get("backdrop") or f"/{alias_id}/{file_id}/thumbnail",
+            'download_url': f"/{alias_id}/{file_id}/download",
+            'page_id': alias_id,
+            **access_ctx
+        }
+
     async def logo(self, req):
         alias_id = req.match_info['chat']
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
