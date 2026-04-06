@@ -30,10 +30,8 @@ def generate_alias_id(chat):
 def register_routes(app, handler):
     h = handler
     p = r"/{chat:[^/]+}"
-
     routes = [
         web.get("/", h.home),
-
         web.get("/auth", h.web_auth),
         web.get("/auth/telegram-webapp", h.telegram_webapp_auth),
         web.get("/blocked", h.blocked_view),
@@ -41,24 +39,21 @@ def register_routes(app, handler):
         web.post("/activate-pass", h.activate_pass),
         web.get("/devices", h.devices_view),
         web.get("/logout", h.logout),
-
         web.post("/otg", h.dynamic_view),
         web.get("/otg", h.otg_view),
         web.get("/pc", h.playlist_creator),
         web.get("/_api/catalog", h.api_catalog),
-
         web.get(p, h.index),
         web.get(p + r"/logo", h.logo),
         web.get(p + r"/{id:\d+}/view", h.info),
+        web.get(p + r"/{id:\d+}/play", h.player_view),   # ← NUEVO
         web.get(p + r"/{id:\d+}/download", h.download_get),
         web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
-
         web.get(r"/{id:\d+}/view", h.info),
+        web.get(r"/{id:\d+}/play", h.player_view),        # ← NUEVO
         web.get(r"/{id:\d+}/download", h.download_get),
-
         web.view(r"/{wildcard:.*}", h.wildcard),
     ]
-
     app.add_routes(routes)
 
 
