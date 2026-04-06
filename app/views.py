@@ -617,7 +617,7 @@ class Views:
         self._index_cache[cache_key] = (time.time(), result)
         return result
 
-    @aiohttp_jinja2.template('info.html')
+     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
         user = self._get_current_user(req)
         if not user:
@@ -654,6 +654,98 @@ class Views:
         if not message or not isinstance(message, Message):
             return {'found': False, 'reason': "Entry you are looking for cannot be retrived!"}
 
+        reply_btns = []
+        if message.reply_markup and isinstance(message.reply_markup, types.ReplyInlineMarkup):
+            for button_row in message.reply_markup.rows:
+                btns = []
+                for button in button_row.buttons:
+                    if isinstance(button, types.KeyboardButtonUrl):
+                        btns.append({'url': button.url, 'text': button.text})
+                if btns:
+                    reply_btns.append(btns)
+
+        file_name = get_file_name(message) if message.file else ''
+        temp_entry = {
+            "media": bool(message.file),
+            "insight": file_name,
+        }
+        enriched = await enrich_entry(temp_entry)
+
+        tmdb = enriched.get("tmdb") or {}
+        parsed = enriched.get("parsed") or {}
+
+        clean_title = tmdb.get("title") or parsed.get("title") or file_name
+        overview = tmdb.get("overview") or (message.raw_text if message.text else '')
+        year = tmdb.get("year")
+        rating = tmdb.get("rating")
+        trailer_url = tmdb.get("trailer_url")
+        is_series = tmdb.get("is_series", False)
+        content_type = "Serie" if is_series else "Película"
+
+        if message.file and not isinstance(message.media, types.MessageMediaWebPage):
+            file_size = message.file.size
+            human_file_size = get_human_size(file_size)
+
+            media = {'type': message.file.mime_type}
+            if 'video/' in message.file.mime_type:
+                media['video'] = True
+            elif 'audio/' in message.file.mime_type:
+                media['audio'] = True
+            elif 'image/' in message.file.mime_type:
+                media['image'] = True
+
+            caption = message.raw_text if message.text else ''
+            caption_html = Markup.escape(caption).__str__().replace('\n', '<br>')
+
+            return {
+                'found': True,
+                'name': file_name,
+                'file_id': file_id,
+                'size': file_size,
+                'human_size': human_file_size,
+                'media': media,
+                'caption_html': caption_html,
+                'caption': caption,
+                'title': f"{clean_title}",
+                'reply_btns': reply_btns,
+                'thumbnail': tmdb.get("backdrop") or tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
+                'poster': tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
+                'backdrop': tmdb.get("backdrop") or f"/{alias_id}/{file_id}/thumbnail",
+                'download_url': f"/{alias_id}/{file_id}/download",
+                'page_id': alias_id,
+                'clean_title': clean_title,
+                'overview': overview,
+                'year': year,
+                'rating': rating,
+                'trailer_url': trailer_url,
+                'content_type': content_type,
+                'episodes': [],
+                **access_ctx
+            }
+
+        elif message.message:
+            text = message.raw_text
+            text_html = Markup.escape(text).__str__().replace('\n', '<br>')
+
+            return {
+                'found': True,
+                'media': False,
+                'text': text,
+                'text_html': text_html,
+                'reply_btns': reply_btns,
+                'page_id': alias_id,
+                'title': clean_title,
+                'clean_title': clean_title,
+                'overview': overview,
+                'year': year,
+                'rating': rating,
+                'trailer_url': trailer_url,
+                'content_type': content_type,
+                'episodes': [],
+                **access_ctx
+            }
+
+        return {'found': False, 'reason': "Some kind of entry that I cannot display", **access_ctx}
         return_val = {}
         reply_btns = []
 
