@@ -261,7 +261,14 @@
           {% if has_web_access and web_access_pass %}
             Tienes acceso activo a la web.<br>
             Expira el: <strong>{{ web_access_pass.expires_at }}</strong><br>
-            Límite de dispositivos: <strong>{{ web_access_pass.device_limit }}</strong>
+            Límite de dispositivos:
+            <strong>
+            {% if web_access_pass.device_limit == 0 %}
+              Ilimitados
+            {% else %}
+              {{ web_access_pass.device_limit }}
+            {% endif %}
+            </strong>
           {% elif device_limit_reached %}
             Tu plan está activo, pero has alcanzado el límite máximo de dispositivos permitidos.
           {% else %}
@@ -286,7 +293,15 @@
 
           <div class="plan-features">
             <div class="plan-feature">✅ Acceso completo al contenido</div>
-            <div class="plan-feature">✅ Hasta {{ plan.device_limit }} dispositivos</div>
+
+            <div class="plan-feature">
+              {% if plan.device_limit == 0 %}
+                ✅ Dispositivos ilimitados
+              {% else %}
+                ✅ Hasta {{ plan.device_limit }} dispositivos
+              {% endif %}
+            </div>
+
             <div class="plan-feature">✅ Si compras otro plan, se suma el tiempo</div>
           </div>
 
