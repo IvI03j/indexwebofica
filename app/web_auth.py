@@ -120,7 +120,7 @@ def get_user_devices(user_id: int):
 
 def can_register_device(user_id: int, device_id: str, device_limit: int):
     if not device_id:
-        return False, []
+        return True, []
 
     devices = get_user_devices(user_id)
 
@@ -128,8 +128,10 @@ def can_register_device(user_id: int, device_id: str, device_limit: int):
         if d["device_id"] == device_id:
             return True, devices
 
-    if len(devices) >= device_limit:
-        return False, devices
+    # 0 = ilimitado
+    if device_limit and device_limit > 0:
+        if len(devices) >= device_limit:
+            return False, devices
 
     return True, devices
 
@@ -256,7 +258,7 @@ def build_access_context(user, device_id="", user_agent="", ip_address=""):
             "web_devices": get_user_devices(user["id"]),
         }
 
-    device_limit = int(active_pass.get("device_limit") or 3)
+    device_limit = int(active_pass.get("device_limit") or 0)
     allowed, devices = can_register_device(user["id"], device_id, device_limit)
 
     if not allowed:
