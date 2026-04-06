@@ -46,11 +46,11 @@ def register_routes(app, handler):
         web.get(p, h.index),
         web.get(p + r"/logo", h.logo),
         web.get(p + r"/{id:\d+}/view", h.info),
-        web.get(p + r"/{id:\d+}/play", h.player_view),   # ← NUEVO
+        web.get(p + r"/{id:\d+}/play", h.player_view),
         web.get(p + r"/{id:\d+}/download", h.download_get),
         web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
         web.get(r"/{id:\d+}/view", h.info),
-        web.get(r"/{id:\d+}/play", h.player_view),        # ← NUEVO
+        web.get(r"/{id:\d+}/play", h.player_view),
         web.get(r"/{id:\d+}/download", h.download_get),
         web.view(r"/{wildcard:.*}", h.wildcard),
     ]
