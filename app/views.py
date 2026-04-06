@@ -317,7 +317,7 @@ class Views:
 
         raise response
 
-           @aiohttp_jinja2.template('plans.html')
+              @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
         self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
