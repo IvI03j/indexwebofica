@@ -1,6 +1,5 @@
 import re
 import os
-import asyncio
 import logging
 import aiohttp
 
@@ -66,6 +65,34 @@ async def _fetch_genres(session):
             log.debug(f"Genre fetch error: {e}")
 
 
+async def _fetch_trailer_url(session, tmdb_id, is_series=False):
+    try:
+        media_type = "tv" if is_series else "movie"
+        url = f"{BASE_URL}/{media_type}/{tmdb_id}/videos"
+        async with session.get(url, params={"api_key": TMDB_API_KEY, "language": "es-ES"}) as r:
+            data = await r.json()
+            results = data.get("results", [])
+
+            # Prioridad a trailer en YouTube
+            for video in results:
+                if (
+                    video.get("site") == "YouTube" and
+                    video.get("type") == "Trailer" and
+                    video.get("key")
+                ):
+                    return f"https://www.youtube.com/watch?v={video['key']}"
+
+            # Si no hay trailer, coger cualquier vídeo de YouTube
+            for video in results:
+                if video.get("site") == "YouTube" and video.get("key"):
+                    return f"https://www.youtube.com/watch?v={video['key']}"
+
+    except Exception as e:
+        log.debug(f"Trailer fetch error: {e}")
+
+    return None
+
+
 async def search_tmdb(title, is_series=False):
     if not TMDB_API_KEY or not title.strip():
         return None
@@ -107,6 +134,11 @@ async def search_tmdb(title, is_series=False):
         backdrop_path = result.get("backdrop_path")
         genre_ids = result.get("genre_ids", [])
         genres = [_genre_cache.get(gid) for gid in genre_ids if gid in _genre_cache]
+        tmdb_id = result.get("id")
+
+        trailer_url = None
+        if tmdb_id:
+            trailer_url = await _fetch_trailer_url(session, tmdb_id, is_series=is_series)
 
         metadata = {
             "title": result.get("title") or result.get("name", title),
@@ -117,7 +149,8 @@ async def search_tmdb(title, is_series=False):
             "rating": round(result.get("vote_average", 0), 1),
             "is_series": is_series,
             "genres": genres,
-            "tmdb_id": result.get("id"),
+            "tmdb_id": tmdb_id,
+            "trailer_url": trailer_url,
         }
 
         _metadata_cache[cache_key] = metadata
