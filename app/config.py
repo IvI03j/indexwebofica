@@ -74,19 +74,19 @@ WEB_PLANS = {
         "label": "1 día",
         "days": 1,
         "coins": 150,
-        "device_limit": 3,
+        "device_limit": 0,
     },
     "7d": {
         "label": "7 días",
         "days": 7,
         "coins": 450,
-        "device_limit": 3,
+        "device_limit": 0,
     },
     "30d": {
         "label": "30 días",
         "days": 30,
         "coins": 1200,
-        "device_limit": 3,
+        "device_limit": 0,
     },
 }
 
