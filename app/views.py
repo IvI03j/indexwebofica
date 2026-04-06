@@ -29,6 +29,10 @@ from .supabase_client import supabase
 
 log = logging.getLogger(__name__)
 
+ALLOWED_EXTERNAL_ORIGINS = [
+    "botneflixtelegram.fly.dev",
+]
+
 
 def _has_media(m):
     if not m.media:
@@ -153,6 +157,17 @@ class Views:
         ua = (req.headers.get("User-Agent") or "").lower()
         return "oficaofficialapp" in ua
 
+    def _is_allowed_external_origin(self, req):
+        referer = (req.headers.get("Referer") or "").lower()
+        origin = (req.headers.get("Origin") or "").lower()
+
+        for allowed in ALLOWED_EXTERNAL_ORIGINS:
+            allowed = allowed.lower()
+            if allowed in referer or allowed in origin:
+                return True
+
+        return False
+
     def _is_allowed_session(self, req):
         session_source = self._get_session_source(req)
         return session_source in ("telegram_webapp", "official_app")
@@ -172,7 +187,6 @@ class Views:
         if path.startswith("/plans"):
             return True
 
-        # permitir páginas de catálogo iniciales /{alias}
         parts = [p for p in path.split("/") if p]
         if len(parts) == 1:
             return True
@@ -191,6 +205,9 @@ class Views:
             return None
 
         if self._is_official_app_request(req):
+            return None
+
+        if self._is_allowed_external_origin(req):
             return None
 
         if self._allow_initial_public_entry(req):
@@ -323,7 +340,7 @@ class Views:
         result = activate_web_plan(user["id"], plan_code)
 
         if not result["ok"]:
-            raise web.HTTPFound(f"/plans?e={result['error']}")
+          raise web.HTTPFound(f"/plans?e={result['error']}")
 
         raise web.HTTPFound("/plans?ok=1")
 
@@ -602,7 +619,10 @@ class Views:
 
     @aiohttp_jinja2.template('info.html')
     async def info(self, req):
-        self._ensure_allowed_access(req)
+        user = self._get_current_user(req)
+        if not user:
+            raise web.HTTPFound("/plans")
+
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
@@ -753,8 +773,6 @@ class Views:
         return await self.handle_request(req, head=True)
 
     async def thumbnail_get(self, req):
-        self._ensure_allowed_access(req)
-
         file_id = int(req.match_info["id"])
         alias_id = req.match_info['chat']
         chat = [i for i in chat_ids if i['alias_id'] == alias_id]
@@ -816,7 +834,10 @@ class Views:
         )
 
     async def handle_request(self, req, head=False):
-        self._ensure_allowed_access(req)
+        user = self._get_current_user(req)
+        if not user:
+            raise web.HTTPFound("/plans")
+
         access_ctx = self._get_access_context(req)
         if not access_ctx.get("has_web_access"):
             raise web.HTTPFound("/plans")
