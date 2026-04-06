@@ -218,29 +218,6 @@
     color:#666;
   }
 
-  .player-body{
-    padding:18px;
-  }
-
-  .player-wrap{
-    width:100%;
-    border-radius:16px;
-    overflow:hidden;
-    background:#000;
-    box-shadow:0 10px 35px rgba(0,0,0,.5);
-  }
-
-  .video-warning{
-    display:none;
-    margin-top:12px;
-    background:#1a1a1a;
-    border:1px solid #2c2c2c;
-    color:#bbb;
-    border-radius:14px;
-    padding:18px;
-    text-align:center;
-  }
-
   .description-panel{
     margin-top:24px;
   }
@@ -388,7 +365,7 @@
 
 <header class="header">
   <a class="logo" href="/">TgIndex</a>
-  <span class="header-sub">Ficha y reproducción</span>
+  <span class="header-sub">Ficha del contenido</span>
   <div class="spacer"></div>
   <a class="back-btn" href="javascript:history.back()">← Volver</a>
 </header>
@@ -415,8 +392,8 @@
       </div>
 
       <div class="hero-actions">
-        {% if download_url %}
-          <a class="btn-primary" href="#player">▶ Play</a>
+        {% if page_id and file_id %}
+          <a class="btn-primary" href="/{{ page_id }}/{{ file_id }}/play">▶ Play</a>
         {% endif %}
         {% if trailer_url %}
           <a class="btn-ghost" href="{{ trailer_url }}" target="_blank">🎞 Ver tráiler</a>
@@ -426,67 +403,6 @@
   </section>
 
   <div class="page">
-    <section class="panel" id="player">
-      <div class="section-head">
-        <div>
-          <div class="section-title">Reproducción</div>
-          <div class="section-sub">
-            {% if is_series_view %}Serie / Episodio{% else %}Película{% endif %}
-          </div>
-        </div>
-      </div>
-
-      <div class="player-body">
-        {% if media and media.video %}
-          <div id="video-warning" class="video-warning">
-            ⚠️ El vídeo <strong>{{ display_title }}</strong> no se pudo reproducir.
-          </div>
-
-          <div id="video-wrapper" class="player-wrap">
-            <video id="my-video-player" controls poster="{{ poster if poster else thumbnail }}">
-              <source src="{{ download_url }}" type="video/mp4">
-            </video>
-          </div>
-
-          <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
-          <script>
-            const sourceNode = document.querySelector('#my-video-player source');
-            if (sourceNode) {
-              sourceNode.addEventListener('error', function() {
-                const wrapper = document.getElementById('video-wrapper');
-                const warning = document.getElementById('video-warning');
-                if (wrapper) wrapper.style.display = 'none';
-                if (warning) warning.style.display = 'block';
-              });
-            }
-
-            fluidPlayer('my-video-player', {
-              layoutControls: {
-                autoPlay: false,
-                mute: false,
-                allowTheatre: true,
-                playbackRateEnabled: true,
-                allowDownload: false,
-                playButtonShowing: true,
-                fillToContainer: true,
-                posterImage: "{{ poster if poster else thumbnail }}"
-              }
-            });
-          </script>
-        {% elif media and media.audio %}
-          <div class="player-wrap" style="padding:24px;background:#0f0f0f;">
-            <audio controls style="width:100%;display:block;">
-              <source src="{{ download_url }}" type="audio/mpeg">
-            </audio>
-          </div>
-        {% elif media and media.image %}
-          <div class="player-wrap">
-            <img src="{{ poster if poster else thumbnail }}" alt="{{ display_title }}" style="width:100%;display:block;">
-          </div>
-        {% endif %}
-      </div>
-    </section>
-
     <section class="panel description-panel">
       <div class="section-head">
         <div>
@@ -531,7 +447,7 @@
               {% for ep in episodes %}
                 {% set ep_season = ep.season if ep.season is not none else 1 %}
                 {% if ep_season == season_number %}
-                  <a href="{{ ep.url }}" class="episode-item">
+                  <a href="/{{ page_id }}/{{ ep.file_id if ep.file_id else '' }}/play" class="episode-item">
                     <div class="episode-thumb">
                       <img src="{{ poster if poster else thumbnail }}" alt="{{ ep.insight }}">
                     </div>
