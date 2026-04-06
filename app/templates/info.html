@@ -16,7 +16,6 @@
     --line:#232323;
     --text:#f5f5f5;
     --muted:#a3a3a3;
-    --muted2:#6b7280;
     --yellow:#f5c518;
   }
 
@@ -78,7 +77,7 @@
 
   .hero{
     position:relative;
-    min-height:58vh;
+    min-height:56vh;
     display:flex;
     align-items:flex-end;
     overflow:hidden;
@@ -89,7 +88,7 @@
     inset:0;
     background-size:cover;
     background-position:center;
-    filter:brightness(.44);
+    filter:brightness(.45);
     transform:scale(1.03);
   }
 
@@ -153,14 +152,6 @@
   }
   .chip.rating{color:var(--yellow)}
 
-  .hero-overview{
-    color:#d8d8d8;
-    max-width:760px;
-    line-height:1.75;
-    font-size:.95rem;
-    margin-bottom:20px;
-  }
-
   .hero-actions{
     display:flex;
     gap:12px;
@@ -194,7 +185,7 @@
   .btn-ghost:hover{background:rgba(255,255,255,.14)}
 
   .page{
-    max-width:1400px;
+    max-width:1300px;
     margin:0 auto;
     padding:26px 28px 40px;
   }
@@ -269,6 +260,7 @@
     display:flex;
     gap:10px;
     flex-wrap:wrap;
+    margin-top:24px;
     margin-bottom:18px;
   }
 
@@ -387,7 +379,6 @@
     .hero-content{padding:0 16px 24px}
     .page{padding:18px 16px 28px}
     .hero-title{font-size:2.4rem}
-    .hero-overview{font-size:.9rem}
     .episode-item{flex-direction:column}
     .episode-thumb{width:100%;height:160px}
   }
@@ -407,7 +398,7 @@
   {% set is_series_view = episodes is defined and episodes and episodes|length > 0 %}
 
   <section class="hero">
-    <div class="hero-bg" style="background-image:url('{{ thumbnail }}')"></div>
+    <div class="hero-bg" style="background-image:url('{{ backdrop if backdrop else thumbnail }}')"></div>
     <div class="hero-overlay"></div>
 
     <div class="hero-content">
@@ -440,7 +431,7 @@
         <div>
           <div class="section-title">Reproducción</div>
           <div class="section-sub">
-            {% if is_series_view %}Episodio / Serie{% else %}Película{% endif %}
+            {% if is_series_view %}Serie / Episodio{% else %}Película{% endif %}
           </div>
         </div>
       </div>
@@ -452,7 +443,7 @@
           </div>
 
           <div id="video-wrapper" class="player-wrap">
-            <video id="my-video-player" controls poster="{{ thumbnail }}">
+            <video id="my-video-player" controls poster="{{ poster if poster else thumbnail }}">
               <source src="{{ download_url }}" type="video/mp4">
             </video>
           </div>
@@ -478,7 +469,7 @@
                 allowDownload: false,
                 playButtonShowing: true,
                 fillToContainer: true,
-                posterImage: "{{ thumbnail }}"
+                posterImage: "{{ poster if poster else thumbnail }}"
               }
             });
           </script>
@@ -490,7 +481,7 @@
           </div>
         {% elif media and media.image %}
           <div class="player-wrap">
-            <img src="{{ thumbnail }}" alt="{{ display_title }}" style="width:100%;display:block;">
+            <img src="{{ poster if poster else thumbnail }}" alt="{{ display_title }}" style="width:100%;display:block;">
           </div>
         {% endif %}
       </div>
@@ -542,7 +533,7 @@
                 {% if ep_season == season_number %}
                   <a href="{{ ep.url }}" class="episode-item">
                     <div class="episode-thumb">
-                      <img src="{{ thumbnail }}" alt="{{ ep.insight }}">
+                      <img src="{{ poster if poster else thumbnail }}" alt="{{ ep.insight }}">
                     </div>
                     <div class="episode-content">
                       <div class="episode-title">
@@ -557,7 +548,11 @@
                         {% if ep.date %} · {{ ep.date }}{% endif %}
                       </div>
                       <div class="episode-desc">
-                        Selecciona este episodio para abrir su reproducción o detalle.
+                        {% if overview %}
+                          {{ overview }}
+                        {% else %}
+                          Selecciona este episodio para reproducirlo.
+                        {% endif %}
                       </div>
                     </div>
                   </a>
