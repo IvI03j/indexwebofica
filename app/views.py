@@ -317,7 +317,7 @@ class Views:
 
         raise response
 
-    @aiohttp_jinja2.template('plans.html')
+       @aiohttp_jinja2.template('plans.html')
     async def plans_view(self, req):
         self._ensure_allowed_access(req)
         access_ctx = self._get_access_context(req)
@@ -617,7 +617,7 @@ class Views:
         self._index_cache[cache_key] = (time.time(), result)
         return result
 
-     @aiohttp_jinja2.template('info.html')
+    @aiohttp_jinja2.template('info.html')
     async def info(self, req):
         user = self._get_current_user(req)
         if not user:
@@ -706,7 +706,7 @@ class Views:
                 'media': media,
                 'caption_html': caption_html,
                 'caption': caption,
-                'title': f"{clean_title}",
+                'title': clean_title,
                 'reply_btns': reply_btns,
                 'thumbnail': tmdb.get("backdrop") or tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
                 'poster': tmdb.get("poster") or f"/{alias_id}/{file_id}/thumbnail",
@@ -746,63 +746,6 @@ class Views:
             }
 
         return {'found': False, 'reason': "Some kind of entry that I cannot display", **access_ctx}
-        return_val = {}
-        reply_btns = []
-
-        if message.reply_markup:
-            if isinstance(message.reply_markup, types.ReplyInlineMarkup):
-                for button_row in message.reply_markup.rows:
-                    btns = []
-                    for button in button_row.buttons:
-                        if isinstance(button, types.KeyboardButtonUrl):
-                            btns.append({'url': button.url, 'text': button.text})
-                    reply_btns.append(btns)
-
-        if message.file and not isinstance(message.media, types.MessageMediaWebPage):
-            file_name = get_file_name(message)
-            file_size = message.file.size
-            human_file_size = get_human_size(file_size)
-            media = {'type': message.file.mime_type}
-            if 'video/' in message.file.mime_type:
-                media['video'] = True
-            elif 'audio/' in message.file.mime_type:
-                media['audio'] = True
-            elif 'image/' in message.file.mime_type:
-                media['image'] = True
-            caption = message.raw_text if message.text else ''
-            caption_html = Markup.escape(caption).__str__().replace('\n', '<br>')
-            return_val = {
-                'found': True,
-                'name': file_name,
-                'file_id': file_id,
-                'size': file_size,
-                'human_size': human_file_size,
-                'media': media,
-                'caption_html': caption_html,
-                'caption': caption,
-                'title': f"Download | {file_name} | {human_file_size}",
-                'reply_btns': reply_btns,
-                'thumbnail': f"/{alias_id}/{file_id}/thumbnail",
-                'download_url': f"/{alias_id}/{file_id}/download",
-                'page_id': alias_id,
-                **access_ctx
-            }
-        elif message.message:
-            text = message.raw_text
-            text_html = Markup.escape(text).__str__().replace('\n', '<br>')
-            return_val = {
-                'found': True,
-                'media': False,
-                'text': text,
-                'text_html': text_html,
-                'reply_btns': reply_btns,
-                'page_id': alias_id,
-                **access_ctx
-            }
-        else:
-            return_val = {'found': False, 'reason': "Some kind of entry that I cannot display", **access_ctx}
-
-        return return_val
 
     async def logo(self, req):
         alias_id = req.match_info['chat']
