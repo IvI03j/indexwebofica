@@ -1128,10 +1128,9 @@
 
     {% set featured_heroes = [] %}
     {% for item in newest_releases %}
-      {% if item.get('tmdb') and item.tmdb.backdrop %}
+      {% if item.get('tmdb') and item.tmdb.backdrop and featured_heroes|length < 3 %}
         {% if featured_heroes.append(item) %}{% endif %}
       {% endif %}
-      {% if featured_heroes|length >= 3 %}{% break %}{% endif %}
     {% endfor %}
 
     {% macro card(item) %}
@@ -1219,7 +1218,7 @@
       </div>
     {% endmacro %}
 
-    {% macro vertical_section(section_id, title, grid_id, items, empty_id, pagination_id, extra_filters='') %}
+    {% macro vertical_section(section_id, title, grid_id, items, empty_id, pagination_id, include_type_filter=false) %}
       <section id="{{ section_id }}" class="content-section" style="display:none;">
         <div class="row-section">
           <div class="row-header">
@@ -1228,7 +1227,17 @@
           </div>
 
           <div class="filters-panel">
-            {{ extra_filters | safe }}
+            {% if include_type_filter %}
+              <div class="chip-group-wrap">
+                <div class="chip-group-title">Tipo</div>
+                <div class="chip-row">
+                  <button class="filter-chip active" data-target-grid="{{ grid_id }}" data-filter-group="type" data-value="">Todo</button>
+                  <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="type" data-value="pelicula">Películas</button>
+                  <button class="filter-chip" data-target-grid="{{ grid_id }}" data-filter-group="type" data-value="serie">Series</button>
+                </div>
+              </div>
+            {% endif %}
+
             <div class="chip-group-wrap">
               <div class="chip-group-title">Puntuación</div>
               <div class="chip-row">
@@ -1272,7 +1281,9 @@
           <div class="vertical-grid-wrap">
             <div class="vertical-grid" id="{{ grid_id }}">
               {% for item in items %}
-                {{ card(item) }}
+                {% if not include_type_filter or item.get('tmdb') %}
+                  {{ card(item) }}
+                {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -1281,17 +1292,6 @@
         </div>
       </section>
     {% endmacro %}
-
-    {% set genres_type_filters %}
-      <div class="chip-group-wrap">
-        <div class="chip-group-title">Tipo</div>
-        <div class="chip-row">
-          <button class="filter-chip active" data-target-grid="genresGrid" data-filter-group="type" data-value="">Todo</button>
-          <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="pelicula">Películas</button>
-          <button class="filter-chip" data-target-grid="genresGrid" data-filter-group="type" data-value="serie">Series</button>
-        </div>
-      </div>
-    {% endset %}
 
     {% if featured_heroes %}
       <section class="hero" id="heroRotator">
@@ -1357,10 +1357,8 @@
       </section>
 
       {{ vertical_section('section-movies', '🎬 Películas', 'moviesGrid', movies, 'moviesEmptyMessage', 'moviesPagination') }}
-
       {{ vertical_section('section-series', '📺 Series', 'seriesGrid', series_list, 'seriesEmptyMessage', 'seriesPagination') }}
-
-      {{ vertical_section('section-genres', '🎭 Géneros', 'genresGrid', media_items, 'genresEmptyMessage', 'genresPagination', genres_type_filters) }}
+      {{ vertical_section('section-genres', '🎭 Géneros', 'genresGrid', media_items, 'genresEmptyMessage', 'genresPagination', true) }}
     </main>
 
     <div id="hidden-expanded-sources" style="display:none;">
@@ -1739,7 +1737,7 @@
   }
 
   function setupWheelHorizontal() {
-    // Desactivado a propósito para que no haga scroll horizontal con ratón
+    // desactivado a propósito
   }
 
   window.addEventListener('scroll', () => {
