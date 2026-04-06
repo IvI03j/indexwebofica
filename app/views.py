@@ -340,7 +340,7 @@ class Views:
         result = activate_web_plan(user["id"], plan_code)
 
         if not result["ok"]:
-          raise web.HTTPFound(f"/plans?e={result['error']}")
+            raise web.HTTPFound(f"/plans?e={result['error']}")
 
         raise web.HTTPFound("/plans?ok=1")
 
