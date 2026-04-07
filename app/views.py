@@ -684,6 +684,43 @@ class Views:
         is_series = tmdb.get("is_series", False)
         content_type = "Serie" if is_series else "Película"
 
+        # --- Buscar episodios si es una serie ---
+        episodes = []
+        if is_series and tmdb.get("tmdb_id"):
+            try:
+                batch = await self.client.get_messages(entity=chat_id, limit=300)
+                batch = batch or []
+                candidates = [m for m in batch if _has_media(m)]
+
+                enriched_list = list(await asyncio.gather(*[
+                    enrich_entry({
+                        "media": True,
+                        "insight": get_file_name(m),
+                        "file_id": m.id,
+                    }) for m in candidates
+                ]))
+
+                for m, enr in zip(candidates, enriched_list):
+                    enr_tmdb = enr.get("tmdb") or {}
+                    enr_parsed = enr.get("parsed") or {}
+                    if enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id"):
+                        episodes.append({
+                            'file_id': m.id,
+                            'url': f"/{alias_id}/{m.id}/view",
+                            'download': f"/{alias_id}/{m.id}/download",
+                            'insight': get_file_name(m),
+                            'human_size': get_human_size(m.file.size),
+                            'season': enr_parsed.get('season'),
+                            'episode': enr_parsed.get('episode'),
+                            'date': str(m.date)[:10],
+                        })
+
+                # Ordenar por temporada y episodio
+                episodes.sort(key=lambda e: (e.get('season') or 0, e.get('episode') or 0))
+            except Exception:
+                log.debug("Error al buscar episodios de la serie", exc_info=True)
+                episodes = []
+
         if message.file and not isinstance(message.media, types.MessageMediaWebPage):
             file_size = message.file.size
             human_file_size = get_human_size(file_size)
@@ -721,7 +758,7 @@ class Views:
                 'rating': rating,
                 'trailer_url': trailer_url,
                 'content_type': content_type,
-                'episodes': [],
+                'episodes': episodes,
                 **access_ctx
             }
 
@@ -743,7 +780,7 @@ class Views:
                 'rating': rating,
                 'trailer_url': trailer_url,
                 'content_type': content_type,
-                'episodes': [],
+                'episodes': episodes,
                 **access_ctx
             }
 
