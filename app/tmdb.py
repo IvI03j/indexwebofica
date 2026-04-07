@@ -1,220 +1,226 @@
 import re
+import os
+import logging
 import aiohttp
-import asyncio
 
-TMDB_API_KEY = "TU_API_KEY_AQUI"
+log = logging.getLogger(__name__)
 
-SEARCH_TV = "https://api.themoviedb.org/3/search/tv"
-SEARCH_MOVIE = "https://api.themoviedb.org/3/search/movie"
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "")
+BASE_URL = "https://api.themoviedb.org/3"
+POSTER_BASE = "https://image.tmdb.org/t/p/w500"
+BACKDROP_BASE = "https://image.tmdb.org/t/p/w1280"
 
-# Cache simple en memoria (evita llamadas repetidas)
-_tmdb_cache = {}
+_metadata_cache = {}
+_genre_cache = {}
 
-
-# -------------------------
-# UTILIDADES
-# -------------------------
-def clean_text(text):
-    if not text:
-        return ""
-
-    return re.sub(
-        r"\b(HD|720p|1080p|WEB|BluRay)\b",
-        "",
-        text,
-        flags=re.IGNORECASE
-    ).strip()
+_QUALITY_TAGS = re.compile(
+    r'\b(HD|SD|4K|UHD|720p?|1080p?|2160p?|BluRay|BDRip|WEB[-\s]?DL|WEBRip|HDTV|DVDRip|x264|x265|HEVC|AAC|AC3|DTS|Remux)\b',
+    flags=re.IGNORECASE
+)
 
 
-# -------------------------
-# PARSER
-# -------------------------
 def parse_filename(filename):
-    """
-    Extrae:
-    - title
-    - season
-    - episode
-    - subtitle
-    """
+    name = re.sub(r'\.[a-zA-Z0-9]{2,4}$', '', filename)
 
-    if not filename:
-        return None
+    series_match = re.search(
+        r'[Ss](\d{1,2})[Ee](\d{1,2})|(\d{1,2})x(\d{2})', name
+    )
 
-    pattern = r'^(.*?)\s+(\d{1,2})x(\d{1,2})(?:\s*-\s*(.*))?'
-    match = re.search(pattern, filename)
+    episode_subtitle = None
 
-    if not match:
-        return None
+    if series_match:
+        is_series = True
+        if series_match.group(1):
+            season = int(series_match.group(1))
+            episode = int(series_match.group(2))
+        else:
+            season = int(series_match.group(3))
+            episode = int(series_match.group(4))
 
-    title = match.group(1).strip()
-    season = int(match.group(2))
-    episode = int(match.group(3))
-    subtitle = clean_text(match.group(4)) if match.group(4) else ""
+        before = name[:series_match.start()].strip()
+        after = name[series_match.end():].strip()
+        raw_title = before if len(re.sub(r'[\._\-\s]+', '', before)) >= 2 else after
+
+        after_clean = _QUALITY_TAGS.sub('', after)
+        after_clean = re.sub(r'[\._\-]+', ' ', after_clean).strip()
+        after_clean = re.sub(r'\s+', ' ', after_clean).strip()
+        after_clean = re.sub(r'^[\s\-]+', '', after_clean).strip()
+
+        if len(after_clean) >= 3:
+            episode_subtitle = after_clean
+    else:
+        is_series = False
+        season = None
+        episode = None
+        year_match = re.search(r'\b(19|20)\d{2}\b', name)
+        raw_title = name[:year_match.start()] if year_match else name
+
+    title = re.sub(r'[\._\-]+', ' ', raw_title).strip()
+    title = re.sub(r'\s+', ' ', title).strip()
 
     return {
-        "title": title,
-        "season": season,
-        "episode": episode,
-        "subtitle": subtitle,
-        "is_series": True
+        'title': title,
+        'is_series': is_series,
+        'season': season,
+        'episode': episode,
+        'episode_subtitle': episode_subtitle,
     }
 
 
-# -------------------------
-# NORMALIZAR RESPUESTA TMDB
-# -------------------------
-def normalize_tmdb(item):
-    """
-    Asegura que SIEMPRE tenga las claves que usa tu frontend
-    """
-
-    if not item:
-        return {
-            "name": "",
-            "title": "",
-            "poster_path": None,
-            "backdrop_path": None,
-            "overview": ""
-        }
-
-    return {
-        "name": item.get("name") or item.get("title") or "",
-        "title": item.get("title") or item.get("name") or "",
-        "poster_path": item.get("poster_path"),
-        "backdrop_path": item.get("backdrop_path"),
-        "overview": item.get("overview", "")
-    }
+async def _fetch_genres(session):
+    global _genre_cache
+    if _genre_cache:
+        return
+    for media_type in ["movie", "tv"]:
+        try:
+            url = f"{BASE_URL}/genre/{media_type}/list"
+            async with session.get(url, params={"api_key": TMDB_API_KEY, "language": "es-ES"}) as r:
+                data = await r.json()
+                for g in data.get("genres", []):
+                    _genre_cache[g["id"]] = g["name"]
+        except Exception as e:
+            log.debug(f"Genre fetch error: {e}")
 
 
-# -------------------------
-# FETCH TMDB
-# -------------------------
-async def fetch_tmdb(session, url, query):
+async def _fetch_trailer_url(session, tmdb_id, is_series=False):
     try:
-        async with session.get(
-            url,
-            params={
-                "api_key": TMDB_API_KEY,
-                "query": query,
-                "language": "es-ES"
-            },
-            timeout=aiohttp.ClientTimeout(total=5)
-        ) as resp:
+        media_type = "tv" if is_series else "movie"
+        url = f"{BASE_URL}/{media_type}/{tmdb_id}/videos"
+        async with session.get(url, params={"api_key": TMDB_API_KEY, "language": "es-ES"}) as r:
+            data = await r.json()
+            results = data.get("results", [])
 
-            if resp.status != 200:
-                return None
+            for video in results:
+                if (
+                    video.get("site") == "YouTube" and
+                    video.get("type") == "Trailer" and
+                    video.get("key")
+                ):
+                    return f"https://www.youtube.com/watch?v={video['key']}"
 
-            data = await resp.json()
-
-            if data.get("results"):
-                return data["results"][0]
+            for video in results:
+                if video.get("site") == "YouTube" and video.get("key"):
+                    return f"https://www.youtube.com/watch?v={video['key']}"
 
     except Exception as e:
-        print("TMDB fetch error:", e)
+        log.debug(f"Trailer fetch error: {e}")
 
     return None
 
 
-# -------------------------
-# SEARCH TMDB (CON CACHE)
-# -------------------------
-async def search_tmdb(title, is_series=True, subtitle=None):
-    if not title:
+async def search_tmdb(title, is_series=False, subtitle=None):
+    if not TMDB_API_KEY or not title.strip():
         return None
 
-    title = title.strip()
+    title_clean = re.sub(r'\s+', '', title)
 
-    # cache key
-    cache_key = f"{title}_{subtitle}_{is_series}"
-    if cache_key in _tmdb_cache:
-        return _tmdb_cache[cache_key]
-
-    url = SEARCH_TV if is_series else SEARCH_MOVIE
-
-    result = None
-
-    try:
-        async with aiohttp.ClientSession() as session:
-
-            # 🔴 título muy corto
-            if len(title) < 3:
-                if subtitle:
-                    result = await fetch_tmdb(session, url, subtitle)
-
-            # 🟡 título corto
-            elif len(title) <= 4:
-                if subtitle:
-                    result = await fetch_tmdb(session, url, subtitle)
-
-                if not result:
-                    result = await fetch_tmdb(session, url, title)
-
-            # 🟢 normal
-            else:
-                result = await fetch_tmdb(session, url, title)
-
-    except Exception as e:
-        print("TMDB search error:", e)
-
-    # guardar en cache (aunque sea None)
-    _tmdb_cache[cache_key] = result
-
-    return result
-
-
-# -------------------------
-# ENRICH ENTRY (FIX REAL)
-# -------------------------
-async def enrich_entry(entry):
-    """
-    NO rompe nada:
-    - siempre mantiene estructura
-    - nunca elimina episodios
-    - nunca deja tmdb undefined
-    """
-
-    try:
-        if not isinstance(entry, dict):
-            return entry
-
-        if not entry.get("media"):
-            return entry
-
-        filename = entry.get("insight", "")
-
-        parsed = parse_filename(filename)
-
-        if parsed:
-            entry["parsed"] = parsed
+    # 🔥 FIX: NO bloquear completamente títulos cortos
+    if len(title_clean) < 3:
+        if subtitle:
+            search_query = subtitle
         else:
-            # evitar romper templates
-            entry["parsed"] = {
-                "title": "",
-                "season": None,
-                "episode": None,
-                "subtitle": ""
-            }
-            return entry
+            return None
+    elif len(title_clean) <= 4 and subtitle:
+        # 🔥 FIX: usar subtítulo SOLO (no concatenar)
+        search_query = subtitle
+    else:
+        search_query = title
 
-        meta_raw = await search_tmdb(
-            parsed["title"],
-            parsed.get("is_series", True),
-            parsed.get("subtitle")
-        )
+    cache_key = f"{search_query.lower()}_{is_series}"
+    if cache_key in _metadata_cache:
+        return _metadata_cache[cache_key]
 
-        entry["tmdb"] = normalize_tmdb(meta_raw)
+    params = {"api_key": TMDB_API_KEY, "query": search_query, "language": "es-ES"}
 
-    except Exception as e:
-        print("enrich_entry error:", e)
+    async with aiohttp.ClientSession() as session:
+        await _fetch_genres(session)
 
-        # 🔥 fallback TOTAL (evita 500)
+        result = None
+        for endpoint in (
+            "search/tv" if is_series else "search/movie",
+            "search/movie" if is_series else "search/tv",
+            "search/multi",
+        ):
+            try:
+                async with session.get(f"{BASE_URL}/{endpoint}", params=params) as r:
+                    data = await r.json()
+                    results = data.get("results", [])
+                    if results:
+                        result = results[0]
+                        if endpoint == "search/tv" or result.get("media_type") == "tv":
+                            is_series = True
+                        elif endpoint == "search/movie" or result.get("media_type") == "movie":
+                            is_series = False
+                        break
+            except Exception as e:
+                log.debug(f"TMDB search error ({endpoint}): {e}")
+
+        if not result:
+            _metadata_cache[cache_key] = None
+            return None
+
+        poster_path = result.get("poster_path")
+        backdrop_path = result.get("backdrop_path")
+        genre_ids = result.get("genre_ids", [])
+        genres = [_genre_cache.get(gid) for gid in genre_ids if gid in _genre_cache]
+        tmdb_id = result.get("id")
+
+        trailer_url = None
+        if tmdb_id:
+            trailer_url = await _fetch_trailer_url(session, tmdb_id, is_series=is_series)
+
+        metadata = {
+            "title": result.get("title") or result.get("name", title),
+            "overview": result.get("overview", ""),
+            "poster": f"{POSTER_BASE}{poster_path}" if poster_path else None,
+            "backdrop": f"{BACKDROP_BASE}{backdrop_path}" if backdrop_path else None,
+            "year": (result.get("release_date") or result.get("first_air_date", ""))[:4],
+            "rating": round(result.get("vote_average", 0), 1),
+            "is_series": is_series,
+            "genres": genres,
+            "tmdb_id": tmdb_id,
+            "trailer_url": trailer_url,
+        }
+
+        _metadata_cache[cache_key] = metadata
+        return metadata
+
+
+# 🔥 FIX CLAVE
+async def enrich_entry(entry):
+    if not entry.get("media"):
+        return entry
+
+    filename = entry.get("insight", "")
+    parsed = parse_filename(filename)
+
+    if not parsed or not parsed.get("title"):
+        return entry
+
+    # ✅ SIEMPRE guardar parsed
+    entry["parsed"] = parsed
+
+    meta = await search_tmdb(
+        parsed["title"],
+        parsed["is_series"],
+        subtitle=parsed.get("episode_subtitle"),
+    )
+
+    # ✅ SIEMPRE definir tmdb (evita 500)
+    if meta:
+        entry["tmdb"] = meta
+    else:
         entry["tmdb"] = {
-            "name": entry.get("parsed", {}).get("title", ""),
-            "title": entry.get("parsed", {}).get("title", ""),
-            "poster_path": None,
-            "backdrop_path": None,
-            "overview": ""
+            "title": parsed["title"],
+            "overview": "",
+            "poster": None,
+            "backdrop": None,
+            "year": "",
+            "rating": 0,
+            "is_series": parsed["is_series"],
+            "genres": [],
+            "tmdb_id": None,
+            "trailer_url": None,
         }
 
     return entry
