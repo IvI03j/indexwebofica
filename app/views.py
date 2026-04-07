@@ -59,6 +59,7 @@ def _group_results(results):
             if tid in seen:
                 existing = grouped[seen[tid]]
                 existing.setdefault('episodes', []).append({
+                    'file_id': entry.get('file_id'),
                     'url': entry['url'],
                     'download': entry['download'],
                     'insight': entry['insight'],
@@ -69,6 +70,7 @@ def _group_results(results):
                 })
             else:
                 entry['episodes'] = [{
+                    'file_id': entry.get('file_id'),
                     'url': entry['url'],
                     'download': entry['download'],
                     'insight': entry['insight'],
