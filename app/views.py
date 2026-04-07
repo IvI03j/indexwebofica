@@ -685,12 +685,19 @@ class Views:
         content_type = "Serie" if is_series else "Película"
 
         # --- Buscar episodios si es una serie ---
+        import re as _re
+
+        def _normalize_title(s):
+            return _re.sub(r'[\s\._\-]+', ' ', s or '').lower().strip()
+
         episodes = []
         if is_series and tmdb.get("tmdb_id"):
             try:
                 batch = await self.client.get_messages(entity=chat_id, limit=300)
                 batch = batch or []
                 candidates = [m for m in batch if _has_media(m)]
+
+                ref_title = _normalize_title(parsed.get('title') or clean_title)
 
                 enriched_list = list(await asyncio.gather(*[
                     enrich_entry({
@@ -703,7 +710,12 @@ class Views:
                 for m, enr in zip(candidates, enriched_list):
                     enr_tmdb = enr.get("tmdb") or {}
                     enr_parsed = enr.get("parsed") or {}
-                    if enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id"):
+
+                    same_tmdb = enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id")
+                    cand_title = _normalize_title(enr_parsed.get('title') or get_file_name(m))
+                    same_title = bool(ref_title) and (ref_title in cand_title or cand_title in ref_title)
+
+                    if same_tmdb and same_title:
                         episodes.append({
                             'file_id': m.id,
                             'url': f"/{alias_id}/{m.id}/view",
@@ -715,7 +727,6 @@ class Views:
                             'date': str(m.date)[:10],
                         })
 
-                # Ordenar por temporada y episodio
                 episodes.sort(key=lambda e: (e.get('season') or 0, e.get('episode') or 0))
             except Exception:
                 log.debug("Error al buscar episodios de la serie", exc_info=True)
