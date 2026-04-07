@@ -13,6 +13,12 @@ BACKDROP_BASE = "https://image.tmdb.org/t/p/w1280"
 _metadata_cache = {}
 _genre_cache = {}
 
+# Palabras de calidad/tags que no forman parte del título ni del subtítulo
+_QUALITY_TAGS = re.compile(
+    r'\b(HD|SD|4K|UHD|720p?|1080p?|2160p?|BluRay|BDRip|WEB[-\s]?DL|WEBRip|HDTV|DVDRip|x264|x265|HEVC|AAC|AC3|DTS|Remux)\b',
+    flags=re.IGNORECASE
+)
+
 
 def parse_filename(filename):
     name = re.sub(r'\.[a-zA-Z0-9]{2,4}$', '', filename)
@@ -20,6 +26,8 @@ def parse_filename(filename):
     series_match = re.search(
         r'[Ss](\d{1,2})[Ee](\d{1,2})|(\d{1,2})x(\d{2})', name
     )
+
+    episode_subtitle = None
 
     if series_match:
         is_series = True
@@ -32,6 +40,15 @@ def parse_filename(filename):
         before = name[:series_match.start()].strip()
         after = name[series_match.end():].strip()
         raw_title = before if len(re.sub(r'[\._\-\s]+', '', before)) >= 2 else after
+
+        # Extraer subtítulo del episodio: lo que hay DESPUÉS del código SxEE
+        # limpiando tags de calidad
+        after_clean = _QUALITY_TAGS.sub('', after)
+        after_clean = re.sub(r'[\._\-]+', ' ', after_clean).strip()
+        after_clean = re.sub(r'\s+', ' ', after_clean).strip()
+        after_clean = re.sub(r'^[\s\-]+', '', after_clean).strip()
+        if len(after_clean) >= 3:
+            episode_subtitle = after_clean
     else:
         is_series = False
         season = None
@@ -47,6 +64,7 @@ def parse_filename(filename):
         'is_series': is_series,
         'season': season,
         'episode': episode,
+        'episode_subtitle': episode_subtitle,
     }
 
 
@@ -73,7 +91,6 @@ async def _fetch_trailer_url(session, tmdb_id, is_series=False):
             data = await r.json()
             results = data.get("results", [])
 
-            # Prioridad a trailer en YouTube
             for video in results:
                 if (
                     video.get("site") == "YouTube" and
@@ -82,7 +99,6 @@ async def _fetch_trailer_url(session, tmdb_id, is_series=False):
                 ):
                     return f"https://www.youtube.com/watch?v={video['key']}"
 
-            # Si no hay trailer, coger cualquier vídeo de YouTube
             for video in results:
                 if video.get("site") == "YouTube" and video.get("key"):
                     return f"https://www.youtube.com/watch?v={video['key']}"
@@ -93,15 +109,28 @@ async def _fetch_trailer_url(session, tmdb_id, is_series=False):
     return None
 
 
-async def search_tmdb(title, is_series=False):
+async def search_tmdb(title, is_series=False, subtitle=None):
     if not TMDB_API_KEY or not title.strip():
         return None
 
-    cache_key = f"{title.lower()}_{is_series}"
+    # Si el título es demasiado corto (ej: "HC", "OT") no buscar en TMDB
+    # para evitar resultados erróneos que mezclen series distintas
+    title_clean = re.sub(r'\s+', '', title)
+    if len(title_clean) < 3:
+        log.debug(f"Título '{title}' demasiado corto para buscar en TMDB, se omite.")
+        return None
+
+    # Si el título es corto (3-4 chars) y hay subtítulo, buscar con "título subtítulo"
+    search_query = title
+    if len(title_clean) <= 4 and subtitle:
+        search_query = f"{title} {subtitle}"
+        log.debug(f"Título corto '{title}', usando búsqueda ampliada: '{search_query}'")
+
+    cache_key = f"{search_query.lower()}_{is_series}"
     if cache_key in _metadata_cache:
         return _metadata_cache[cache_key]
 
-    params = {"api_key": TMDB_API_KEY, "query": title, "language": "es-ES"}
+    params = {"api_key": TMDB_API_KEY, "query": search_query, "language": "es-ES"}
 
     async with aiohttp.ClientSession() as session:
         await _fetch_genres(session)
@@ -164,7 +193,11 @@ async def enrich_entry(entry):
     parsed = parse_filename(filename)
     if not parsed["title"]:
         return entry
-    meta = await search_tmdb(parsed["title"], parsed["is_series"])
+    meta = await search_tmdb(
+        parsed["title"],
+        parsed["is_series"],
+        subtitle=parsed.get("episode_subtitle"),
+    )
     if meta:
         entry["tmdb"] = meta
         entry["parsed"] = parsed
