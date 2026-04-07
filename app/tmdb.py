@@ -2,96 +2,63 @@ import re
 import aiohttp
 
 TMDB_API_KEY = "TU_API_KEY_AQUI"
-TMDB_URL = "https://api.themoviedb.org/3/search/tv"
+
+SEARCH_TV = "https://api.themoviedb.org/3/search/tv"
+SEARCH_MOVIE = "https://api.themoviedb.org/3/search/movie"
 
 
 # -------------------------
-# PARSER
+# UTIL
 # -------------------------
 def clean_text(text):
     if not text:
         return ""
 
-    text = re.sub(r'\b(HD|720p|1080p|WEB|BluRay)\b', '', text, flags=re.IGNORECASE)
-    return text.strip()
+    return re.sub(
+        r"\b(HD|720p|1080p|WEB|BluRay)\b",
+        "",
+        text,
+        flags=re.IGNORECASE
+    ).strip()
 
 
+# -------------------------
+# PARSER
+# -------------------------
 def parse_filename(filename):
-    """
-    Extrae:
-    - título
-    - temporada
-    - episodio
-    - subtítulo
-    """
-
     pattern = r'^(.*?)\s+(\d{1,2})x(\d{1,2})(?:\s*-\s*(.*))?'
     match = re.search(pattern, filename)
 
     if not match:
         return None
 
-    title = match.group(1).strip()
-    season = int(match.group(2))
-    episode = int(match.group(3))
-    subtitle = clean_text(match.group(4)) if match.group(4) else ""
-
     return {
-        "title": title,
-        "season": season,
-        "episode": episode,
-        "subtitle": subtitle,
+        "title": match.group(1).strip(),
+        "season": int(match.group(2)),
+        "episode": int(match.group(3)),
+        "subtitle": clean_text(match.group(4)) if match.group(4) else "",
         "is_series": True
     }
 
 
 # -------------------------
-# TMDB SEARCH (ASYNC)
+# TMDB SEARCH
 # -------------------------
-async def search_tmdb(title, is_series=True, subtitle=None):
-    """
-    Busca en TMDB de forma segura
-    """
-
-    if not title:
-        return None
-
-    title_clean = title.strip()
-
-    # 🔴 Título muy corto → evitar basura
-    if len(title_clean) < 3:
-        if subtitle:
-            query = subtitle
-        else:
-            return None
-
-    # 🟡 Título corto
-    elif len(title_clean) <= 4:
-        if subtitle:
-            query = subtitle  # 🔥 mejor que combinar
-        else:
-            query = title_clean
-
-    # 🟢 Normal
-    else:
-        query = title_clean
-
+async def fetch_tmdb(session, url, query):
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                TMDB_URL,
-                params={
-                    "api_key": TMDB_API_KEY,
-                    "query": query,
-                    "language": "es-ES"
-                },
-                timeout=5
-            ) as resp:
+        async with session.get(
+            url,
+            params={
+                "api_key": TMDB_API_KEY,
+                "query": query,
+                "language": "es-ES"
+            }
+        ) as resp:
 
-                data = await resp.json()
+            data = await resp.json()
 
-                if data.get("results"):
-                    return data["results"][0]
+            if data.get("results"):
+                return data["results"][0]
 
     except Exception as e:
         print("TMDB error:", e)
@@ -99,14 +66,38 @@ async def search_tmdb(title, is_series=True, subtitle=None):
     return None
 
 
+async def search_tmdb(title, is_series=True, subtitle=None):
+    if not title:
+        return None
+
+    title = title.strip()
+    url = SEARCH_TV if is_series else SEARCH_MOVIE
+
+    async with aiohttp.ClientSession() as session:
+
+        # 🔴 TÍTULO MUY CORTO
+        if len(title) < 3:
+            if subtitle:
+                return await fetch_tmdb(session, url, subtitle)
+            return None
+
+        # 🟡 TÍTULO CORTO
+        if len(title) <= 4:
+            if subtitle:
+                result = await fetch_tmdb(session, url, subtitle)
+                if result:
+                    return result
+
+            return await fetch_tmdb(session, url, title)
+
+        # 🟢 NORMAL
+        return await fetch_tmdb(session, url, title)
+
+
 # -------------------------
-# ENRICH (FIX DEFINITIVO)
+# ENRICH (CLAVE)
 # -------------------------
 async def enrich_entry(entry):
-    """
-    Enriquece sin romper la app
-    """
-
     if not entry.get("media"):
         return entry
 
@@ -116,16 +107,26 @@ async def enrich_entry(entry):
     if not parsed:
         return entry
 
-    # 🔥 CLAVE: SIEMPRE guardar parsed
+    # 🔥 SIEMPRE GUARDAR PARSED
     entry["parsed"] = parsed
 
     meta = await search_tmdb(
         parsed["title"],
-        parsed.get("is_series", True),
-        subtitle=parsed.get("subtitle"),
+        parsed["is_series"],
+        parsed.get("subtitle")
     )
 
-    # 🔥 TMDB opcional (NUNCA rompe)
-    entry["tmdb"] = meta if meta else None
+    # 🔥 SI FALLA TMDB → NO BORRAR DATOS ANTIGUOS
+    if meta:
+        entry["tmdb"] = meta
+    else:
+        # 👇 CLAVE: mantener estructura para que el frontend no muera
+        entry["tmdb"] = entry.get("tmdb", {
+            "name": parsed["title"],
+            "title": parsed["title"],
+            "poster_path": None,
+            "backdrop_path": None,
+            "overview": ""
+        })
 
     return entry
