@@ -45,6 +45,12 @@ def _has_media(m):
     return mime.startswith("video/")
 
 
+import re as _re_group
+
+def _norm_title_group(s):
+    return _re_group.sub(r'[\s\._\-]+', ' ', s or '').lower().strip()
+
+
 def _group_results(results):
     grouped = []
     seen = {}
@@ -56,8 +62,12 @@ def _group_results(results):
 
         if is_series:
             tid = tmdb['tmdb_id']
-            if tid in seen:
-                existing = grouped[seen[tid]]
+            # Incluir el título parseado en la clave para evitar mezclar
+            # series distintas que TMDB resuelve al mismo tmdb_id por error
+            parsed_title = _norm_title_group(parsed.get('title') if parsed else None)
+            group_key = (tid, parsed_title)
+            if group_key in seen:
+                existing = grouped[seen[group_key]]
                 existing.setdefault('episodes', []).append({
                     'file_id': entry.get('file_id'),
                     'url': entry['url'],
@@ -79,7 +89,7 @@ def _group_results(results):
                     'episode': parsed.get('episode') if parsed else None,
                     'date': entry['date'],
                 }]
-                seen[tid] = len(grouped)
+                seen[group_key] = len(grouped)
                 grouped.append(entry)
         else:
             grouped.append(entry)
