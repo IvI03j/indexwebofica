@@ -13,6 +13,7 @@ BACKDROP_BASE = "https://image.tmdb.org/t/p/w1280"
 _metadata_cache = {}
 _genre_cache = {}
 
+# Palabras de calidad/tags que no forman parte del título ni del subtítulo
 _QUALITY_TAGS = re.compile(
     r'\b(HD|SD|4K|UHD|720p?|1080p?|2160p?|BluRay|BDRip|WEB[-\s]?DL|WEBRip|HDTV|DVDRip|x264|x265|HEVC|AAC|AC3|DTS|Remux)\b',
     flags=re.IGNORECASE
@@ -36,16 +37,16 @@ def parse_filename(filename):
         else:
             season = int(series_match.group(3))
             episode = int(series_match.group(4))
-
         before = name[:series_match.start()].strip()
         after = name[series_match.end():].strip()
         raw_title = before if len(re.sub(r'[\._\-\s]+', '', before)) >= 2 else after
 
+        # Extraer subtítulo del episodio: lo que hay DESPUÉS del código SxEE
+        # limpiando tags de calidad
         after_clean = _QUALITY_TAGS.sub('', after)
         after_clean = re.sub(r'[\._\-]+', ' ', after_clean).strip()
         after_clean = re.sub(r'\s+', ' ', after_clean).strip()
         after_clean = re.sub(r'^[\s\-]+', '', after_clean).strip()
-
         if len(after_clean) >= 3:
             episode_subtitle = after_clean
     else:
@@ -112,19 +113,18 @@ async def search_tmdb(title, is_series=False, subtitle=None):
     if not TMDB_API_KEY or not title.strip():
         return None
 
+    # Si el título es demasiado corto (ej: "HC", "OT") no buscar en TMDB
+    # para evitar resultados erróneos que mezclen series distintas
     title_clean = re.sub(r'\s+', '', title)
-
-    # 🔥 FIX: NO bloquear completamente títulos cortos
     if len(title_clean) < 3:
-        if subtitle:
-            search_query = subtitle
-        else:
-            return None
-    elif len(title_clean) <= 4 and subtitle:
-        # 🔥 FIX: usar subtítulo SOLO (no concatenar)
-        search_query = subtitle
-    else:
-        search_query = title
+        log.debug(f"Título '{title}' demasiado corto para buscar en TMDB, se omite.")
+        return None
+
+    # Si el título es corto (3-4 chars) y hay subtítulo, buscar con "título subtítulo"
+    search_query = title
+    if len(title_clean) <= 4 and subtitle:
+        search_query = f"{title} {subtitle}"
+        log.debug(f"Título corto '{title}', usando búsqueda ampliada: '{search_query}'")
 
     cache_key = f"{search_query.lower()}_{is_series}"
     if cache_key in _metadata_cache:
@@ -186,41 +186,19 @@ async def search_tmdb(title, is_series=False, subtitle=None):
         return metadata
 
 
-# 🔥 FIX CLAVE
 async def enrich_entry(entry):
     if not entry.get("media"):
         return entry
-
     filename = entry.get("insight", "")
     parsed = parse_filename(filename)
-
-    if not parsed or not parsed.get("title"):
+    if not parsed["title"]:
         return entry
-
-    # ✅ SIEMPRE guardar parsed
-    entry["parsed"] = parsed
-
     meta = await search_tmdb(
         parsed["title"],
         parsed["is_series"],
         subtitle=parsed.get("episode_subtitle"),
     )
-
-    # ✅ SIEMPRE definir tmdb (evita 500)
     if meta:
         entry["tmdb"] = meta
-    else:
-        entry["tmdb"] = {
-            "title": parsed["title"],
-            "overview": "",
-            "poster": None,
-            "backdrop": None,
-            "year": "",
-            "rating": 0,
-            "is_series": parsed["is_series"],
-            "genres": [],
-            "tmdb_id": None,
-            "trailer_url": None,
-        }
-
+        entry["parsed"] = parsed
     return entry
