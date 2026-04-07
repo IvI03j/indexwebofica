@@ -1,16 +1,17 @@
 import re
-import requests
+import aiohttp
 
 TMDB_API_KEY = "TU_API_KEY_AQUI"
 TMDB_URL = "https://api.themoviedb.org/3/search/tv"
 
 
+# -------------------------
+# PARSER
+# -------------------------
 def clean_text(text):
-    """Limpia tags como HD, 720p, etc."""
     if not text:
         return ""
 
-    # elimina cosas típicas de calidad
     text = re.sub(r'\b(HD|720p|1080p|WEB|BluRay)\b', '', text, flags=re.IGNORECASE)
     return text.strip()
 
@@ -21,10 +22,9 @@ def parse_filename(filename):
     - título
     - temporada
     - episodio
-    - subtítulo (nombre del capítulo)
+    - subtítulo
     """
 
-    # ejemplo: HC 08x25 - La Profeta HD
     pattern = r'^(.*?)\s+(\d{1,2})x(\d{1,2})(?:\s*-\s*(.*))?'
     match = re.search(pattern, filename)
 
@@ -40,27 +40,58 @@ def parse_filename(filename):
         "title": title,
         "season": season,
         "episode": episode,
-        "subtitle": subtitle
+        "subtitle": subtitle,
+        "is_series": True
     }
 
 
-def search_tmdb(query):
-    """Busca en TMDB"""
+# -------------------------
+# TMDB SEARCH (ASYNC)
+# -------------------------
+async def search_tmdb(title, is_series=True, subtitle=None):
+    """
+    Busca en TMDB de forma segura
+    """
+
+    if not title:
+        return None
+
+    title_clean = title.strip()
+
+    # 🔴 Título muy corto → evitar basura
+    if len(title_clean) < 3:
+        if subtitle:
+            query = subtitle
+        else:
+            return None
+
+    # 🟡 Título corto
+    elif len(title_clean) <= 4:
+        if subtitle:
+            query = subtitle  # 🔥 mejor que combinar
+        else:
+            query = title_clean
+
+    # 🟢 Normal
+    else:
+        query = title_clean
+
     try:
-        response = requests.get(
-            TMDB_URL,
-            params={
-                "api_key": TMDB_API_KEY,
-                "query": query,
-                "language": "es-ES"
-            },
-            timeout=5
-        )
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                TMDB_URL,
+                params={
+                    "api_key": TMDB_API_KEY,
+                    "query": query,
+                    "language": "es-ES"
+                },
+                timeout=5
+            ) as resp:
 
-        data = response.json()
+                data = await resp.json()
 
-        if data.get("results"):
-            return data["results"][0]
+                if data.get("results"):
+                    return data["results"][0]
 
     except Exception as e:
         print("TMDB error:", e)
@@ -68,44 +99,33 @@ def search_tmdb(query):
     return None
 
 
-def enrich_entry(parsed):
+# -------------------------
+# ENRICH (FIX DEFINITIVO)
+# -------------------------
+async def enrich_entry(entry):
     """
-    Enriquece con TMDB sin romper si falla
+    Enriquece sin romper la app
     """
+
+    if not entry.get("media"):
+        return entry
+
+    filename = entry.get("insight", "")
+    parsed = parse_filename(filename)
 
     if not parsed:
-        return None
+        return entry
 
-    title = parsed["title"]
-    subtitle = parsed.get("subtitle", "")
+    # 🔥 CLAVE: SIEMPRE guardar parsed
+    entry["parsed"] = parsed
 
-    tmdb_data = None
+    meta = await search_tmdb(
+        parsed["title"],
+        parsed.get("is_series", True),
+        subtitle=parsed.get("subtitle"),
+    )
 
-    # 🔴 CASO 1: título muy corto → NO buscar directamente
-    if len(title) < 3:
-        # intentar SOLO con subtítulo si existe
-        if subtitle:
-            tmdb_data = search_tmdb(subtitle)
+    # 🔥 TMDB opcional (NUNCA rompe)
+    entry["tmdb"] = meta if meta else None
 
-    # 🟡 CASO 2: título corto pero usable
-    elif len(title) <= 4:
-        if subtitle:
-            # mejor usar subtítulo solo (más preciso)
-            tmdb_data = search_tmdb(subtitle)
-
-        # fallback
-        if not tmdb_data:
-            tmdb_data = search_tmdb(title)
-
-    # 🟢 CASO NORMAL
-    else:
-        tmdb_data = search_tmdb(title)
-
-    # ⚠️ IMPORTANTE: NUNCA eliminar el episodio
-    return {
-        "title": title,
-        "season": parsed["season"],
-        "episode": parsed["episode"],
-        "subtitle": subtitle,
-        "tmdb": tmdb_data  # puede ser None y NO pasa nada
-    }
+    return entry
