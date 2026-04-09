@@ -113,18 +113,22 @@ async def search_tmdb(title, is_series=False, subtitle=None):
     if not TMDB_API_KEY or not title.strip():
         return None
 
-    # Si el título es demasiado corto (ej: "HC", "OT") no buscar en TMDB
-    # para evitar resultados erróneos que mezclen series distintas
     title_clean = re.sub(r'\s+', '', title)
-    if len(title_clean) < 3:
-        log.debug(f"Título '{title}' demasiado corto para buscar en TMDB, se omite.")
-        return None
 
-    # Si el título es corto (3-4 chars) y hay subtítulo, buscar con "título subtítulo"
-    search_query = title
-    if len(title_clean) <= 4 and subtitle:
+    # Título muy corto (abreviatura como "HC"): buscar directamente con el subtítulo si está disponible
+    if len(title_clean) < 3:
+        if subtitle and len(subtitle.strip()) >= 5:
+            search_query = subtitle
+            log.debug(f"Título '{title}' muy corto, buscando con subtítulo: '{search_query}'")
+        else:
+            log.debug(f"Título '{title}' demasiado corto y sin subtítulo, se omite.")
+            return None
+    # Título corto (3-4 chars): combinar título + subtítulo para mayor precisión
+    elif len(title_clean) <= 4 and subtitle:
         search_query = f"{title} {subtitle}"
         log.debug(f"Título corto '{title}', usando búsqueda ampliada: '{search_query}'")
+    else:
+        search_query = title
 
     cache_key = f"{search_query.lower()}_{is_series}"
     if cache_key in _metadata_cache:
