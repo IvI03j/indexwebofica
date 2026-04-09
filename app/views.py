@@ -696,45 +696,59 @@ class Views:
 
         # --- Buscar episodios si es una serie ---
         import re as _re
+        from .tmdb import parse_filename as _parse_filename, search_tmdb as _search_tmdb
 
-        # Detecta si un nombre de archivo tiene patrón de episodio: S01E01, 8x28, 08x28, etc.
         _EP_PATTERN = _re.compile(r'[Ss]\d{1,2}[Ee]\d{1,2}|\d{1,2}[xX]\d{2}')
 
         def _has_episode_pattern(filename):
             return bool(_EP_PATTERN.search(filename or ''))
+
+        async def _get_tmdb_id_for_file(fname, ref_tmdb_id):
+            """Devuelve True si el archivo pertenece a la misma serie que ref_tmdb_id."""
+            p = _parse_filename(fname)
+            if not p.get('is_series'):
+                return False
+            title_clean = _re.sub(r'\s+', '', p.get('title') or '')
+            # Si el título parseado es suficientemente largo, buscar directamente
+            if len(title_clean) >= 3:
+                from .tmdb import search_tmdb as _st
+                meta = await _st(p['title'], True)
+                return meta and meta.get('tmdb_id') == ref_tmdb_id
+            # Título muy corto (abreviatura como "HC"): buscar con el subtítulo del episodio
+            subtitle = p.get('episode_subtitle')
+            if subtitle and len(subtitle) >= 5:
+                from .tmdb import search_tmdb as _st
+                meta = await _st(subtitle, True)
+                return meta and meta.get('tmdb_id') == ref_tmdb_id
+            return False
 
         episodes = []
         if is_series and tmdb.get("tmdb_id"):
             try:
                 batch = await self.client.get_messages(entity=chat_id, limit=300)
                 batch = batch or []
-                # Solo mensajes con media Y con patrón de episodio en el nombre
                 candidates = [m for m in batch if _has_media(m) and _has_episode_pattern(get_file_name(m))]
 
-                enriched_list = list(await asyncio.gather(*[
-                    enrich_entry({
-                        "media": True,
-                        "insight": get_file_name(m),
-                        "file_id": m.id,
-                    }) for m in candidates
-                ]))
+                ref_tmdb_id = tmdb.get("tmdb_id")
 
-                for m, enr in zip(candidates, enriched_list):
-                    enr_tmdb = enr.get("tmdb") or {}
-                    enr_parsed = enr.get("parsed") or {}
+                checks = await asyncio.gather(*[
+                    _get_tmdb_id_for_file(get_file_name(m), ref_tmdb_id) for m in candidates
+                ])
 
-                    # Solo comparar tmdb_id; el patrón de episodio ya filtra falsos positivos
-                    if enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id"):
-                        episodes.append({
-                            'file_id': m.id,
-                            'url': f"/{alias_id}/{m.id}/view",
-                            'download': f"/{alias_id}/{m.id}/download",
-                            'insight': get_file_name(m),
-                            'human_size': get_human_size(m.file.size),
-                            'season': enr_parsed.get('season'),
-                            'episode': enr_parsed.get('episode'),
-                            'date': str(m.date)[:10],
-                        })
+                for m, matches in zip(candidates, checks):
+                    if not matches:
+                        continue
+                    p = _parse_filename(get_file_name(m))
+                    episodes.append({
+                        'file_id': m.id,
+                        'url': f"/{alias_id}/{m.id}/view",
+                        'download': f"/{alias_id}/{m.id}/download",
+                        'insight': get_file_name(m),
+                        'human_size': get_human_size(m.file.size),
+                        'season': p.get('season'),
+                        'episode': p.get('episode'),
+                        'date': str(m.date)[:10],
+                    })
 
                 episodes.sort(key=lambda e: (e.get('season') or 0, e.get('episode') or 0))
             except Exception:
