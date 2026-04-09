@@ -13,7 +13,7 @@ BACKDROP_BASE = "https://image.tmdb.org/t/p/w1280"
 _metadata_cache = {}
 _genre_cache = {}
 
-# Palabras de calidad/tags que no forman parte del título ni del subtítulo
+# Tags de calidad que no forman parte del título ni del subtítulo
 _QUALITY_TAGS = re.compile(
     r'\b(HD|SD|4K|UHD|720p?|1080p?|2160p?|BluRay|BDRip|WEB[-\s]?DL|WEBRip|HDTV|DVDRip|x264|x265|HEVC|AAC|AC3|DTS|Remux)\b',
     flags=re.IGNORECASE
@@ -41,8 +41,7 @@ def parse_filename(filename):
         after = name[series_match.end():].strip()
         raw_title = before if len(re.sub(r'[\._\-\s]+', '', before)) >= 2 else after
 
-        # Extraer subtítulo del episodio: lo que hay DESPUÉS del código SxEE
-        # limpiando tags de calidad
+        # Extraer subtítulo del episodio (lo que hay tras el código SxEE)
         after_clean = _QUALITY_TAGS.sub('', after)
         after_clean = re.sub(r'[\._\-]+', ' ', after_clean).strip()
         after_clean = re.sub(r'\s+', ' ', after_clean).strip()
@@ -115,7 +114,7 @@ async def search_tmdb(title, is_series=False, subtitle=None):
 
     title_clean = re.sub(r'\s+', '', title)
 
-    # Título muy corto (abreviatura como "HC"): buscar directamente con el subtítulo si está disponible
+    # Título muy corto (ej: "HC"): buscar con subtítulo o ignorar
     if len(title_clean) < 3:
         if subtitle and len(subtitle.strip()) >= 5:
             search_query = subtitle
@@ -123,7 +122,7 @@ async def search_tmdb(title, is_series=False, subtitle=None):
         else:
             log.debug(f"Título '{title}' demasiado corto y sin subtítulo, se omite.")
             return None
-    # Título corto (3-4 chars): combinar título + subtítulo para mayor precisión
+    # Título corto (3-4 chars): combinar con subtítulo para mayor precisión
     elif len(title_clean) <= 4 and subtitle:
         search_query = f"{title} {subtitle}"
         log.debug(f"Título corto '{title}', usando búsqueda ampliada: '{search_query}'")
@@ -140,21 +139,21 @@ async def search_tmdb(title, is_series=False, subtitle=None):
         await _fetch_genres(session)
 
         result = None
-        for endpoint in (
-            "search/tv" if is_series else "search/movie",
-            "search/movie" if is_series else "search/tv",
-            "search/multi",
-        ):
+
+        # Si el archivo tiene patrón S01E01, es una serie seguro.
+        # Buscar SOLO en tv y NO permitir que TMDB lo reclasifique como película.
+        if is_series:
+            endpoints = ["search/tv"]
+        else:
+            endpoints = ["search/movie", "search/tv", "search/multi"]
+
+        for endpoint in endpoints:
             try:
                 async with session.get(f"{BASE_URL}/{endpoint}", params=params) as r:
                     data = await r.json()
                     results = data.get("results", [])
                     if results:
                         result = results[0]
-                        if endpoint == "search/tv" or result.get("media_type") == "tv":
-                            is_series = True
-                        elif endpoint == "search/movie" or result.get("media_type") == "movie":
-                            is_series = False
                         break
             except Exception as e:
                 log.debug(f"TMDB search error ({endpoint}): {e}")
@@ -174,13 +173,15 @@ async def search_tmdb(title, is_series=False, subtitle=None):
             trailer_url = await _fetch_trailer_url(session, tmdb_id, is_series=is_series)
 
         metadata = {
+            # is_series viene del parse_filename (patrón S01E01), NO de TMDB
+            # Esto evita que episodios aparezcan como películas
             "title": result.get("title") or result.get("name", title),
             "overview": result.get("overview", ""),
             "poster": f"{POSTER_BASE}{poster_path}" if poster_path else None,
             "backdrop": f"{BACKDROP_BASE}{backdrop_path}" if backdrop_path else None,
             "year": (result.get("release_date") or result.get("first_air_date", ""))[:4],
             "rating": round(result.get("vote_average", 0), 1),
-            "is_series": is_series,
+            "is_series": is_series,  # <-- siempre respetamos el valor del parser
             "genres": genres,
             "tmdb_id": tmdb_id,
             "trailer_url": trailer_url,
