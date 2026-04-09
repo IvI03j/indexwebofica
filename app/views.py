@@ -697,30 +697,19 @@ class Views:
         # --- Buscar episodios si es una serie ---
         import re as _re
 
-        def _normalize_title(s):
-            return _re.sub(r'[\s\._\-]+', ' ', s or '').lower().strip()
+        # Detecta si un nombre de archivo tiene patrón de episodio: S01E01, 8x28, 08x28, etc.
+        _EP_PATTERN = _re.compile(r'[Ss]\d{1,2}[Ee]\d{1,2}|\d{1,2}[xX]\d{2}')
 
-        def _title_words(s):
-            # Palabras de más de 2 letras, sin stopwords básicas
-            stopwords = {'de', 'la', 'el', 'en', 'y', 'a', 'the', 'of', 'and', 'in', 'los', 'las'}
-            return [w for w in _normalize_title(s).split() if len(w) > 2 and w not in stopwords]
-
-        def _titles_match(ref, candidate):
-            ref_words = _title_words(ref)
-            if not ref_words:
-                return False
-            cand_norm = _normalize_title(candidate)
-            # Todas las palabras clave del título de referencia deben aparecer en el candidato
-            return all(w in cand_norm for w in ref_words)
+        def _has_episode_pattern(filename):
+            return bool(_EP_PATTERN.search(filename or ''))
 
         episodes = []
         if is_series and tmdb.get("tmdb_id"):
             try:
                 batch = await self.client.get_messages(entity=chat_id, limit=300)
                 batch = batch or []
-                candidates = [m for m in batch if _has_media(m)]
-
-                ref_title = parsed.get('title') or clean_title
+                # Solo mensajes con media Y con patrón de episodio en el nombre
+                candidates = [m for m in batch if _has_media(m) and _has_episode_pattern(get_file_name(m))]
 
                 enriched_list = list(await asyncio.gather(*[
                     enrich_entry({
@@ -734,11 +723,8 @@ class Views:
                     enr_tmdb = enr.get("tmdb") or {}
                     enr_parsed = enr.get("parsed") or {}
 
-                    same_tmdb = enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id")
-                    cand_title = enr_parsed.get('title') or get_file_name(m)
-                    same_title = _titles_match(ref_title, cand_title)
-
-                    if same_tmdb and same_title:
+                    # Solo comparar tmdb_id; el patrón de episodio ya filtra falsos positivos
+                    if enr_tmdb.get("tmdb_id") == tmdb.get("tmdb_id"):
                         episodes.append({
                             'file_id': m.id,
                             'url': f"/{alias_id}/{m.id}/view",
