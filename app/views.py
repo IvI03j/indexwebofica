@@ -102,7 +102,7 @@ class Views:
     def __init__(self, client):
         self.client = client
         self._index_cache = {}
-        self._cache_ttl = 30
+        self._cache_ttl = 300  # 5 minutos — grupos grandes tardan en cargarse
 
     def _get_device_id(self, req):
         return req.cookies.get("device_id", "")
@@ -392,12 +392,10 @@ class Views:
         items = []
 
         try:
-            batch = await self.client.get_messages(
-                entity=chat_id,
-                limit=500,
-            )
-            batch = batch or []
-            msgs = [m for m in batch if _has_media(m)]
+            msgs = []
+            async for m in self.client.iter_messages(entity=chat_id, limit=None):
+                if _has_media(m):
+                    msgs.append(m)
 
             for m in msgs:
                 reply_to = getattr(m, 'reply_to', None)
@@ -549,28 +547,41 @@ class Views:
         def _in_allowed_thread(m):
             reply_to = getattr(m, 'reply_to', None)
             if reply_to is None:
-                return False
+                # Mensaje en el canal raíz (sin hilo) → incluirlo igualmente
+                return True
             top_id = getattr(reply_to, 'reply_to_top_id', None) or getattr(reply_to, 'reply_to_msg_id', None)
-            return top_id in ALLOWED_THREADS
+            # Si top_id es None o 0, es un reply directo al canal (sin hilo temático)
+            if not top_id:
+                return True
+            # Si pertenece a un hilo conocido, incluirlo
+            if top_id in ALLOWED_THREADS:
+                return True
+            # Hilo desconocido: incluirlo de todas formas para no perder contenido
+            return True
 
         messages = []
 
         try:
             if search_query:
-                all_msgs = await self.client.get_messages(
+                # Paginar para superar el límite de la API (máx 100 por llamada)
+                all_msgs = []
+                async for m in self.client.iter_messages(
                     entity=chat_id,
-                    limit=1000,
                     search=search_query,
-                )
-                all_msgs = all_msgs or []
-                messages = [m for m in all_msgs if _has_media(m) and _in_allowed_thread(m)]
+                    limit=None,  # sin límite: obtener todos los resultados
+                ):
+                    if _has_media(m) and _in_allowed_thread(m):
+                        all_msgs.append(m)
+                messages = all_msgs
             else:
-                batch = await self.client.get_messages(
+                all_msgs = []
+                async for m in self.client.iter_messages(
                     entity=chat_id,
-                    limit=1000,
-                )
-                batch = batch or []
-                messages = [m for m in batch if _has_media(m) and _in_allowed_thread(m)]
+                    limit=None,  # sin límite: iterar todos los mensajes del grupo
+                ):
+                    if _has_media(m) and _in_allowed_thread(m):
+                        all_msgs.append(m)
+                messages = all_msgs
         except Exception:
             log.debug("failed to get messages", exc_info=True)
             messages = []
@@ -725,9 +736,11 @@ class Views:
         episodes = []
         if is_series and tmdb.get("tmdb_id"):
             try:
-                batch = await self.client.get_messages(entity=chat_id, limit=300)
-                batch = batch or []
-                candidates = [m for m in batch if _has_media(m) and _has_episode_pattern(get_file_name(m))]
+                all_msgs = []
+                async for m in self.client.iter_messages(entity=chat_id, limit=None):
+                    if _has_media(m) and _has_episode_pattern(get_file_name(m)):
+                        all_msgs.append(m)
+                candidates = all_msgs
 
                 ref_tmdb_id = tmdb.get("tmdb_id")
 
