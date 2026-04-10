@@ -714,18 +714,25 @@ class Views:
         def _has_episode_pattern(filename):
             return bool(_EP_PATTERN.search(filename or ''))
 
+        _tmdb_title_cache = {}
+
         async def _get_tmdb_id_for_file(fname, ref_tmdb_id):
             """Devuelve True si el archivo pertenece a la misma serie que ref_tmdb_id."""
             p = _parse_filename(fname)
             if not p.get('is_series'):
                 return False
             title_clean = _re.sub(r'\s+', '', p.get('title') or '')
-            # Si el título parseado es suficientemente largo, buscar directamente
+            # Caché por título para evitar llamadas repetidas a TMDB
+            cache_key = p.get('title', '').lower().strip()
+            if cache_key and cache_key in _tmdb_title_cache:
+                meta = _tmdb_title_cache[cache_key]
+                return meta and meta.get('tmdb_id') == ref_tmdb_id
             if len(title_clean) >= 3:
                 from .tmdb import search_tmdb as _st
                 meta = await _st(p['title'], True)
+                if cache_key:
+                    _tmdb_title_cache[cache_key] = meta
                 return meta and meta.get('tmdb_id') == ref_tmdb_id
-            # Título muy corto (abreviatura como "HC"): buscar con el subtítulo del episodio
             subtitle = p.get('episode_subtitle')
             if subtitle and len(subtitle) >= 5:
                 from .tmdb import search_tmdb as _st
@@ -737,16 +744,22 @@ class Views:
         if is_series and tmdb.get("tmdb_id"):
             try:
                 all_msgs = []
-                async for m in self.client.iter_messages(entity=chat_id, limit=None):
+                # 4000 mensajes: suficiente para grupos grandes sin bloquear el servidor
+                async for m in self.client.iter_messages(entity=chat_id, limit=4000):
                     if _has_media(m) and _has_episode_pattern(get_file_name(m)):
                         all_msgs.append(m)
                 candidates = all_msgs
 
                 ref_tmdb_id = tmdb.get("tmdb_id")
 
-                checks = await asyncio.gather(*[
-                    _get_tmdb_id_for_file(get_file_name(m), ref_tmdb_id) for m in candidates
-                ])
+                # Procesar en lotes de 20 para no saturar la API de TMDB
+                checks = []
+                for i in range(0, len(candidates), 20):
+                    batch_result = await asyncio.gather(*[
+                        _get_tmdb_id_for_file(get_file_name(m), ref_tmdb_id)
+                        for m in candidates[i:i+20]
+                    ])
+                    checks.extend(batch_result)
 
                 for m, matches in zip(candidates, checks):
                     if not matches:
