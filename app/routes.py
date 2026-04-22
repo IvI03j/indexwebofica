@@ -43,6 +43,8 @@ def register_routes(app, handler):
         web.get("/otg", h.otg_view),
         web.get("/pc", h.playlist_creator),
         web.get("/_api/catalog", h.api_catalog),
+        web.get("/playlist.m3u", h.playlist_m3u),
+        web.get(p + r"/playlist.m3u", h.playlist_m3u),
         web.get(p, h.index),
         web.get(p + r"/logo", h.logo),
         web.get(p + r"/{id:\d+}/view", h.info),
