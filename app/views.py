@@ -441,6 +441,93 @@ class Views:
 
         return web.json_response(items)
 
+    async def playlist_m3u(self, req):
+        """
+        Genera una playlist M3U con todos los videos del grupo de Telegram.
+        Acceso: GET /playlist.m3u  o  GET /{chat}/playlist.m3u
+        Parámetros opcionales:
+          ?tipo=pelicula|serie   → filtra por categoría
+          ?limite=200            → limita el número de mensajes a recorrer
+        """
+        from .routes import MOVIES_THREAD_ID, SERIES_THREAD_ID
+
+        # Determinar el chat a usar
+        chat_alias = req.match_info.get("chat")
+        if chat_alias:
+            chat_info = next((c for c in chat_ids if c["alias_id"] == chat_alias), None)
+            if not chat_info:
+                raise web.HTTPNotFound()
+        else:
+            if not chat_ids:
+                raise web.HTTPNotFound()
+            chat_info = chat_ids[0]
+
+        alias_id = chat_info["alias_id"]
+        chat_id = chat_info["chat_id"]
+        chat_title = chat_info.get("title", "TIndex")
+
+        # Parámetros opcionales
+        tipo = req.rel_url.query.get("tipo", "").lower()  # 'pelicula' o 'serie'
+        limite = int(req.rel_url.query.get("limite", 0)) or None
+
+        # Base URL para construir URLs absolutas
+        base_url = f"{req.scheme}://{req.host}"
+
+        lines = ["#EXTM3U", f"#PLAYLIST:{chat_title}"]
+
+        try:
+            async for m in self.client.iter_messages(entity=chat_id, limit=limite):
+                if not _has_media(m):
+                    continue
+
+                # Detectar categoría por thread
+                reply_to = getattr(m, "reply_to", None)
+                top_id = (
+                    getattr(reply_to, "reply_to_top_id", None)
+                    or getattr(reply_to, "reply_to_msg_id", None)
+                )
+
+                if top_id == MOVIES_THREAD_ID:
+                    media_type = "pelicula"
+                    group_title = "Películas"
+                elif top_id == SERIES_THREAD_ID:
+                    media_type = "serie"
+                    group_title = "Series"
+                else:
+                    media_type = "otro"
+                    group_title = chat_title
+
+                # Filtrar por tipo si se especificó
+                if tipo and tipo != media_type:
+                    continue
+
+                file_name = get_file_name(m) or f"video_{m.id}"
+                title = file_name.rsplit(".", 1)[0] if "." in file_name else file_name
+
+                stream_url = f"{base_url}/{alias_id}/{m.id}/download"
+                thumbnail_url = f"{base_url}/{alias_id}/{m.id}/thumbnail"
+
+                lines.append(
+                    f'#EXTINF:-1 tvg-id="{m.id}" tvg-logo="{thumbnail_url}" '
+                    f'group-title="{group_title}",{title}'
+                )
+                lines.append(stream_url)
+
+        except Exception:
+            log.debug("Error generando playlist M3U", exc_info=True)
+            raise web.HTTPInternalServerError(reason="Error generando la playlist")
+
+        m3u_content = "\n".join(lines) + "\n"
+
+        return web.Response(
+            text=m3u_content,
+            content_type="application/x-mpegurl",
+            headers={
+                "Content-Disposition": f'attachment; filename="{chat_title}.m3u"',
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+
     @aiohttp_jinja2.template('home.html')
     async def home(self, req):
         self._ensure_allowed_access(req)
